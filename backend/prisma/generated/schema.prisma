@@ -1,0 +1,153 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "./generated"
+}
+
+enum Roles {
+  ADMIN
+  USER
+  MANAGER
+}
+
+enum TransactionType {
+  BUY
+  SELL
+}
+
+enum Status {
+  SUCCESS
+  PENDING
+  FAILED
+}
+
+model User {
+  id         String   @id @default(cuid())
+  email      String   @unique
+  username   String   @unique
+  password   String
+  fullname   String
+  roles      Roles    @default(USER)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  manager_id String?
+
+  portfolio      Portfolio[]    @relation("portfolio")
+  refreshToken   RefreshToken[] @relation("refreshToken")
+  manager        Manager?       @relation("manager")
+  client_manager Manager?       @relation("managed_by", fields: [manager_id], references: [id])
+  to_admin       Admin?         @relation("admin")
+}
+
+model StockTable {
+  id            String          @id @default(cuid())
+  symbol        String          @unique
+  company       String
+  price         Decimal         @db.Decimal(10, 2)
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  investment    Investment[]    @relation("stock")
+  transaction   Transaction[]   @relation("stockTransaction")
+  trade_request Trade_request[] @relation("trade_request")
+}
+
+model Portfolio {
+  id            String          @id @default(cuid())
+  user          User            @relation("portfolio", fields: [user_id], references: [id])
+  user_id       String
+  investment    Investment[]    @relation("portfolio")
+  transaction   Transaction[]   @relation("transaction")
+  trade_request Trade_request[] @relation("trade_request")
+}
+
+model Investment {
+  id           String     @id @default(cuid())
+  portfolio    Portfolio  @relation("portfolio", fields: [portfolio_id], references: [id])
+  portfolio_id String
+  stock        StockTable @relation("stock", fields: [stock_id], references: [id])
+  stock_id     String
+  quantity     Int
+  avgPrice     Decimal    @db.Decimal(10, 2)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([portfolio_id, stock_id])
+}
+
+model Transaction {
+  id           String          @id @default(cuid())
+  portfolio    Portfolio       @relation("transaction", fields: [portfolio_id], references: [id])
+  portfolio_id String
+  stock        StockTable      @relation("stockTransaction", fields: [stock_id], references: [id])
+  stock_id     String
+  quantity     Int
+  price        Decimal         @db.Decimal(10, 2)
+  type         TransactionType
+  createdAt    DateTime        @default(now())
+}
+
+model Trade_request {
+  id           String          @id @default(cuid())
+  portfolio    Portfolio       @relation("trade_request", fields: [portfolio_id], references: [id])
+  portfolio_id String
+  stock        StockTable      @relation("trade_request", fields: [stock_id], references: [id])
+  stock_id     String
+  quantity     Int
+  status       Status          @default(PENDING)
+  type         TransactionType
+  approved     Manager?        @relation("approvedBy", fields: [approved_by], references: [id])
+  approved_by  String?
+  createdAt    DateTime        @default(now())
+}
+
+model RefreshToken {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  user      User     @relation("refreshToken", fields: [user_id], references: [id])
+  user_id   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Manager {
+  id         String @id @default(cuid())
+  user       User   @relation("manager", fields: [manager_id], references: [id])
+  manager_id String @unique
+
+  managed_by    User[] @relation("managed_by")
+  approval_code String @unique
+
+  client_id    String?
+  manager_slot Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  approvedBy   Trade_request[] @relation("approvedBy")
+
+  manager_approval_code Manager_approval_code? @relation("manager_approval_code")
+}
+
+model Admin {
+  id          String                  @id @default(cuid())
+  user        User                    @relation("admin", fields: [user_id], references: [id])
+  user_id     String                  @unique
+  super_admin Boolean                 @default(false)
+  createdAt   DateTime                @default(now())
+  updatedAt   DateTime                @updatedAt
+  admin_id    Manager_approval_code[] @relation("admin_id")
+}
+
+model Manager_approval_code {
+  id           String   @id @default(cuid())
+  code         String   @unique
+  manager      Manager  @relation("manager_approval_code", fields: [manager_id], references: [id])
+  manager_id   String   @unique
+  admin        Admin    @relation("admin_id", fields: [admin_id], references: [id])
+  admin_id     String   @unique
+  manager_slot Int      @default(0)
+  is_used      Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
