@@ -42,7 +42,7 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
 
 export const verifyTokenSecret = (token: string) => {
   try {
-    return jwt.verify(token, process.env.JWT_SECRET as string) as { id: string; roles: string };
+    return jwt.verify(token, process.env.JWT_SECRET_REFRESHTOKEN as string) as { id: string; roles: string };
   } catch (err) {
     return null;
   }

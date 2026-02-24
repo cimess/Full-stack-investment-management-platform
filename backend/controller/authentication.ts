@@ -56,8 +56,8 @@ export const loginUser=async(req:Request,res:Response,next:NextFunction)=>{
   const {email,password}=result.data;
 
   try{
-
-const user=await prisma.user.findUnique({
+await prisma.$transaction(async(tx)=>{
+const user=await tx.user.findUnique({
   where:{
     email:email
   }
@@ -75,7 +75,9 @@ return next(createError(401,"invalid credentials"));
 if(user.roles!==Roles.USER && user.roles!==Roles.ADMIN){
   return next(createError(401,"pls use the manager login page"));
 }
- if(token_refresh){await prisma.refreshToken.delete({
+const checked_token=verifyTokenSecret(token_refresh);
+if(checked_token){
+  await tx.refreshToken.delete({
     where:{
       user_id:user.id,
       token:token_refresh
@@ -103,7 +105,7 @@ if(!saveRefreshToken){
 const {id,roles,username,fullname}=user
 const email_user=user.email
 return res.status(200).json({success:true,message:"user logged in successfully",data:{accessToken,id,roles,fullname,email_user,username}})
-
+})
   }catch(err:any){
     logger.error(err);
     return next(createError(500,"Internal Server Error"));
@@ -119,7 +121,6 @@ export const refreshToken=async(req:Request,res:Response,next:NextFunction)=>{
   }
 
   const decodedToken=verifyTokenSecret(token);
-
   if(!decodedToken){
     return next(createError(403,"pls login again"));
   }
@@ -170,7 +171,7 @@ export const logoutUser=async(req:AuthRequest,res:Response,next:NextFunction)=>{
 
   if(!userId || !token){
     res.clearCookie("refreshToken");
-    return res.status(200).json({success:true,message:"user logged out successfully"});
+    return res.status(200).json({success:true,message:"logged out successfully"});
   }
 
 
@@ -204,26 +205,32 @@ export const loginManager=async(req:Request,res:Response,next:NextFunction)=>{
 
   try{
 
-const user=await prisma.manager.findUnique({
+const user=await prisma.user.findUnique({
   where:{
     email:email,
     roles:Roles.MANAGER
-
   }
 })
-
 if(!user){
   return next(createError(401,"invalid credentials"));
 }
+const manager_approval_code=await prisma.approved_Manager.findUnique({
+  where:{
+    approval_code:token_access,
+    manager_id:user.id
+  }
+})
+if(!manager_approval_code){
+  return next(createError(401,"invalid approval code"));
+}
+
 const isPasswordValid=await bcrypt.compare(password,user.password);
 
 
 if(!isPasswordValid){
 return next(createError(401,"invalid credentials"));
 }
-if(user.roles!==Roles.MANAGER){
-  return next(createError(401,"not authorized"));
-}
+
  if(token_refresh){await prisma.refreshToken.delete({
     where:{
       user_id:user.id,
@@ -251,7 +258,7 @@ if(!saveRefreshToken){
 }
 const {id,roles,username,fullname}=user
 const email_user=user.email
-return res.status(200).json({success:true,message:"user logged in successfully",data:{accessToken,id,roles,fullname,email_user,username}})
+return res.status(200).json({success:true,message:"logged in as Manager successfully",data:{accessToken,id,roles,fullname,email_user,username}})
 
   }catch(err:any){
     logger.error(err);

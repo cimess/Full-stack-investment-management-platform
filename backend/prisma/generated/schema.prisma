@@ -34,6 +34,7 @@ model User {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
   manager_id String?
+  restricted Boolean  @default(false)
 
   portfolio      Portfolio[]    @relation("portfolio")
   refreshToken   RefreshToken[] @relation("refreshToken")
@@ -126,28 +127,29 @@ model Manager {
   updatedAt    DateTime        @updatedAt
   approvedBy   Trade_request[] @relation("approvedBy")
 
-  manager_approval_code Manager_approval_code? @relation("manager_approval_code")
+  Approved_Manager Approved_Manager? @relation("Approved_Manager")
 }
 
 model Admin {
-  id          String                  @id @default(cuid())
-  user        User                    @relation("admin", fields: [user_id], references: [id])
-  user_id     String                  @unique
-  super_admin Boolean                 @default(false)
-  createdAt   DateTime                @default(now())
-  updatedAt   DateTime                @updatedAt
-  admin_id    Manager_approval_code[] @relation("admin_id")
+  id                 String             @id @default(cuid())
+  user               User               @relation("admin", fields: [user_id], references: [id])
+  user_id            String             @unique
+  super_admin_access String
+  super_admin        Boolean            @default(false)
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+  admin_id           Approved_Manager[] @relation("admin_id")
 }
 
-model Manager_approval_code {
-  id           String   @id @default(cuid())
-  code         String   @unique
-  manager      Manager  @relation("manager_approval_code", fields: [manager_id], references: [id])
-  manager_id   String   @unique
-  admin        Admin    @relation("admin_id", fields: [admin_id], references: [id])
-  admin_id     String   @unique
-  manager_slot Int      @default(0)
-  is_used      Boolean  @default(false)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+model Approved_Manager {
+  id            String   @id @default(cuid())
+  approval_code String   @unique
+  manager       Manager? @relation("Approved_Manager", fields: [manager_id], references: [id])
+  manager_id    String?  @unique
+  admin         Admin    @relation("admin_id", fields: [admin_id], references: [id])
+  admin_id      String
+  manager_slot  Int      @default(0)
+  is_used       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

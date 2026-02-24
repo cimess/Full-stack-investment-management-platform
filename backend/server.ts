@@ -27,7 +27,10 @@ app.use("/api",router);
 const errorHandler:ErrorRequestHandler=(err,req,res,next)=>{
   const statusCode=err.statusCode|| err.status || 500;
   const message=err.message||err.error||"Internal Server Error";
-  res.status(statusCode).json({success:false,statusCode,message});
+  if(statusCode===500){
+   return res.status(500).json({success:false,statusCode,message:'internal server error'});
+  }
+  return res.status(statusCode).json({success:false,statusCode,message});
 }
 
 app.use(errorHandler);

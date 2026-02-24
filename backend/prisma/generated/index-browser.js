@@ -129,7 +129,8 @@ exports.Prisma.UserScalarFieldEnum = {
   roles: 'roles',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  manager_id: 'manager_id'
+  manager_id: 'manager_id',
+  restricted: 'restricted'
 };
 
 exports.Prisma.StockTableScalarFieldEnum = {
@@ -198,14 +199,15 @@ exports.Prisma.ManagerScalarFieldEnum = {
 exports.Prisma.AdminScalarFieldEnum = {
   id: 'id',
   user_id: 'user_id',
+  super_admin_access: 'super_admin_access',
   super_admin: 'super_admin',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.Manager_approval_codeScalarFieldEnum = {
+exports.Prisma.Approved_ManagerScalarFieldEnum = {
   id: 'id',
-  code: 'code',
+  approval_code: 'approval_code',
   manager_id: 'manager_id',
   admin_id: 'admin_id',
   manager_slot: 'manager_slot',
@@ -255,7 +257,7 @@ exports.Prisma.ModelName = {
   RefreshToken: 'RefreshToken',
   Manager: 'Manager',
   Admin: 'Admin',
-  Manager_approval_code: 'Manager_approval_code'
+  Approved_Manager: 'Approved_Manager'
 };
 
 /**
