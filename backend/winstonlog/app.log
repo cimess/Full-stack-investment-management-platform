@@ -2078,3 +2078,317 @@ Unique constraint failed on the fields: (`email`) {
   "clientVersion": "7.4.0",
   "name": "PrismaClientKnownRequestError"
 }
+2026-03-01 11:01:06 [error]: Error sending email: Missing credentials for "PLAIN" {
+  "code": "EAUTH",
+  "command": "API",
+  "stack": "Error: Missing credentials for \"PLAIN\"\n    at SMTPConnection._formatError (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:912:19)\n    at SMTPConnection.login (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:549:38)\n    at C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:278:32\n    at SMTPConnection.<anonymous> (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:227:17)\n    at Object.onceWrapper (node:events:638:28)\n    at SMTPConnection.emit (node:events:524:28)\n    at SMTPConnection._actionEHLO (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1503:14)\n    at SMTPConnection._processResponse (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1098:20)\n    at SMTPConnection._onData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:872:14)\n    at SMTPConnection._onSocketData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:196:44)"
+}
+2026-03-01 11:01:06 [info]: user created {
+  "id": "cmm7kxzs60000yoj2to7dun46",
+  "email": "cimessthemanofvalor@gmail.com",
+  "username": "cimess",
+  "password": "$2b$10$/3GrfekaKeOHLaHmhEKMEu2VYbc3s.fAXmgP0CiJC54jdNtFk2.qS",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-01T10:01:03.077Z",
+  "updatedAt": "2026-03-01T10:01:03.077Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "405912",
+  "verificationTokenExpires": "2026-03-01T10:16:02.789Z"
+}
+2026-03-01 11:10:09 [error]: Error sending email: Missing credentials for "PLAIN" {
+  "code": "EAUTH",
+  "command": "API",
+  "stack": "Error: Missing credentials for \"PLAIN\"\n    at SMTPConnection._formatError (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:912:19)\n    at SMTPConnection.login (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:549:38)\n    at C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:278:32\n    at SMTPConnection.<anonymous> (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:227:17)\n    at Object.onceWrapper (node:events:638:28)\n    at SMTPConnection.emit (node:events:524:28)\n    at SMTPConnection._actionEHLO (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1503:14)\n    at SMTPConnection._processResponse (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1098:20)\n    at SMTPConnection._onData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:872:14)\n    at SMTPConnection._onSocketData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:196:44)"
+}
+2026-03-01 11:19:39 [error]: Error sending email: Missing credentials for "PLAIN" {
+  "code": "EAUTH",
+  "command": "API",
+  "stack": "Error: Missing credentials for \"PLAIN\"\n    at SMTPConnection._formatError (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:912:19)\n    at SMTPConnection.login (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:549:38)\n    at C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:278:32\n    at SMTPConnection.<anonymous> (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:227:17)\n    at Object.onceWrapper (node:events:638:28)\n    at SMTPConnection.emit (node:events:524:28)\n    at SMTPConnection._actionEHLO (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1503:14)\n    at SMTPConnection._processResponse (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1098:20)\n    at SMTPConnection._onData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:872:14)\n    at SMTPConnection._onSocketData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:196:44)"
+}
+2026-03-01 11:21:31 [error]: Error sending email: Missing credentials for "PLAIN" {
+  "code": "EAUTH",
+  "command": "API",
+  "stack": "Error: Missing credentials for \"PLAIN\"\n    at SMTPConnection._formatError (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:912:19)\n    at SMTPConnection.login (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:549:38)\n    at C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-transport\\index.js:278:32\n    at SMTPConnection.<anonymous> (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:227:17)\n    at Object.onceWrapper (node:events:638:28)\n    at SMTPConnection.emit (node:events:524:28)\n    at SMTPConnection._actionEHLO (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1503:14)\n    at SMTPConnection._processResponse (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1098:20)\n    at SMTPConnection._onData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:872:14)\n    at SMTPConnection._onSocketData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:196:44)"
+}
+2026-03-01 11:28:15 [info]: Email sent: <f946d26b-1831-29c0-cfb2-8dcb710aba47@smtp-brevo.com>
+2026-03-01 11:28:16 [info]: user created {
+  "id": "cmm7lwzsj0000lgj2v632peip",
+  "email": "cimessthemanofvalor@gmail.com",
+  "username": "cimess",
+  "password": "$2b$10$Pn8uzUHP0te.B5UWIVs8veDyYuCSPd6dkIunkWdHwXRHFQdfZs2N2",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-01T10:28:16.050Z",
+  "updatedAt": "2026-03-01T10:28:16.050Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "657652",
+  "verificationTokenExpires": "2026-03-01T10:43:11.574Z"
+}
+2026-03-01 12:04:38 [error]: Error sending email: Mail command failed: 501 5.5.2 Was expecting MAIL arg syntax of FROM:<address> {
+  "code": "EENVELOPE",
+  "response": "501 5.5.2 Was expecting MAIL arg syntax of FROM:<address>",
+  "responseCode": 501,
+  "command": "MAIL FROM",
+  "stack": "Error: Mail command failed: 501 5.5.2 Was expecting MAIL arg syntax of FROM:<address>\n    at SMTPConnection._formatError (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:912:19)\n    at SMTPConnection._actionMAIL (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1752:34)\n    at SMTPConnection.<anonymous> (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1192:18)\n    at SMTPConnection._processResponse (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:1098:20)\n    at SMTPConnection._onData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:872:14)\n    at SMTPConnection._onSocketData (C:\\Users\\USER\\Dev\\myPersonalPortfolio\\novainvest\\backend\\node_modules\\nodemailer\\lib\\smtp-connection\\index.js:196:44)\n    at TLSSocket.emit (node:events:524:28)\n    at addChunk (node:internal/streams/readable:561:12)\n    at readableAddChunkPushByteMode (node:internal/streams/readable:512:3)\n    at Readable.push (node:internal/streams/readable:392:5)"
+}
+2026-03-01 12:05:33 [info]: Email sent: <6ddd738d-946c-1a2f-425d-5e9d679bdf6c@gmail.com>
+2026-03-01 12:05:33 [info]: user created {
+  "id": "cmm7n8y8q0000uwj27616qlva",
+  "email": "cimessthemanofvalor@gmail.com",
+  "username": "cimess",
+  "password": "$2b$10$mWAZxBtI8zx7L6w.cN1Ks.loGiora31Vt4uAGtkLeMxxYMK.vf7Dm",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-01T11:05:33.529Z",
+  "updatedAt": "2026-03-01T11:05:33.529Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "981928",
+  "verificationTokenExpires": "2026-03-01T11:20:28.847Z"
+}
+2026-03-01 12:26:37 [info]: Email sent: <08c0eef0-6f6e-495d-fa8a-aca36d27c9db@gmail.com>
+2026-03-01 12:26:37 [info]: user created {
+  "id": "cmm7o01n90001uwj25f3zyho2",
+  "email": "cimessthemanofvalor@gmail.com",
+  "username": "cimess",
+  "password": "$2b$10$Eer4lfS7P7J96vOiCAChcuVcklXXCIRQQ2MCCRSMgZnfaroTa9IlK",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-01T11:26:37.653Z",
+  "updatedAt": "2026-03-01T11:26:37.653Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "290002",
+  "verificationTokenExpires": "2026-03-01T11:41:33.473Z"
+}
+2026-03-01 12:27:43 [info]: User email verified: cimessthemanofvalor@gmail.com
+2026-03-03 07:43:05 [error]: portfolio not found
+2026-03-03 07:43:06 [error]: portfolio not found
+2026-03-03 07:43:08 [error]: portfolio not found
+2026-03-03 07:43:12 [error]: portfolio not found
+2026-03-03 07:44:16 [error]: portfolio not found
+2026-03-03 07:44:17 [error]: portfolio not found
+2026-03-03 07:44:19 [error]: portfolio not found
+2026-03-03 07:44:23 [error]: portfolio not found
+2026-03-03 07:48:03 [error]: portfolio not found
+2026-03-03 07:48:04 [error]: portfolio not found
+2026-03-03 07:48:06 [error]: portfolio not found
+2026-03-03 07:48:10 [error]: portfolio not found
+2026-03-03 07:49:50 [error]: portfolio not found
+2026-03-03 07:49:51 [error]: portfolio not found
+2026-03-03 07:49:53 [error]: portfolio not found
+2026-03-03 07:49:57 [error]: portfolio not found
+2026-03-03 07:53:40 [error]: portfolio not found
+2026-03-03 07:53:41 [error]: portfolio not found
+2026-03-03 07:53:43 [error]: portfolio not found
+2026-03-03 07:53:47 [error]: portfolio not found
+2026-03-03 08:38:33 [error]: portfolio not found
+2026-03-03 08:38:34 [error]: portfolio not found
+2026-03-03 08:38:36 [error]: portfolio not found
+2026-03-03 08:38:40 [error]: portfolio not found
+2026-03-03 13:04:30 [error]: portfolio not found
+2026-03-03 13:04:31 [error]: portfolio not found
+2026-03-03 13:04:33 [error]: portfolio not found
+2026-03-03 13:04:36 [error]: portfolio not found
+2026-03-03 13:04:37 [error]: portfolio not found
+2026-03-03 13:04:39 [error]: portfolio not found
+2026-03-03 13:04:43 [error]: portfolio not found
+2026-03-03 14:03:08 [error]: portfolio not found
+2026-03-03 14:33:02 [error]: portfolio not found
+2026-03-03 14:33:04 [error]: portfolio not found
+2026-03-03 14:33:06 [error]: portfolio not found
+2026-03-03 14:33:08 [error]: portfolio not found
+2026-03-03 14:33:12 [error]: portfolio not found
+2026-03-03 16:30:04 [info]: Email sent: <c0c1995a-40d2-f9b1-0302-26717e9d4dac@gmail.com>
+2026-03-03 16:30:04 [info]: user created {
+  "id": "cmmarktrc0003wwj2m9qcj0ch",
+  "email": "cimessdev@gmail.com",
+  "username": "user",
+  "password": "$2b$10$bVjfSya828OBky9QwWNX8OdG2qBAZRkfD9crvGorfzV2uSGP0cU7.",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-03T15:30:04.584Z",
+  "updatedAt": "2026-03-03T15:30:04.584Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "646836",
+  "verificationTokenExpires": "2026-03-03T15:45:03.039Z"
+}
+2026-03-03 16:30:39 [info]: User email verified: cimessdev@gmail.com
+2026-03-03 16:31:13 [error]: undefined {
+  "code": "P2025",
+  "meta": {
+    "modelName": "RefreshToken",
+    "operation": "a delete"
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 16:31:15 [error]: undefined {
+  "code": "P2025",
+  "meta": {
+    "modelName": "RefreshToken",
+    "operation": "a delete"
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 16:40:39 [error]: portfolio not found
+2026-03-03 16:40:40 [error]: portfolio not found
+2026-03-03 16:40:42 [error]: portfolio not found
+2026-03-03 16:40:46 [error]: portfolio not found
+2026-03-03 16:40:47 [error]: portfolio not found
+2026-03-03 16:40:48 [error]: portfolio not found
+2026-03-03 16:40:50 [error]: portfolio not found
+2026-03-03 16:40:54 [error]: portfolio not found
+2026-03-03 16:58:09 [error]: portfolio not found
+2026-03-03 17:30:57 [error]: portfolio not found
+2026-03-03 17:30:59 [error]: portfolio not found
+2026-03-03 17:31:38 [info]: Email sent: <56c834b0-899d-5a53-618a-ca862c1bd4cb@gmail.com>
+2026-03-03 17:31:38 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "User",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"User_email_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "email"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 17:32:00 [info]: Email sent: <bafefd86-58cf-b6b8-cd61-39a7a1de7ee5@gmail.com>
+2026-03-03 17:32:00 [info]: user created {
+  "id": "cmmatsgqt0002g0j2au9pzqv4",
+  "email": "cmhousing.com.ng@gmail.com",
+  "username": "passion",
+  "password": "$2b$10$rrFjX4xNAVH4mBqmCrl23OcA4zbY9jLoSjWgW.PBVtktqWUwGgcYW",
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-03T16:32:00.197Z",
+  "updatedAt": "2026-03-03T16:32:00.197Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": false,
+  "verificationToken": "949134",
+  "verificationTokenExpires": "2026-03-03T16:46:48.781Z"
+}
+2026-03-03 17:32:10 [info]: Email sent: <3424d214-3b3e-e315-db87-bf470228b1f7@gmail.com>
+2026-03-03 17:32:10 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "User",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"User_email_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "email"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 17:36:36 [info]: User email verified: cmhousing.com.ng@gmail.com
+2026-03-03 18:06:16 [error]: undefined {
+  "code": "P2003",
+  "meta": {
+    "modelName": "Approved_Manager",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23503",
+        "originalMessage": "insert or update on table \"Approved_Manager\" violates foreign key constraint \"Approved_Manager_admin_id_fkey\"",
+        "kind": "ForeignKeyConstraintViolation",
+        "constraint": {
+          "index": "Approved_Manager_admin_id_fkey"
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 18:11:22 [error]: undefined {
+  "code": "P2003",
+  "meta": {
+    "modelName": "Approved_Manager",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23503",
+        "originalMessage": "insert or update on table \"Approved_Manager\" violates foreign key constraint \"Approved_Manager_admin_id_fkey\"",
+        "kind": "ForeignKeyConstraintViolation",
+        "constraint": {
+          "index": "Approved_Manager_admin_id_fkey"
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-03 18:11:46 [error]: undefined {
+  "code": "P2003",
+  "meta": {
+    "modelName": "Approved_Manager",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23503",
+        "originalMessage": "insert or update on table \"Approved_Manager\" violates foreign key constraint \"Approved_Manager_admin_id_fkey\"",
+        "kind": "ForeignKeyConstraintViolation",
+        "constraint": {
+          "index": "Approved_Manager_admin_id_fkey"
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-05 07:50:00 [error]: undefined {
+  "code": "P2003",
+  "meta": {
+    "modelName": "Approved_Manager",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23503",
+        "originalMessage": "insert or update on table \"Approved_Manager\" violates foreign key constraint \"Approved_Manager_admin_id_fkey\"",
+        "kind": "ForeignKeyConstraintViolation",
+        "constraint": {
+          "index": "Approved_Manager_admin_id_fkey"
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.0",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-05 08:54:19 [error]: portfolio not found
+2026-03-05 09:38:42 [error]: portfolio not found
+2026-03-05 10:02:55 [error]: portfolio not found

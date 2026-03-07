@@ -1,0 +1,134 @@
+import React, { useState } from 'react';
+import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle } from 'lucide-react';
+
+interface Notification {
+  id: number;
+  type: 'success' | 'info' | 'warning';
+  message: string;
+  time: string;
+  read: boolean;
+}
+
+const initialNotifications: Notification[] = [
+  { id: 1, type: 'success', message: 'AAPL buy order executed — 10 shares @ $182.50', time: '2m ago', read: false },
+  { id: 2, type: 'info', message: 'Your manager approved your trade request', time: '15m ago', read: false },
+  { id: 3, type: 'warning', message: 'Portfolio down 2.1% — market volatility detected', time: '1h ago', read: true },
+  { id: 4, type: 'success', message: 'TSLA position gain +8.4% today', time: '3h ago', read: true },
+];
+
+const notifIcons = {
+  success: <CheckCircle className="w-4 h-4 text-emerald-400" />,
+  info: <TrendingUp className="w-4 h-4 text-blue-400" />,
+  warning: <AlertCircle className="w-4 h-4 text-amber-400" />,
+};
+
+interface TopBarProps {
+  pageTitle: string;
+  userName?: string;
+  userAvatar?: string;
+}
+
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User' }) => {
+  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
+  const [showNotifs, setShowNotifs] = useState(false);
+  const [showProfile, setShowProfile] = useState(false);
+  const unread = notifications.filter(n => !n.read).length;
+
+  const handleReadMsg = (id: number) => {
+    setNotifications(prev =>
+      prev.map(n => n.id === id ? { ...n, read: true } : n)
+    );
+  };
+
+  const markAllRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  return (
+    <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-sm sticky top-0 z-20">
+      {/* Page Title */}
+      <div>
+        <h1 className="text-xl font-bold text-white">{pageTitle}</h1>
+        <p className="text-slate-500 text-xs mt-0.5">
+          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+        </p>
+      </div>
+
+      {/* Right Controls */}
+      <div className="flex items-center gap-3">
+        {/* Search */}
+        <div className="relative hidden md:block">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <input
+            type="text"
+            placeholder="Search..."
+            className="bg-white/5 border border-white/8 text-slate-300 placeholder-slate-500 text-sm pl-9 pr-4 py-2 rounded-xl w-52 focus:outline-none focus:border-emerald-500/50 focus:bg-white/8 transition-all"
+          />
+        </div>
+
+        {/* Notifications */}
+        <div className="relative">
+          <button
+            onClick={() => { setShowNotifs(!showNotifs); setShowProfile(false); }}
+            className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+          >
+            <Bell className="w-5 h-5" />
+            {unread > 0 && (
+              <span className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
+                {unread}
+              </span>
+            )}
+          </button>
+
+          {showNotifs && (
+            <div className="absolute right-0 top-full mt-2 w-80 glass-panel rounded-2xl shadow-2xl border border-white/8 overflow-hidden z-50">
+              <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
+                <span className="text-white font-semibold text-sm">Notifications</span>
+                <span onClick={markAllRead} className="text-emerald-400 text-xs font-medium cursor-pointer hover:text-emerald-300">Mark all read</span>
+              </div>
+              <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
+                {notifications.map(n => (
+                  <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
+                  onClick={() => handleReadMsg(n.id)}
+                  >
+                    <div className="flex-shrink-0 mt-0.5">{notifIcons[n.type]}</div>
+                    <div className="flex-1 min-w-0">
+                      <p className={`text-xs leading-relaxed ${!n.read ? 'text-slate-200' : 'text-slate-400'}`}>{n.message}</p>
+                      <p className="text-slate-600 text-xs mt-1">{n.time}</p>
+                    </div>
+                    {!n.read && <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Profile */}
+        <div className="relative">
+          <button
+            onClick={() => { setShowProfile(!showProfile); setShowNotifs(false); }}
+            className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-white/5 transition-colors group"
+          >
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold">
+              {userName.charAt(0).toUpperCase()}
+            </div>
+            <span className="text-slate-300 text-sm font-medium hidden md:block">{userName}</span>
+            <ChevronDown className={`w-4 h-4 text-slate-500 hidden md:block transition-transform ${showProfile ? 'rotate-180' : ''}`} />
+          </button>
+
+          {showProfile && (
+            <div className="absolute right-0 top-full mt-2 w-44 glass-panel rounded-xl shadow-2xl border border-white/8 overflow-hidden z-50">
+              <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Profile</button>
+              <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Settings</button>
+              <div className="border-t border-white/5" />
+              <button className="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-red-500/10 transition-colors">Logout</button>
+            </div>
+          )}
+        </div>
+      </div>
+    </header>
+  );
+};
+
+export default TopBar;

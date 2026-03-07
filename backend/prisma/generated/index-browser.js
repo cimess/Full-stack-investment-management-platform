@@ -130,7 +130,10 @@ exports.Prisma.UserScalarFieldEnum = {
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
   manager_id: 'manager_id',
-  restricted: 'restricted'
+  restricted: 'restricted',
+  isVerified: 'isVerified',
+  verificationToken: 'verificationToken',
+  verificationTokenExpires: 'verificationTokenExpires'
 };
 
 exports.Prisma.StockTableScalarFieldEnum = {
@@ -138,6 +141,16 @@ exports.Prisma.StockTableScalarFieldEnum = {
   symbol: 'symbol',
   company: 'company',
   price: 'price',
+  changePercent: 'changePercent',
+  marketCap: 'marketCap',
+  volume: 'volume',
+  peRatio: 'peRatio',
+  dividendYield: 'dividendYield',
+  fiftyTwoWeekLow: 'fiftyTwoWeekLow',
+  fiftyTwoWeekHigh: 'fiftyTwoWeekHigh',
+  currency: 'currency',
+  exchange: 'exchange',
+  lastUpdated: 'lastUpdated',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -175,6 +188,7 @@ exports.Prisma.Trade_requestScalarFieldEnum = {
   status: 'status',
   type: 'type',
   approved_by: 'approved_by',
+  response: 'response',
   createdAt: 'createdAt'
 };
 
@@ -208,9 +222,19 @@ exports.Prisma.AdminScalarFieldEnum = {
 exports.Prisma.Approved_ManagerScalarFieldEnum = {
   id: 'id',
   approval_code: 'approval_code',
-  manager_id: 'manager_id',
+  user_id: 'user_id',
   admin_id: 'admin_id',
   manager_slot: 'manager_slot',
+  is_used: 'is_used',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.Approved_AdminScalarFieldEnum = {
+  id: 'id',
+  approval_code: 'approval_code',
+  admin_id: 'admin_id',
+  superAdmin_id: 'superAdmin_id',
   is_used: 'is_used',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -257,7 +281,8 @@ exports.Prisma.ModelName = {
   RefreshToken: 'RefreshToken',
   Manager: 'Manager',
   Admin: 'Admin',
-  Approved_Manager: 'Approved_Manager'
+  Approved_Manager: 'Approved_Manager',
+  Approved_Admin: 'Approved_Admin'
 };
 
 /**

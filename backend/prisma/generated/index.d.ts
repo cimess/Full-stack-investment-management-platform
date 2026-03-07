@@ -63,6 +63,11 @@ export type Admin = $Result.DefaultSelection<Prisma.$AdminPayload>
  * 
  */
 export type Approved_Manager = $Result.DefaultSelection<Prisma.$Approved_ManagerPayload>
+/**
+ * Model Approved_Admin
+ * 
+ */
+export type Approved_Admin = $Result.DefaultSelection<Prisma.$Approved_AdminPayload>
 
 /**
  * Enums
@@ -323,6 +328,16 @@ export class PrismaClient<
     * ```
     */
   get approved_Manager(): Prisma.Approved_ManagerDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.approved_Admin`: Exposes CRUD operations for the **Approved_Admin** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Approved_Admins
+    * const approved_Admins = await prisma.approved_Admin.findMany()
+    * ```
+    */
+  get approved_Admin(): Prisma.Approved_AdminDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -766,7 +781,8 @@ export namespace Prisma {
     RefreshToken: 'RefreshToken',
     Manager: 'Manager',
     Admin: 'Admin',
-    Approved_Manager: 'Approved_Manager'
+    Approved_Manager: 'Approved_Manager',
+    Approved_Admin: 'Approved_Admin'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -782,7 +798,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "stockTable" | "portfolio" | "investment" | "transaction" | "trade_request" | "refreshToken" | "manager" | "admin" | "approved_Manager"
+      modelProps: "user" | "stockTable" | "portfolio" | "investment" | "transaction" | "trade_request" | "refreshToken" | "manager" | "admin" | "approved_Manager" | "approved_Admin"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -1526,6 +1542,80 @@ export namespace Prisma {
           }
         }
       }
+      Approved_Admin: {
+        payload: Prisma.$Approved_AdminPayload<ExtArgs>
+        fields: Prisma.Approved_AdminFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.Approved_AdminFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.Approved_AdminFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          findFirst: {
+            args: Prisma.Approved_AdminFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.Approved_AdminFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          findMany: {
+            args: Prisma.Approved_AdminFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>[]
+          }
+          create: {
+            args: Prisma.Approved_AdminCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          createMany: {
+            args: Prisma.Approved_AdminCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.Approved_AdminCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>[]
+          }
+          delete: {
+            args: Prisma.Approved_AdminDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          update: {
+            args: Prisma.Approved_AdminUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          deleteMany: {
+            args: Prisma.Approved_AdminDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.Approved_AdminUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.Approved_AdminUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>[]
+          }
+          upsert: {
+            args: Prisma.Approved_AdminUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$Approved_AdminPayload>
+          }
+          aggregate: {
+            args: Prisma.Approved_AdminAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateApproved_Admin>
+          }
+          groupBy: {
+            args: Prisma.Approved_AdminGroupByArgs<ExtArgs>
+            result: $Utils.Optional<Approved_AdminGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.Approved_AdminCountArgs<ExtArgs>
+            result: $Utils.Optional<Approved_AdminCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -1644,6 +1734,7 @@ export namespace Prisma {
     manager?: ManagerOmit
     admin?: AdminOmit
     approved_Manager?: Approved_ManagerOmit
+    approved_Admin?: Approved_AdminOmit
   }
 
   /* Types for Logging */
@@ -1903,10 +1994,12 @@ export namespace Prisma {
 
   export type AdminCountOutputType = {
     admin_id: number
+    super_admin_id: number
   }
 
   export type AdminCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     admin_id?: boolean | AdminCountOutputTypeCountAdmin_idArgs
+    super_admin_id?: boolean | AdminCountOutputTypeCountSuper_admin_idArgs
   }
 
   // Custom InputTypes
@@ -1925,6 +2018,13 @@ export namespace Prisma {
    */
   export type AdminCountOutputTypeCountAdmin_idArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: Approved_ManagerWhereInput
+  }
+
+  /**
+   * AdminCountOutputType without action
+   */
+  export type AdminCountOutputTypeCountSuper_admin_idArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: Approved_AdminWhereInput
   }
 
 
@@ -1953,6 +2053,9 @@ export namespace Prisma {
     updatedAt: Date | null
     manager_id: string | null
     restricted: boolean | null
+    isVerified: boolean | null
+    verificationToken: string | null
+    verificationTokenExpires: Date | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1966,6 +2069,9 @@ export namespace Prisma {
     updatedAt: Date | null
     manager_id: string | null
     restricted: boolean | null
+    isVerified: boolean | null
+    verificationToken: string | null
+    verificationTokenExpires: Date | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1979,6 +2085,9 @@ export namespace Prisma {
     updatedAt: number
     manager_id: number
     restricted: number
+    isVerified: number
+    verificationToken: number
+    verificationTokenExpires: number
     _all: number
   }
 
@@ -1994,6 +2103,9 @@ export namespace Prisma {
     updatedAt?: true
     manager_id?: true
     restricted?: true
+    isVerified?: true
+    verificationToken?: true
+    verificationTokenExpires?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -2007,6 +2119,9 @@ export namespace Prisma {
     updatedAt?: true
     manager_id?: true
     restricted?: true
+    isVerified?: true
+    verificationToken?: true
+    verificationTokenExpires?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -2020,6 +2135,9 @@ export namespace Prisma {
     updatedAt?: true
     manager_id?: true
     restricted?: true
+    isVerified?: true
+    verificationToken?: true
+    verificationTokenExpires?: true
     _all?: true
   }
 
@@ -2106,6 +2224,9 @@ export namespace Prisma {
     updatedAt: Date
     manager_id: string | null
     restricted: boolean
+    isVerified: boolean
+    verificationToken: string | null
+    verificationTokenExpires: Date | null
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -2136,11 +2257,16 @@ export namespace Prisma {
     updatedAt?: boolean
     manager_id?: boolean
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verificationTokenExpires?: boolean
     portfolio?: boolean | User$portfolioArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
     manager?: boolean | User$managerArgs<ExtArgs>
     client_manager?: boolean | User$client_managerArgs<ExtArgs>
     to_admin?: boolean | User$to_adminArgs<ExtArgs>
+    add_admin?: boolean | User$add_adminArgs<ExtArgs>
+    Approved_Manager?: boolean | User$Approved_ManagerArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2155,6 +2281,9 @@ export namespace Prisma {
     updatedAt?: boolean
     manager_id?: boolean
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verificationTokenExpires?: boolean
     client_manager?: boolean | User$client_managerArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2169,6 +2298,9 @@ export namespace Prisma {
     updatedAt?: boolean
     manager_id?: boolean
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verificationTokenExpires?: boolean
     client_manager?: boolean | User$client_managerArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -2183,15 +2315,20 @@ export namespace Prisma {
     updatedAt?: boolean
     manager_id?: boolean
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: boolean
+    verificationTokenExpires?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "fullname" | "roles" | "createdAt" | "updatedAt" | "manager_id" | "restricted", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "username" | "password" | "fullname" | "roles" | "createdAt" | "updatedAt" | "manager_id" | "restricted" | "isVerified" | "verificationToken" | "verificationTokenExpires", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     portfolio?: boolean | User$portfolioArgs<ExtArgs>
     refreshToken?: boolean | User$refreshTokenArgs<ExtArgs>
     manager?: boolean | User$managerArgs<ExtArgs>
     client_manager?: boolean | User$client_managerArgs<ExtArgs>
     to_admin?: boolean | User$to_adminArgs<ExtArgs>
+    add_admin?: boolean | User$add_adminArgs<ExtArgs>
+    Approved_Manager?: boolean | User$Approved_ManagerArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2209,6 +2346,8 @@ export namespace Prisma {
       manager: Prisma.$ManagerPayload<ExtArgs> | null
       client_manager: Prisma.$ManagerPayload<ExtArgs> | null
       to_admin: Prisma.$AdminPayload<ExtArgs> | null
+      add_admin: Prisma.$Approved_AdminPayload<ExtArgs> | null
+      Approved_Manager: Prisma.$Approved_ManagerPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -2221,6 +2360,9 @@ export namespace Prisma {
       updatedAt: Date
       manager_id: string | null
       restricted: boolean
+      isVerified: boolean
+      verificationToken: string | null
+      verificationTokenExpires: Date | null
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2620,6 +2762,8 @@ export namespace Prisma {
     manager<T extends User$managerArgs<ExtArgs> = {}>(args?: Subset<T, User$managerArgs<ExtArgs>>): Prisma__ManagerClient<$Result.GetResult<Prisma.$ManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     client_manager<T extends User$client_managerArgs<ExtArgs> = {}>(args?: Subset<T, User$client_managerArgs<ExtArgs>>): Prisma__ManagerClient<$Result.GetResult<Prisma.$ManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     to_admin<T extends User$to_adminArgs<ExtArgs> = {}>(args?: Subset<T, User$to_adminArgs<ExtArgs>>): Prisma__AdminClient<$Result.GetResult<Prisma.$AdminPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    add_admin<T extends User$add_adminArgs<ExtArgs> = {}>(args?: Subset<T, User$add_adminArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    Approved_Manager<T extends User$Approved_ManagerArgs<ExtArgs> = {}>(args?: Subset<T, User$Approved_ManagerArgs<ExtArgs>>): Prisma__Approved_ManagerClient<$Result.GetResult<Prisma.$Approved_ManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2659,6 +2803,9 @@ export namespace Prisma {
     readonly updatedAt: FieldRef<"User", 'DateTime'>
     readonly manager_id: FieldRef<"User", 'String'>
     readonly restricted: FieldRef<"User", 'Boolean'>
+    readonly isVerified: FieldRef<"User", 'Boolean'>
+    readonly verificationToken: FieldRef<"User", 'String'>
+    readonly verificationTokenExpires: FieldRef<"User", 'DateTime'>
   }
     
 
@@ -3160,6 +3307,44 @@ export namespace Prisma {
   }
 
   /**
+   * User.add_admin
+   */
+  export type User$add_adminArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    where?: Approved_AdminWhereInput
+  }
+
+  /**
+   * User.Approved_Manager
+   */
+  export type User$Approved_ManagerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Manager
+     */
+    select?: Approved_ManagerSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Manager
+     */
+    omit?: Approved_ManagerOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_ManagerInclude<ExtArgs> | null
+    where?: Approved_ManagerWhereInput
+  }
+
+  /**
    * User without action
    */
   export type UserDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3192,10 +3377,22 @@ export namespace Prisma {
 
   export type StockTableAvgAggregateOutputType = {
     price: Decimal | null
+    changePercent: Decimal | null
+    marketCap: number | null
+    peRatio: Decimal | null
+    dividendYield: Decimal | null
+    fiftyTwoWeekLow: Decimal | null
+    fiftyTwoWeekHigh: Decimal | null
   }
 
   export type StockTableSumAggregateOutputType = {
     price: Decimal | null
+    changePercent: Decimal | null
+    marketCap: bigint | null
+    peRatio: Decimal | null
+    dividendYield: Decimal | null
+    fiftyTwoWeekLow: Decimal | null
+    fiftyTwoWeekHigh: Decimal | null
   }
 
   export type StockTableMinAggregateOutputType = {
@@ -3203,6 +3400,16 @@ export namespace Prisma {
     symbol: string | null
     company: string | null
     price: Decimal | null
+    changePercent: Decimal | null
+    marketCap: bigint | null
+    volume: string | null
+    peRatio: Decimal | null
+    dividendYield: Decimal | null
+    fiftyTwoWeekLow: Decimal | null
+    fiftyTwoWeekHigh: Decimal | null
+    currency: string | null
+    exchange: string | null
+    lastUpdated: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3212,6 +3419,16 @@ export namespace Prisma {
     symbol: string | null
     company: string | null
     price: Decimal | null
+    changePercent: Decimal | null
+    marketCap: bigint | null
+    volume: string | null
+    peRatio: Decimal | null
+    dividendYield: Decimal | null
+    fiftyTwoWeekLow: Decimal | null
+    fiftyTwoWeekHigh: Decimal | null
+    currency: string | null
+    exchange: string | null
+    lastUpdated: Date | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -3221,6 +3438,16 @@ export namespace Prisma {
     symbol: number
     company: number
     price: number
+    changePercent: number
+    marketCap: number
+    volume: number
+    peRatio: number
+    dividendYield: number
+    fiftyTwoWeekLow: number
+    fiftyTwoWeekHigh: number
+    currency: number
+    exchange: number
+    lastUpdated: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -3229,10 +3456,22 @@ export namespace Prisma {
 
   export type StockTableAvgAggregateInputType = {
     price?: true
+    changePercent?: true
+    marketCap?: true
+    peRatio?: true
+    dividendYield?: true
+    fiftyTwoWeekLow?: true
+    fiftyTwoWeekHigh?: true
   }
 
   export type StockTableSumAggregateInputType = {
     price?: true
+    changePercent?: true
+    marketCap?: true
+    peRatio?: true
+    dividendYield?: true
+    fiftyTwoWeekLow?: true
+    fiftyTwoWeekHigh?: true
   }
 
   export type StockTableMinAggregateInputType = {
@@ -3240,6 +3479,16 @@ export namespace Prisma {
     symbol?: true
     company?: true
     price?: true
+    changePercent?: true
+    marketCap?: true
+    volume?: true
+    peRatio?: true
+    dividendYield?: true
+    fiftyTwoWeekLow?: true
+    fiftyTwoWeekHigh?: true
+    currency?: true
+    exchange?: true
+    lastUpdated?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3249,6 +3498,16 @@ export namespace Prisma {
     symbol?: true
     company?: true
     price?: true
+    changePercent?: true
+    marketCap?: true
+    volume?: true
+    peRatio?: true
+    dividendYield?: true
+    fiftyTwoWeekLow?: true
+    fiftyTwoWeekHigh?: true
+    currency?: true
+    exchange?: true
+    lastUpdated?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -3258,6 +3517,16 @@ export namespace Prisma {
     symbol?: true
     company?: true
     price?: true
+    changePercent?: true
+    marketCap?: true
+    volume?: true
+    peRatio?: true
+    dividendYield?: true
+    fiftyTwoWeekLow?: true
+    fiftyTwoWeekHigh?: true
+    currency?: true
+    exchange?: true
+    lastUpdated?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -3354,6 +3623,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal
+    changePercent: Decimal | null
+    marketCap: bigint | null
+    volume: string | null
+    peRatio: Decimal | null
+    dividendYield: Decimal | null
+    fiftyTwoWeekLow: Decimal | null
+    fiftyTwoWeekHigh: Decimal | null
+    currency: string
+    exchange: string | null
+    lastUpdated: Date | null
     createdAt: Date
     updatedAt: Date
     _count: StockTableCountAggregateOutputType | null
@@ -3382,6 +3661,16 @@ export namespace Prisma {
     symbol?: boolean
     company?: boolean
     price?: boolean
+    changePercent?: boolean
+    marketCap?: boolean
+    volume?: boolean
+    peRatio?: boolean
+    dividendYield?: boolean
+    fiftyTwoWeekLow?: boolean
+    fiftyTwoWeekHigh?: boolean
+    currency?: boolean
+    exchange?: boolean
+    lastUpdated?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     investment?: boolean | StockTable$investmentArgs<ExtArgs>
@@ -3395,6 +3684,16 @@ export namespace Prisma {
     symbol?: boolean
     company?: boolean
     price?: boolean
+    changePercent?: boolean
+    marketCap?: boolean
+    volume?: boolean
+    peRatio?: boolean
+    dividendYield?: boolean
+    fiftyTwoWeekLow?: boolean
+    fiftyTwoWeekHigh?: boolean
+    currency?: boolean
+    exchange?: boolean
+    lastUpdated?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["stockTable"]>
@@ -3404,6 +3703,16 @@ export namespace Prisma {
     symbol?: boolean
     company?: boolean
     price?: boolean
+    changePercent?: boolean
+    marketCap?: boolean
+    volume?: boolean
+    peRatio?: boolean
+    dividendYield?: boolean
+    fiftyTwoWeekLow?: boolean
+    fiftyTwoWeekHigh?: boolean
+    currency?: boolean
+    exchange?: boolean
+    lastUpdated?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }, ExtArgs["result"]["stockTable"]>
@@ -3413,11 +3722,21 @@ export namespace Prisma {
     symbol?: boolean
     company?: boolean
     price?: boolean
+    changePercent?: boolean
+    marketCap?: boolean
+    volume?: boolean
+    peRatio?: boolean
+    dividendYield?: boolean
+    fiftyTwoWeekLow?: boolean
+    fiftyTwoWeekHigh?: boolean
+    currency?: boolean
+    exchange?: boolean
+    lastUpdated?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type StockTableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "symbol" | "company" | "price" | "createdAt" | "updatedAt", ExtArgs["result"]["stockTable"]>
+  export type StockTableOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "symbol" | "company" | "price" | "changePercent" | "marketCap" | "volume" | "peRatio" | "dividendYield" | "fiftyTwoWeekLow" | "fiftyTwoWeekHigh" | "currency" | "exchange" | "lastUpdated" | "createdAt" | "updatedAt", ExtArgs["result"]["stockTable"]>
   export type StockTableInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     investment?: boolean | StockTable$investmentArgs<ExtArgs>
     transaction?: boolean | StockTable$transactionArgs<ExtArgs>
@@ -3439,6 +3758,16 @@ export namespace Prisma {
       symbol: string
       company: string
       price: Prisma.Decimal
+      changePercent: Prisma.Decimal | null
+      marketCap: bigint | null
+      volume: string | null
+      peRatio: Prisma.Decimal | null
+      dividendYield: Prisma.Decimal | null
+      fiftyTwoWeekLow: Prisma.Decimal | null
+      fiftyTwoWeekHigh: Prisma.Decimal | null
+      currency: string
+      exchange: string | null
+      lastUpdated: Date | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["stockTable"]>
@@ -3871,6 +4200,16 @@ export namespace Prisma {
     readonly symbol: FieldRef<"StockTable", 'String'>
     readonly company: FieldRef<"StockTable", 'String'>
     readonly price: FieldRef<"StockTable", 'Decimal'>
+    readonly changePercent: FieldRef<"StockTable", 'Decimal'>
+    readonly marketCap: FieldRef<"StockTable", 'BigInt'>
+    readonly volume: FieldRef<"StockTable", 'String'>
+    readonly peRatio: FieldRef<"StockTable", 'Decimal'>
+    readonly dividendYield: FieldRef<"StockTable", 'Decimal'>
+    readonly fiftyTwoWeekLow: FieldRef<"StockTable", 'Decimal'>
+    readonly fiftyTwoWeekHigh: FieldRef<"StockTable", 'Decimal'>
+    readonly currency: FieldRef<"StockTable", 'String'>
+    readonly exchange: FieldRef<"StockTable", 'String'>
+    readonly lastUpdated: FieldRef<"StockTable", 'DateTime'>
     readonly createdAt: FieldRef<"StockTable", 'DateTime'>
     readonly updatedAt: FieldRef<"StockTable", 'DateTime'>
   }
@@ -7744,6 +8083,7 @@ export namespace Prisma {
     status: $Enums.Status | null
     type: $Enums.TransactionType | null
     approved_by: string | null
+    response: string | null
     createdAt: Date | null
   }
 
@@ -7755,6 +8095,7 @@ export namespace Prisma {
     status: $Enums.Status | null
     type: $Enums.TransactionType | null
     approved_by: string | null
+    response: string | null
     createdAt: Date | null
   }
 
@@ -7766,6 +8107,7 @@ export namespace Prisma {
     status: number
     type: number
     approved_by: number
+    response: number
     createdAt: number
     _all: number
   }
@@ -7787,6 +8129,7 @@ export namespace Prisma {
     status?: true
     type?: true
     approved_by?: true
+    response?: true
     createdAt?: true
   }
 
@@ -7798,6 +8141,7 @@ export namespace Prisma {
     status?: true
     type?: true
     approved_by?: true
+    response?: true
     createdAt?: true
   }
 
@@ -7809,6 +8153,7 @@ export namespace Prisma {
     status?: true
     type?: true
     approved_by?: true
+    response?: true
     createdAt?: true
     _all?: true
   }
@@ -7907,6 +8252,7 @@ export namespace Prisma {
     status: $Enums.Status
     type: $Enums.TransactionType
     approved_by: string | null
+    response: string | null
     createdAt: Date
     _count: Trade_requestCountAggregateOutputType | null
     _avg: Trade_requestAvgAggregateOutputType | null
@@ -7937,6 +8283,7 @@ export namespace Prisma {
     status?: boolean
     type?: boolean
     approved_by?: boolean
+    response?: boolean
     createdAt?: boolean
     portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
     stock?: boolean | StockTableDefaultArgs<ExtArgs>
@@ -7951,6 +8298,7 @@ export namespace Prisma {
     status?: boolean
     type?: boolean
     approved_by?: boolean
+    response?: boolean
     createdAt?: boolean
     portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
     stock?: boolean | StockTableDefaultArgs<ExtArgs>
@@ -7965,6 +8313,7 @@ export namespace Prisma {
     status?: boolean
     type?: boolean
     approved_by?: boolean
+    response?: boolean
     createdAt?: boolean
     portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
     stock?: boolean | StockTableDefaultArgs<ExtArgs>
@@ -7979,10 +8328,11 @@ export namespace Prisma {
     status?: boolean
     type?: boolean
     approved_by?: boolean
+    response?: boolean
     createdAt?: boolean
   }
 
-  export type Trade_requestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "portfolio_id" | "stock_id" | "quantity" | "status" | "type" | "approved_by" | "createdAt", ExtArgs["result"]["trade_request"]>
+  export type Trade_requestOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "portfolio_id" | "stock_id" | "quantity" | "status" | "type" | "approved_by" | "response" | "createdAt", ExtArgs["result"]["trade_request"]>
   export type Trade_requestInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     portfolio?: boolean | PortfolioDefaultArgs<ExtArgs>
     stock?: boolean | StockTableDefaultArgs<ExtArgs>
@@ -8014,6 +8364,7 @@ export namespace Prisma {
       status: $Enums.Status
       type: $Enums.TransactionType
       approved_by: string | null
+      response: string | null
       createdAt: Date
     }, ExtArgs["result"]["trade_request"]>
     composites: {}
@@ -8448,6 +8799,7 @@ export namespace Prisma {
     readonly status: FieldRef<"Trade_request", 'Status'>
     readonly type: FieldRef<"Trade_request", 'TransactionType'>
     readonly approved_by: FieldRef<"Trade_request", 'String'>
+    readonly response: FieldRef<"Trade_request", 'String'>
     readonly createdAt: FieldRef<"Trade_request", 'DateTime'>
   }
     
@@ -10157,7 +10509,6 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     managed_by?: boolean | Manager$managed_byArgs<ExtArgs>
     approvedBy?: boolean | Manager$approvedByArgs<ExtArgs>
-    Approved_Manager?: boolean | Manager$Approved_ManagerArgs<ExtArgs>
     _count?: boolean | ManagerCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["manager"]>
 
@@ -10198,7 +10549,6 @@ export namespace Prisma {
     user?: boolean | UserDefaultArgs<ExtArgs>
     managed_by?: boolean | Manager$managed_byArgs<ExtArgs>
     approvedBy?: boolean | Manager$approvedByArgs<ExtArgs>
-    Approved_Manager?: boolean | Manager$Approved_ManagerArgs<ExtArgs>
     _count?: boolean | ManagerCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type ManagerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -10214,7 +10564,6 @@ export namespace Prisma {
       user: Prisma.$UserPayload<ExtArgs>
       managed_by: Prisma.$UserPayload<ExtArgs>[]
       approvedBy: Prisma.$Trade_requestPayload<ExtArgs>[]
-      Approved_Manager: Prisma.$Approved_ManagerPayload<ExtArgs> | null
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -10621,7 +10970,6 @@ export namespace Prisma {
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     managed_by<T extends Manager$managed_byArgs<ExtArgs> = {}>(args?: Subset<T, Manager$managed_byArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     approvedBy<T extends Manager$approvedByArgs<ExtArgs> = {}>(args?: Subset<T, Manager$approvedByArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Trade_requestPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-    Approved_Manager<T extends Manager$Approved_ManagerArgs<ExtArgs> = {}>(args?: Subset<T, Manager$Approved_ManagerArgs<ExtArgs>>): Prisma__Approved_ManagerClient<$Result.GetResult<Prisma.$Approved_ManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -11102,25 +11450,6 @@ export namespace Prisma {
   }
 
   /**
-   * Manager.Approved_Manager
-   */
-  export type Manager$Approved_ManagerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Approved_Manager
-     */
-    select?: Approved_ManagerSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Approved_Manager
-     */
-    omit?: Approved_ManagerOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: Approved_ManagerInclude<ExtArgs> | null
-    where?: Approved_ManagerWhereInput
-  }
-
-  /**
    * Manager without action
    */
   export type ManagerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11281,7 +11610,7 @@ export namespace Prisma {
   export type AdminGroupByOutputType = {
     id: string
     user_id: string
-    super_admin_access: string
+    super_admin_access: string | null
     super_admin: boolean
     createdAt: Date
     updatedAt: Date
@@ -11313,6 +11642,7 @@ export namespace Prisma {
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
     admin_id?: boolean | Admin$admin_idArgs<ExtArgs>
+    super_admin_id?: boolean | Admin$super_admin_idArgs<ExtArgs>
     _count?: boolean | AdminCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["admin"]>
 
@@ -11349,6 +11679,7 @@ export namespace Prisma {
   export type AdminInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     admin_id?: boolean | Admin$admin_idArgs<ExtArgs>
+    super_admin_id?: boolean | Admin$super_admin_idArgs<ExtArgs>
     _count?: boolean | AdminCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type AdminIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -11363,11 +11694,12 @@ export namespace Prisma {
     objects: {
       user: Prisma.$UserPayload<ExtArgs>
       admin_id: Prisma.$Approved_ManagerPayload<ExtArgs>[]
+      super_admin_id: Prisma.$Approved_AdminPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       user_id: string
-      super_admin_access: string
+      super_admin_access: string | null
       super_admin: boolean
       createdAt: Date
       updatedAt: Date
@@ -11767,6 +12099,7 @@ export namespace Prisma {
     readonly [Symbol.toStringTag]: "PrismaPromise"
     user<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     admin_id<T extends Admin$admin_idArgs<ExtArgs> = {}>(args?: Subset<T, Admin$admin_idArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Approved_ManagerPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    super_admin_id<T extends Admin$super_admin_idArgs<ExtArgs> = {}>(args?: Subset<T, Admin$super_admin_idArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -12222,6 +12555,30 @@ export namespace Prisma {
   }
 
   /**
+   * Admin.super_admin_id
+   */
+  export type Admin$super_admin_idArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    where?: Approved_AdminWhereInput
+    orderBy?: Approved_AdminOrderByWithRelationInput | Approved_AdminOrderByWithRelationInput[]
+    cursor?: Approved_AdminWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: Approved_AdminScalarFieldEnum | Approved_AdminScalarFieldEnum[]
+  }
+
+  /**
    * Admin without action
    */
   export type AdminDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -12263,7 +12620,7 @@ export namespace Prisma {
   export type Approved_ManagerMinAggregateOutputType = {
     id: string | null
     approval_code: string | null
-    manager_id: string | null
+    user_id: string | null
     admin_id: string | null
     manager_slot: number | null
     is_used: boolean | null
@@ -12274,7 +12631,7 @@ export namespace Prisma {
   export type Approved_ManagerMaxAggregateOutputType = {
     id: string | null
     approval_code: string | null
-    manager_id: string | null
+    user_id: string | null
     admin_id: string | null
     manager_slot: number | null
     is_used: boolean | null
@@ -12285,7 +12642,7 @@ export namespace Prisma {
   export type Approved_ManagerCountAggregateOutputType = {
     id: number
     approval_code: number
-    manager_id: number
+    user_id: number
     admin_id: number
     manager_slot: number
     is_used: number
@@ -12306,7 +12663,7 @@ export namespace Prisma {
   export type Approved_ManagerMinAggregateInputType = {
     id?: true
     approval_code?: true
-    manager_id?: true
+    user_id?: true
     admin_id?: true
     manager_slot?: true
     is_used?: true
@@ -12317,7 +12674,7 @@ export namespace Prisma {
   export type Approved_ManagerMaxAggregateInputType = {
     id?: true
     approval_code?: true
-    manager_id?: true
+    user_id?: true
     admin_id?: true
     manager_slot?: true
     is_used?: true
@@ -12328,7 +12685,7 @@ export namespace Prisma {
   export type Approved_ManagerCountAggregateInputType = {
     id?: true
     approval_code?: true
-    manager_id?: true
+    user_id?: true
     admin_id?: true
     manager_slot?: true
     is_used?: true
@@ -12426,7 +12783,7 @@ export namespace Prisma {
   export type Approved_ManagerGroupByOutputType = {
     id: string
     approval_code: string
-    manager_id: string | null
+    user_id: string
     admin_id: string
     manager_slot: number
     is_used: boolean
@@ -12456,46 +12813,46 @@ export namespace Prisma {
   export type Approved_ManagerSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     approval_code?: boolean
-    manager_id?: boolean
+    user_id?: boolean
     admin_id?: boolean
     manager_slot?: boolean
     is_used?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["approved_Manager"]>
 
   export type Approved_ManagerSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     approval_code?: boolean
-    manager_id?: boolean
+    user_id?: boolean
     admin_id?: boolean
     manager_slot?: boolean
     is_used?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["approved_Manager"]>
 
   export type Approved_ManagerSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
     approval_code?: boolean
-    manager_id?: boolean
+    user_id?: boolean
     admin_id?: boolean
     manager_slot?: boolean
     is_used?: boolean
     createdAt?: boolean
     updatedAt?: boolean
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["approved_Manager"]>
 
   export type Approved_ManagerSelectScalar = {
     id?: boolean
     approval_code?: boolean
-    manager_id?: boolean
+    user_id?: boolean
     admin_id?: boolean
     manager_slot?: boolean
     is_used?: boolean
@@ -12503,30 +12860,30 @@ export namespace Prisma {
     updatedAt?: boolean
   }
 
-  export type Approved_ManagerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "approval_code" | "manager_id" | "admin_id" | "manager_slot" | "is_used" | "createdAt" | "updatedAt", ExtArgs["result"]["approved_Manager"]>
+  export type Approved_ManagerOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "approval_code" | "user_id" | "admin_id" | "manager_slot" | "is_used" | "createdAt" | "updatedAt", ExtArgs["result"]["approved_Manager"]>
   export type Approved_ManagerInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }
   export type Approved_ManagerIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }
   export type Approved_ManagerIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    manager?: boolean | Approved_Manager$managerArgs<ExtArgs>
+    manager?: boolean | UserDefaultArgs<ExtArgs>
     admin?: boolean | AdminDefaultArgs<ExtArgs>
   }
 
   export type $Approved_ManagerPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     name: "Approved_Manager"
     objects: {
-      manager: Prisma.$ManagerPayload<ExtArgs> | null
+      manager: Prisma.$UserPayload<ExtArgs>
       admin: Prisma.$AdminPayload<ExtArgs>
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
       approval_code: string
-      manager_id: string | null
+      user_id: string
       admin_id: string
       manager_slot: number
       is_used: boolean
@@ -12926,7 +13283,7 @@ export namespace Prisma {
    */
   export interface Prisma__Approved_ManagerClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
     readonly [Symbol.toStringTag]: "PrismaPromise"
-    manager<T extends Approved_Manager$managerArgs<ExtArgs> = {}>(args?: Subset<T, Approved_Manager$managerArgs<ExtArgs>>): Prisma__ManagerClient<$Result.GetResult<Prisma.$ManagerPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    manager<T extends UserDefaultArgs<ExtArgs> = {}>(args?: Subset<T, UserDefaultArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     admin<T extends AdminDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminDefaultArgs<ExtArgs>>): Prisma__AdminClient<$Result.GetResult<Prisma.$AdminPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -12959,7 +13316,7 @@ export namespace Prisma {
   interface Approved_ManagerFieldRefs {
     readonly id: FieldRef<"Approved_Manager", 'String'>
     readonly approval_code: FieldRef<"Approved_Manager", 'String'>
-    readonly manager_id: FieldRef<"Approved_Manager", 'String'>
+    readonly user_id: FieldRef<"Approved_Manager", 'String'>
     readonly admin_id: FieldRef<"Approved_Manager", 'String'>
     readonly manager_slot: FieldRef<"Approved_Manager", 'Int'>
     readonly is_used: FieldRef<"Approved_Manager", 'Boolean'>
@@ -13361,25 +13718,6 @@ export namespace Prisma {
   }
 
   /**
-   * Approved_Manager.manager
-   */
-  export type Approved_Manager$managerArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
-    /**
-     * Select specific fields to fetch from the Manager
-     */
-    select?: ManagerSelect<ExtArgs> | null
-    /**
-     * Omit specific fields from the Manager
-     */
-    omit?: ManagerOmit<ExtArgs> | null
-    /**
-     * Choose, which related nodes to fetch as well
-     */
-    include?: ManagerInclude<ExtArgs> | null
-    where?: ManagerWhereInput
-  }
-
-  /**
    * Approved_Manager without action
    */
   export type Approved_ManagerDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -13395,6 +13733,1117 @@ export namespace Prisma {
      * Choose, which related nodes to fetch as well
      */
     include?: Approved_ManagerInclude<ExtArgs> | null
+  }
+
+
+  /**
+   * Model Approved_Admin
+   */
+
+  export type AggregateApproved_Admin = {
+    _count: Approved_AdminCountAggregateOutputType | null
+    _min: Approved_AdminMinAggregateOutputType | null
+    _max: Approved_AdminMaxAggregateOutputType | null
+  }
+
+  export type Approved_AdminMinAggregateOutputType = {
+    id: string | null
+    approval_code: string | null
+    admin_id: string | null
+    superAdmin_id: string | null
+    is_used: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type Approved_AdminMaxAggregateOutputType = {
+    id: string | null
+    approval_code: string | null
+    admin_id: string | null
+    superAdmin_id: string | null
+    is_used: boolean | null
+    createdAt: Date | null
+    updatedAt: Date | null
+  }
+
+  export type Approved_AdminCountAggregateOutputType = {
+    id: number
+    approval_code: number
+    admin_id: number
+    superAdmin_id: number
+    is_used: number
+    createdAt: number
+    updatedAt: number
+    _all: number
+  }
+
+
+  export type Approved_AdminMinAggregateInputType = {
+    id?: true
+    approval_code?: true
+    admin_id?: true
+    superAdmin_id?: true
+    is_used?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type Approved_AdminMaxAggregateInputType = {
+    id?: true
+    approval_code?: true
+    admin_id?: true
+    superAdmin_id?: true
+    is_used?: true
+    createdAt?: true
+    updatedAt?: true
+  }
+
+  export type Approved_AdminCountAggregateInputType = {
+    id?: true
+    approval_code?: true
+    admin_id?: true
+    superAdmin_id?: true
+    is_used?: true
+    createdAt?: true
+    updatedAt?: true
+    _all?: true
+  }
+
+  export type Approved_AdminAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Approved_Admin to aggregate.
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Approved_Admins to fetch.
+     */
+    orderBy?: Approved_AdminOrderByWithRelationInput | Approved_AdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: Approved_AdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Approved_Admins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Approved_Admins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Approved_Admins
+    **/
+    _count?: true | Approved_AdminCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: Approved_AdminMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: Approved_AdminMaxAggregateInputType
+  }
+
+  export type GetApproved_AdminAggregateType<T extends Approved_AdminAggregateArgs> = {
+        [P in keyof T & keyof AggregateApproved_Admin]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateApproved_Admin[P]>
+      : GetScalarType<T[P], AggregateApproved_Admin[P]>
+  }
+
+
+
+
+  export type Approved_AdminGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: Approved_AdminWhereInput
+    orderBy?: Approved_AdminOrderByWithAggregationInput | Approved_AdminOrderByWithAggregationInput[]
+    by: Approved_AdminScalarFieldEnum[] | Approved_AdminScalarFieldEnum
+    having?: Approved_AdminScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: Approved_AdminCountAggregateInputType | true
+    _min?: Approved_AdminMinAggregateInputType
+    _max?: Approved_AdminMaxAggregateInputType
+  }
+
+  export type Approved_AdminGroupByOutputType = {
+    id: string
+    approval_code: string
+    admin_id: string | null
+    superAdmin_id: string
+    is_used: boolean
+    createdAt: Date
+    updatedAt: Date
+    _count: Approved_AdminCountAggregateOutputType | null
+    _min: Approved_AdminMinAggregateOutputType | null
+    _max: Approved_AdminMaxAggregateOutputType | null
+  }
+
+  type GetApproved_AdminGroupByPayload<T extends Approved_AdminGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<Approved_AdminGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof Approved_AdminGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], Approved_AdminGroupByOutputType[P]>
+            : GetScalarType<T[P], Approved_AdminGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type Approved_AdminSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    approval_code?: boolean
+    admin_id?: boolean
+    superAdmin_id?: boolean
+    is_used?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["approved_Admin"]>
+
+  export type Approved_AdminSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    approval_code?: boolean
+    admin_id?: boolean
+    superAdmin_id?: boolean
+    is_used?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["approved_Admin"]>
+
+  export type Approved_AdminSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    approval_code?: boolean
+    admin_id?: boolean
+    superAdmin_id?: boolean
+    is_used?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }, ExtArgs["result"]["approved_Admin"]>
+
+  export type Approved_AdminSelectScalar = {
+    id?: boolean
+    approval_code?: boolean
+    admin_id?: boolean
+    superAdmin_id?: boolean
+    is_used?: boolean
+    createdAt?: boolean
+    updatedAt?: boolean
+  }
+
+  export type Approved_AdminOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "approval_code" | "admin_id" | "superAdmin_id" | "is_used" | "createdAt" | "updatedAt", ExtArgs["result"]["approved_Admin"]>
+  export type Approved_AdminInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }
+  export type Approved_AdminIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }
+  export type Approved_AdminIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    admin?: boolean | Approved_Admin$adminArgs<ExtArgs>
+    superAdmin?: boolean | AdminDefaultArgs<ExtArgs>
+  }
+
+  export type $Approved_AdminPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "Approved_Admin"
+    objects: {
+      admin: Prisma.$UserPayload<ExtArgs> | null
+      superAdmin: Prisma.$AdminPayload<ExtArgs>
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      approval_code: string
+      admin_id: string | null
+      superAdmin_id: string
+      is_used: boolean
+      createdAt: Date
+      updatedAt: Date
+    }, ExtArgs["result"]["approved_Admin"]>
+    composites: {}
+  }
+
+  type Approved_AdminGetPayload<S extends boolean | null | undefined | Approved_AdminDefaultArgs> = $Result.GetResult<Prisma.$Approved_AdminPayload, S>
+
+  type Approved_AdminCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<Approved_AdminFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: Approved_AdminCountAggregateInputType | true
+    }
+
+  export interface Approved_AdminDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['Approved_Admin'], meta: { name: 'Approved_Admin' } }
+    /**
+     * Find zero or one Approved_Admin that matches the filter.
+     * @param {Approved_AdminFindUniqueArgs} args - Arguments to find a Approved_Admin
+     * @example
+     * // Get one Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends Approved_AdminFindUniqueArgs>(args: SelectSubset<T, Approved_AdminFindUniqueArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one Approved_Admin that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {Approved_AdminFindUniqueOrThrowArgs} args - Arguments to find a Approved_Admin
+     * @example
+     * // Get one Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends Approved_AdminFindUniqueOrThrowArgs>(args: SelectSubset<T, Approved_AdminFindUniqueOrThrowArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Approved_Admin that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminFindFirstArgs} args - Arguments to find a Approved_Admin
+     * @example
+     * // Get one Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends Approved_AdminFindFirstArgs>(args?: SelectSubset<T, Approved_AdminFindFirstArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first Approved_Admin that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminFindFirstOrThrowArgs} args - Arguments to find a Approved_Admin
+     * @example
+     * // Get one Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends Approved_AdminFindFirstOrThrowArgs>(args?: SelectSubset<T, Approved_AdminFindFirstOrThrowArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more Approved_Admins that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Approved_Admins
+     * const approved_Admins = await prisma.approved_Admin.findMany()
+     * 
+     * // Get first 10 Approved_Admins
+     * const approved_Admins = await prisma.approved_Admin.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const approved_AdminWithIdOnly = await prisma.approved_Admin.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends Approved_AdminFindManyArgs>(args?: SelectSubset<T, Approved_AdminFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a Approved_Admin.
+     * @param {Approved_AdminCreateArgs} args - Arguments to create a Approved_Admin.
+     * @example
+     * // Create one Approved_Admin
+     * const Approved_Admin = await prisma.approved_Admin.create({
+     *   data: {
+     *     // ... data to create a Approved_Admin
+     *   }
+     * })
+     * 
+     */
+    create<T extends Approved_AdminCreateArgs>(args: SelectSubset<T, Approved_AdminCreateArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many Approved_Admins.
+     * @param {Approved_AdminCreateManyArgs} args - Arguments to create many Approved_Admins.
+     * @example
+     * // Create many Approved_Admins
+     * const approved_Admin = await prisma.approved_Admin.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends Approved_AdminCreateManyArgs>(args?: SelectSubset<T, Approved_AdminCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many Approved_Admins and returns the data saved in the database.
+     * @param {Approved_AdminCreateManyAndReturnArgs} args - Arguments to create many Approved_Admins.
+     * @example
+     * // Create many Approved_Admins
+     * const approved_Admin = await prisma.approved_Admin.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many Approved_Admins and only return the `id`
+     * const approved_AdminWithIdOnly = await prisma.approved_Admin.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends Approved_AdminCreateManyAndReturnArgs>(args?: SelectSubset<T, Approved_AdminCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a Approved_Admin.
+     * @param {Approved_AdminDeleteArgs} args - Arguments to delete one Approved_Admin.
+     * @example
+     * // Delete one Approved_Admin
+     * const Approved_Admin = await prisma.approved_Admin.delete({
+     *   where: {
+     *     // ... filter to delete one Approved_Admin
+     *   }
+     * })
+     * 
+     */
+    delete<T extends Approved_AdminDeleteArgs>(args: SelectSubset<T, Approved_AdminDeleteArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one Approved_Admin.
+     * @param {Approved_AdminUpdateArgs} args - Arguments to update one Approved_Admin.
+     * @example
+     * // Update one Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends Approved_AdminUpdateArgs>(args: SelectSubset<T, Approved_AdminUpdateArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more Approved_Admins.
+     * @param {Approved_AdminDeleteManyArgs} args - Arguments to filter Approved_Admins to delete.
+     * @example
+     * // Delete a few Approved_Admins
+     * const { count } = await prisma.approved_Admin.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends Approved_AdminDeleteManyArgs>(args?: SelectSubset<T, Approved_AdminDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Approved_Admins.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Approved_Admins
+     * const approved_Admin = await prisma.approved_Admin.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends Approved_AdminUpdateManyArgs>(args: SelectSubset<T, Approved_AdminUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Approved_Admins and returns the data updated in the database.
+     * @param {Approved_AdminUpdateManyAndReturnArgs} args - Arguments to update many Approved_Admins.
+     * @example
+     * // Update many Approved_Admins
+     * const approved_Admin = await prisma.approved_Admin.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more Approved_Admins and only return the `id`
+     * const approved_AdminWithIdOnly = await prisma.approved_Admin.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends Approved_AdminUpdateManyAndReturnArgs>(args: SelectSubset<T, Approved_AdminUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one Approved_Admin.
+     * @param {Approved_AdminUpsertArgs} args - Arguments to update or create a Approved_Admin.
+     * @example
+     * // Update or create a Approved_Admin
+     * const approved_Admin = await prisma.approved_Admin.upsert({
+     *   create: {
+     *     // ... data to create a Approved_Admin
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Approved_Admin we want to update
+     *   }
+     * })
+     */
+    upsert<T extends Approved_AdminUpsertArgs>(args: SelectSubset<T, Approved_AdminUpsertArgs<ExtArgs>>): Prisma__Approved_AdminClient<$Result.GetResult<Prisma.$Approved_AdminPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of Approved_Admins.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminCountArgs} args - Arguments to filter Approved_Admins to count.
+     * @example
+     * // Count the number of Approved_Admins
+     * const count = await prisma.approved_Admin.count({
+     *   where: {
+     *     // ... the filter for the Approved_Admins we want to count
+     *   }
+     * })
+    **/
+    count<T extends Approved_AdminCountArgs>(
+      args?: Subset<T, Approved_AdminCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], Approved_AdminCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Approved_Admin.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends Approved_AdminAggregateArgs>(args: Subset<T, Approved_AdminAggregateArgs>): Prisma.PrismaPromise<GetApproved_AdminAggregateType<T>>
+
+    /**
+     * Group by Approved_Admin.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {Approved_AdminGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends Approved_AdminGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: Approved_AdminGroupByArgs['orderBy'] }
+        : { orderBy?: Approved_AdminGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, Approved_AdminGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetApproved_AdminGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the Approved_Admin model
+   */
+  readonly fields: Approved_AdminFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Approved_Admin.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__Approved_AdminClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    admin<T extends Approved_Admin$adminArgs<ExtArgs> = {}>(args?: Subset<T, Approved_Admin$adminArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    superAdmin<T extends AdminDefaultArgs<ExtArgs> = {}>(args?: Subset<T, AdminDefaultArgs<ExtArgs>>): Prisma__AdminClient<$Result.GetResult<Prisma.$AdminPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the Approved_Admin model
+   */
+  interface Approved_AdminFieldRefs {
+    readonly id: FieldRef<"Approved_Admin", 'String'>
+    readonly approval_code: FieldRef<"Approved_Admin", 'String'>
+    readonly admin_id: FieldRef<"Approved_Admin", 'String'>
+    readonly superAdmin_id: FieldRef<"Approved_Admin", 'String'>
+    readonly is_used: FieldRef<"Approved_Admin", 'Boolean'>
+    readonly createdAt: FieldRef<"Approved_Admin", 'DateTime'>
+    readonly updatedAt: FieldRef<"Approved_Admin", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * Approved_Admin findUnique
+   */
+  export type Approved_AdminFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter, which Approved_Admin to fetch.
+     */
+    where: Approved_AdminWhereUniqueInput
+  }
+
+  /**
+   * Approved_Admin findUniqueOrThrow
+   */
+  export type Approved_AdminFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter, which Approved_Admin to fetch.
+     */
+    where: Approved_AdminWhereUniqueInput
+  }
+
+  /**
+   * Approved_Admin findFirst
+   */
+  export type Approved_AdminFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter, which Approved_Admin to fetch.
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Approved_Admins to fetch.
+     */
+    orderBy?: Approved_AdminOrderByWithRelationInput | Approved_AdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Approved_Admins.
+     */
+    cursor?: Approved_AdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Approved_Admins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Approved_Admins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Approved_Admins.
+     */
+    distinct?: Approved_AdminScalarFieldEnum | Approved_AdminScalarFieldEnum[]
+  }
+
+  /**
+   * Approved_Admin findFirstOrThrow
+   */
+  export type Approved_AdminFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter, which Approved_Admin to fetch.
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Approved_Admins to fetch.
+     */
+    orderBy?: Approved_AdminOrderByWithRelationInput | Approved_AdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Approved_Admins.
+     */
+    cursor?: Approved_AdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Approved_Admins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Approved_Admins.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Approved_Admins.
+     */
+    distinct?: Approved_AdminScalarFieldEnum | Approved_AdminScalarFieldEnum[]
+  }
+
+  /**
+   * Approved_Admin findMany
+   */
+  export type Approved_AdminFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter, which Approved_Admins to fetch.
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Approved_Admins to fetch.
+     */
+    orderBy?: Approved_AdminOrderByWithRelationInput | Approved_AdminOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Approved_Admins.
+     */
+    cursor?: Approved_AdminWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Approved_Admins from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Approved_Admins.
+     */
+    skip?: number
+    distinct?: Approved_AdminScalarFieldEnum | Approved_AdminScalarFieldEnum[]
+  }
+
+  /**
+   * Approved_Admin create
+   */
+  export type Approved_AdminCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * The data needed to create a Approved_Admin.
+     */
+    data: XOR<Approved_AdminCreateInput, Approved_AdminUncheckedCreateInput>
+  }
+
+  /**
+   * Approved_Admin createMany
+   */
+  export type Approved_AdminCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many Approved_Admins.
+     */
+    data: Approved_AdminCreateManyInput | Approved_AdminCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * Approved_Admin createManyAndReturn
+   */
+  export type Approved_AdminCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * The data used to create many Approved_Admins.
+     */
+    data: Approved_AdminCreateManyInput | Approved_AdminCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Approved_Admin update
+   */
+  export type Approved_AdminUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * The data needed to update a Approved_Admin.
+     */
+    data: XOR<Approved_AdminUpdateInput, Approved_AdminUncheckedUpdateInput>
+    /**
+     * Choose, which Approved_Admin to update.
+     */
+    where: Approved_AdminWhereUniqueInput
+  }
+
+  /**
+   * Approved_Admin updateMany
+   */
+  export type Approved_AdminUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update Approved_Admins.
+     */
+    data: XOR<Approved_AdminUpdateManyMutationInput, Approved_AdminUncheckedUpdateManyInput>
+    /**
+     * Filter which Approved_Admins to update
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * Limit how many Approved_Admins to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * Approved_Admin updateManyAndReturn
+   */
+  export type Approved_AdminUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * The data used to update Approved_Admins.
+     */
+    data: XOR<Approved_AdminUpdateManyMutationInput, Approved_AdminUncheckedUpdateManyInput>
+    /**
+     * Filter which Approved_Admins to update
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * Limit how many Approved_Admins to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * Approved_Admin upsert
+   */
+  export type Approved_AdminUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * The filter to search for the Approved_Admin to update in case it exists.
+     */
+    where: Approved_AdminWhereUniqueInput
+    /**
+     * In case the Approved_Admin found by the `where` argument doesn't exist, create a new Approved_Admin with this data.
+     */
+    create: XOR<Approved_AdminCreateInput, Approved_AdminUncheckedCreateInput>
+    /**
+     * In case the Approved_Admin was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<Approved_AdminUpdateInput, Approved_AdminUncheckedUpdateInput>
+  }
+
+  /**
+   * Approved_Admin delete
+   */
+  export type Approved_AdminDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
+    /**
+     * Filter which Approved_Admin to delete.
+     */
+    where: Approved_AdminWhereUniqueInput
+  }
+
+  /**
+   * Approved_Admin deleteMany
+   */
+  export type Approved_AdminDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which Approved_Admins to delete
+     */
+    where?: Approved_AdminWhereInput
+    /**
+     * Limit how many Approved_Admins to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * Approved_Admin.admin
+   */
+  export type Approved_Admin$adminArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * Approved_Admin without action
+   */
+  export type Approved_AdminDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the Approved_Admin
+     */
+    select?: Approved_AdminSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the Approved_Admin
+     */
+    omit?: Approved_AdminOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: Approved_AdminInclude<ExtArgs> | null
   }
 
 
@@ -13422,7 +14871,10 @@ export namespace Prisma {
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
     manager_id: 'manager_id',
-    restricted: 'restricted'
+    restricted: 'restricted',
+    isVerified: 'isVerified',
+    verificationToken: 'verificationToken',
+    verificationTokenExpires: 'verificationTokenExpires'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -13433,6 +14885,16 @@ export namespace Prisma {
     symbol: 'symbol',
     company: 'company',
     price: 'price',
+    changePercent: 'changePercent',
+    marketCap: 'marketCap',
+    volume: 'volume',
+    peRatio: 'peRatio',
+    dividendYield: 'dividendYield',
+    fiftyTwoWeekLow: 'fiftyTwoWeekLow',
+    fiftyTwoWeekHigh: 'fiftyTwoWeekHigh',
+    currency: 'currency',
+    exchange: 'exchange',
+    lastUpdated: 'lastUpdated',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -13482,6 +14944,7 @@ export namespace Prisma {
     status: 'status',
     type: 'type',
     approved_by: 'approved_by',
+    response: 'response',
     createdAt: 'createdAt'
   };
 
@@ -13527,7 +14990,7 @@ export namespace Prisma {
   export const Approved_ManagerScalarFieldEnum: {
     id: 'id',
     approval_code: 'approval_code',
-    manager_id: 'manager_id',
+    user_id: 'user_id',
     admin_id: 'admin_id',
     manager_slot: 'manager_slot',
     is_used: 'is_used',
@@ -13536,6 +14999,19 @@ export namespace Prisma {
   };
 
   export type Approved_ManagerScalarFieldEnum = (typeof Approved_ManagerScalarFieldEnum)[keyof typeof Approved_ManagerScalarFieldEnum]
+
+
+  export const Approved_AdminScalarFieldEnum: {
+    id: 'id',
+    approval_code: 'approval_code',
+    admin_id: 'admin_id',
+    superAdmin_id: 'superAdmin_id',
+    is_used: 'is_used',
+    createdAt: 'createdAt',
+    updatedAt: 'updatedAt'
+  };
+
+  export type Approved_AdminScalarFieldEnum = (typeof Approved_AdminScalarFieldEnum)[keyof typeof Approved_AdminScalarFieldEnum]
 
 
   export const SortOrder: {
@@ -13631,6 +15107,20 @@ export namespace Prisma {
 
 
   /**
+   * Reference to a field of type 'BigInt'
+   */
+  export type BigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt'>
+    
+
+
+  /**
+   * Reference to a field of type 'BigInt[]'
+   */
+  export type ListBigIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'BigInt[]'>
+    
+
+
+  /**
    * Reference to a field of type 'Int'
    */
   export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int'>
@@ -13703,11 +15193,16 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     manager_id?: StringNullableFilter<"User"> | string | null
     restricted?: BoolFilter<"User"> | boolean
+    isVerified?: BoolFilter<"User"> | boolean
+    verificationToken?: StringNullableFilter<"User"> | string | null
+    verificationTokenExpires?: DateTimeNullableFilter<"User"> | Date | string | null
     portfolio?: PortfolioListRelationFilter
     refreshToken?: RefreshTokenListRelationFilter
     manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
     client_manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
     to_admin?: XOR<AdminNullableScalarRelationFilter, AdminWhereInput> | null
+    add_admin?: XOR<Approved_AdminNullableScalarRelationFilter, Approved_AdminWhereInput> | null
+    Approved_Manager?: XOR<Approved_ManagerNullableScalarRelationFilter, Approved_ManagerWhereInput> | null
   }
 
   export type UserOrderByWithRelationInput = {
@@ -13721,11 +15216,16 @@ export namespace Prisma {
     updatedAt?: SortOrder
     manager_id?: SortOrderInput | SortOrder
     restricted?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    verificationTokenExpires?: SortOrderInput | SortOrder
     portfolio?: PortfolioOrderByRelationAggregateInput
     refreshToken?: RefreshTokenOrderByRelationAggregateInput
     manager?: ManagerOrderByWithRelationInput
     client_manager?: ManagerOrderByWithRelationInput
     to_admin?: AdminOrderByWithRelationInput
+    add_admin?: Approved_AdminOrderByWithRelationInput
+    Approved_Manager?: Approved_ManagerOrderByWithRelationInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -13742,11 +15242,16 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     manager_id?: StringNullableFilter<"User"> | string | null
     restricted?: BoolFilter<"User"> | boolean
+    isVerified?: BoolFilter<"User"> | boolean
+    verificationToken?: StringNullableFilter<"User"> | string | null
+    verificationTokenExpires?: DateTimeNullableFilter<"User"> | Date | string | null
     portfolio?: PortfolioListRelationFilter
     refreshToken?: RefreshTokenListRelationFilter
     manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
     client_manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
     to_admin?: XOR<AdminNullableScalarRelationFilter, AdminWhereInput> | null
+    add_admin?: XOR<Approved_AdminNullableScalarRelationFilter, Approved_AdminWhereInput> | null
+    Approved_Manager?: XOR<Approved_ManagerNullableScalarRelationFilter, Approved_ManagerWhereInput> | null
   }, "id" | "email" | "username">
 
   export type UserOrderByWithAggregationInput = {
@@ -13760,6 +15265,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
     manager_id?: SortOrderInput | SortOrder
     restricted?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrderInput | SortOrder
+    verificationTokenExpires?: SortOrderInput | SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -13779,6 +15287,9 @@ export namespace Prisma {
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     manager_id?: StringNullableWithAggregatesFilter<"User"> | string | null
     restricted?: BoolWithAggregatesFilter<"User"> | boolean
+    isVerified?: BoolWithAggregatesFilter<"User"> | boolean
+    verificationToken?: StringNullableWithAggregatesFilter<"User"> | string | null
+    verificationTokenExpires?: DateTimeNullableWithAggregatesFilter<"User"> | Date | string | null
   }
 
   export type StockTableWhereInput = {
@@ -13789,6 +15300,16 @@ export namespace Prisma {
     symbol?: StringFilter<"StockTable"> | string
     company?: StringFilter<"StockTable"> | string
     price?: DecimalFilter<"StockTable"> | Decimal | DecimalJsLike | number | string
+    changePercent?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    marketCap?: BigIntNullableFilter<"StockTable"> | bigint | number | null
+    volume?: StringNullableFilter<"StockTable"> | string | null
+    peRatio?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFilter<"StockTable"> | string
+    exchange?: StringNullableFilter<"StockTable"> | string | null
+    lastUpdated?: DateTimeNullableFilter<"StockTable"> | Date | string | null
     createdAt?: DateTimeFilter<"StockTable"> | Date | string
     updatedAt?: DateTimeFilter<"StockTable"> | Date | string
     investment?: InvestmentListRelationFilter
@@ -13801,6 +15322,16 @@ export namespace Prisma {
     symbol?: SortOrder
     company?: SortOrder
     price?: SortOrder
+    changePercent?: SortOrderInput | SortOrder
+    marketCap?: SortOrderInput | SortOrder
+    volume?: SortOrderInput | SortOrder
+    peRatio?: SortOrderInput | SortOrder
+    dividendYield?: SortOrderInput | SortOrder
+    fiftyTwoWeekLow?: SortOrderInput | SortOrder
+    fiftyTwoWeekHigh?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    exchange?: SortOrderInput | SortOrder
+    lastUpdated?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     investment?: InvestmentOrderByRelationAggregateInput
@@ -13816,6 +15347,16 @@ export namespace Prisma {
     NOT?: StockTableWhereInput | StockTableWhereInput[]
     company?: StringFilter<"StockTable"> | string
     price?: DecimalFilter<"StockTable"> | Decimal | DecimalJsLike | number | string
+    changePercent?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    marketCap?: BigIntNullableFilter<"StockTable"> | bigint | number | null
+    volume?: StringNullableFilter<"StockTable"> | string | null
+    peRatio?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: DecimalNullableFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFilter<"StockTable"> | string
+    exchange?: StringNullableFilter<"StockTable"> | string | null
+    lastUpdated?: DateTimeNullableFilter<"StockTable"> | Date | string | null
     createdAt?: DateTimeFilter<"StockTable"> | Date | string
     updatedAt?: DateTimeFilter<"StockTable"> | Date | string
     investment?: InvestmentListRelationFilter
@@ -13828,6 +15369,16 @@ export namespace Prisma {
     symbol?: SortOrder
     company?: SortOrder
     price?: SortOrder
+    changePercent?: SortOrderInput | SortOrder
+    marketCap?: SortOrderInput | SortOrder
+    volume?: SortOrderInput | SortOrder
+    peRatio?: SortOrderInput | SortOrder
+    dividendYield?: SortOrderInput | SortOrder
+    fiftyTwoWeekLow?: SortOrderInput | SortOrder
+    fiftyTwoWeekHigh?: SortOrderInput | SortOrder
+    currency?: SortOrder
+    exchange?: SortOrderInput | SortOrder
+    lastUpdated?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: StockTableCountOrderByAggregateInput
@@ -13845,6 +15396,16 @@ export namespace Prisma {
     symbol?: StringWithAggregatesFilter<"StockTable"> | string
     company?: StringWithAggregatesFilter<"StockTable"> | string
     price?: DecimalWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string
+    changePercent?: DecimalNullableWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    marketCap?: BigIntNullableWithAggregatesFilter<"StockTable"> | bigint | number | null
+    volume?: StringNullableWithAggregatesFilter<"StockTable"> | string | null
+    peRatio?: DecimalNullableWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: DecimalNullableWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: DecimalNullableWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: DecimalNullableWithAggregatesFilter<"StockTable"> | Decimal | DecimalJsLike | number | string | null
+    currency?: StringWithAggregatesFilter<"StockTable"> | string
+    exchange?: StringNullableWithAggregatesFilter<"StockTable"> | string | null
+    lastUpdated?: DateTimeNullableWithAggregatesFilter<"StockTable"> | Date | string | null
     createdAt?: DateTimeWithAggregatesFilter<"StockTable"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"StockTable"> | Date | string
   }
@@ -14050,6 +15611,7 @@ export namespace Prisma {
     status?: EnumStatusFilter<"Trade_request"> | $Enums.Status
     type?: EnumTransactionTypeFilter<"Trade_request"> | $Enums.TransactionType
     approved_by?: StringNullableFilter<"Trade_request"> | string | null
+    response?: StringNullableFilter<"Trade_request"> | string | null
     createdAt?: DateTimeFilter<"Trade_request"> | Date | string
     portfolio?: XOR<PortfolioScalarRelationFilter, PortfolioWhereInput>
     stock?: XOR<StockTableScalarRelationFilter, StockTableWhereInput>
@@ -14064,6 +15626,7 @@ export namespace Prisma {
     status?: SortOrder
     type?: SortOrder
     approved_by?: SortOrderInput | SortOrder
+    response?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     portfolio?: PortfolioOrderByWithRelationInput
     stock?: StockTableOrderByWithRelationInput
@@ -14081,6 +15644,7 @@ export namespace Prisma {
     status?: EnumStatusFilter<"Trade_request"> | $Enums.Status
     type?: EnumTransactionTypeFilter<"Trade_request"> | $Enums.TransactionType
     approved_by?: StringNullableFilter<"Trade_request"> | string | null
+    response?: StringNullableFilter<"Trade_request"> | string | null
     createdAt?: DateTimeFilter<"Trade_request"> | Date | string
     portfolio?: XOR<PortfolioScalarRelationFilter, PortfolioWhereInput>
     stock?: XOR<StockTableScalarRelationFilter, StockTableWhereInput>
@@ -14095,6 +15659,7 @@ export namespace Prisma {
     status?: SortOrder
     type?: SortOrder
     approved_by?: SortOrderInput | SortOrder
+    response?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     _count?: Trade_requestCountOrderByAggregateInput
     _avg?: Trade_requestAvgOrderByAggregateInput
@@ -14114,6 +15679,7 @@ export namespace Prisma {
     status?: EnumStatusWithAggregatesFilter<"Trade_request"> | $Enums.Status
     type?: EnumTransactionTypeWithAggregatesFilter<"Trade_request"> | $Enums.TransactionType
     approved_by?: StringNullableWithAggregatesFilter<"Trade_request"> | string | null
+    response?: StringNullableWithAggregatesFilter<"Trade_request"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Trade_request"> | Date | string
   }
 
@@ -14186,7 +15752,6 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     managed_by?: UserListRelationFilter
     approvedBy?: Trade_requestListRelationFilter
-    Approved_Manager?: XOR<Approved_ManagerNullableScalarRelationFilter, Approved_ManagerWhereInput> | null
   }
 
   export type ManagerOrderByWithRelationInput = {
@@ -14200,7 +15765,6 @@ export namespace Prisma {
     user?: UserOrderByWithRelationInput
     managed_by?: UserOrderByRelationAggregateInput
     approvedBy?: Trade_requestOrderByRelationAggregateInput
-    Approved_Manager?: Approved_ManagerOrderByWithRelationInput
   }
 
   export type ManagerWhereUniqueInput = Prisma.AtLeast<{
@@ -14217,7 +15781,6 @@ export namespace Prisma {
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     managed_by?: UserListRelationFilter
     approvedBy?: Trade_requestListRelationFilter
-    Approved_Manager?: XOR<Approved_ManagerNullableScalarRelationFilter, Approved_ManagerWhereInput> | null
   }, "id" | "manager_id" | "approval_code">
 
   export type ManagerOrderByWithAggregationInput = {
@@ -14254,23 +15817,25 @@ export namespace Prisma {
     NOT?: AdminWhereInput | AdminWhereInput[]
     id?: StringFilter<"Admin"> | string
     user_id?: StringFilter<"Admin"> | string
-    super_admin_access?: StringFilter<"Admin"> | string
+    super_admin_access?: StringNullableFilter<"Admin"> | string | null
     super_admin?: BoolFilter<"Admin"> | boolean
     createdAt?: DateTimeFilter<"Admin"> | Date | string
     updatedAt?: DateTimeFilter<"Admin"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     admin_id?: Approved_ManagerListRelationFilter
+    super_admin_id?: Approved_AdminListRelationFilter
   }
 
   export type AdminOrderByWithRelationInput = {
     id?: SortOrder
     user_id?: SortOrder
-    super_admin_access?: SortOrder
+    super_admin_access?: SortOrderInput | SortOrder
     super_admin?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
     admin_id?: Approved_ManagerOrderByRelationAggregateInput
+    super_admin_id?: Approved_AdminOrderByRelationAggregateInput
   }
 
   export type AdminWhereUniqueInput = Prisma.AtLeast<{
@@ -14279,18 +15844,19 @@ export namespace Prisma {
     AND?: AdminWhereInput | AdminWhereInput[]
     OR?: AdminWhereInput[]
     NOT?: AdminWhereInput | AdminWhereInput[]
-    super_admin_access?: StringFilter<"Admin"> | string
+    super_admin_access?: StringNullableFilter<"Admin"> | string | null
     super_admin?: BoolFilter<"Admin"> | boolean
     createdAt?: DateTimeFilter<"Admin"> | Date | string
     updatedAt?: DateTimeFilter<"Admin"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
     admin_id?: Approved_ManagerListRelationFilter
+    super_admin_id?: Approved_AdminListRelationFilter
   }, "id" | "user_id">
 
   export type AdminOrderByWithAggregationInput = {
     id?: SortOrder
     user_id?: SortOrder
-    super_admin_access?: SortOrder
+    super_admin_access?: SortOrderInput | SortOrder
     super_admin?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -14305,7 +15871,7 @@ export namespace Prisma {
     NOT?: AdminScalarWhereWithAggregatesInput | AdminScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Admin"> | string
     user_id?: StringWithAggregatesFilter<"Admin"> | string
-    super_admin_access?: StringWithAggregatesFilter<"Admin"> | string
+    super_admin_access?: StringNullableWithAggregatesFilter<"Admin"> | string | null
     super_admin?: BoolWithAggregatesFilter<"Admin"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Admin"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Admin"> | Date | string
@@ -14317,33 +15883,33 @@ export namespace Prisma {
     NOT?: Approved_ManagerWhereInput | Approved_ManagerWhereInput[]
     id?: StringFilter<"Approved_Manager"> | string
     approval_code?: StringFilter<"Approved_Manager"> | string
-    manager_id?: StringNullableFilter<"Approved_Manager"> | string | null
+    user_id?: StringFilter<"Approved_Manager"> | string
     admin_id?: StringFilter<"Approved_Manager"> | string
     manager_slot?: IntFilter<"Approved_Manager"> | number
     is_used?: BoolFilter<"Approved_Manager"> | boolean
     createdAt?: DateTimeFilter<"Approved_Manager"> | Date | string
     updatedAt?: DateTimeFilter<"Approved_Manager"> | Date | string
-    manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
+    manager?: XOR<UserScalarRelationFilter, UserWhereInput>
     admin?: XOR<AdminScalarRelationFilter, AdminWhereInput>
   }
 
   export type Approved_ManagerOrderByWithRelationInput = {
     id?: SortOrder
     approval_code?: SortOrder
-    manager_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
     admin_id?: SortOrder
     manager_slot?: SortOrder
     is_used?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-    manager?: ManagerOrderByWithRelationInput
+    manager?: UserOrderByWithRelationInput
     admin?: AdminOrderByWithRelationInput
   }
 
   export type Approved_ManagerWhereUniqueInput = Prisma.AtLeast<{
     id?: string
     approval_code?: string
-    manager_id?: string
+    user_id?: string
     AND?: Approved_ManagerWhereInput | Approved_ManagerWhereInput[]
     OR?: Approved_ManagerWhereInput[]
     NOT?: Approved_ManagerWhereInput | Approved_ManagerWhereInput[]
@@ -14352,14 +15918,14 @@ export namespace Prisma {
     is_used?: BoolFilter<"Approved_Manager"> | boolean
     createdAt?: DateTimeFilter<"Approved_Manager"> | Date | string
     updatedAt?: DateTimeFilter<"Approved_Manager"> | Date | string
-    manager?: XOR<ManagerNullableScalarRelationFilter, ManagerWhereInput> | null
+    manager?: XOR<UserScalarRelationFilter, UserWhereInput>
     admin?: XOR<AdminScalarRelationFilter, AdminWhereInput>
-  }, "id" | "approval_code" | "manager_id">
+  }, "id" | "approval_code" | "user_id">
 
   export type Approved_ManagerOrderByWithAggregationInput = {
     id?: SortOrder
     approval_code?: SortOrder
-    manager_id?: SortOrderInput | SortOrder
+    user_id?: SortOrder
     admin_id?: SortOrder
     manager_slot?: SortOrder
     is_used?: SortOrder
@@ -14378,12 +15944,80 @@ export namespace Prisma {
     NOT?: Approved_ManagerScalarWhereWithAggregatesInput | Approved_ManagerScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Approved_Manager"> | string
     approval_code?: StringWithAggregatesFilter<"Approved_Manager"> | string
-    manager_id?: StringNullableWithAggregatesFilter<"Approved_Manager"> | string | null
+    user_id?: StringWithAggregatesFilter<"Approved_Manager"> | string
     admin_id?: StringWithAggregatesFilter<"Approved_Manager"> | string
     manager_slot?: IntWithAggregatesFilter<"Approved_Manager"> | number
     is_used?: BoolWithAggregatesFilter<"Approved_Manager"> | boolean
     createdAt?: DateTimeWithAggregatesFilter<"Approved_Manager"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Approved_Manager"> | Date | string
+  }
+
+  export type Approved_AdminWhereInput = {
+    AND?: Approved_AdminWhereInput | Approved_AdminWhereInput[]
+    OR?: Approved_AdminWhereInput[]
+    NOT?: Approved_AdminWhereInput | Approved_AdminWhereInput[]
+    id?: StringFilter<"Approved_Admin"> | string
+    approval_code?: StringFilter<"Approved_Admin"> | string
+    admin_id?: StringNullableFilter<"Approved_Admin"> | string | null
+    superAdmin_id?: StringFilter<"Approved_Admin"> | string
+    is_used?: BoolFilter<"Approved_Admin"> | boolean
+    createdAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+    updatedAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+    admin?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    superAdmin?: XOR<AdminScalarRelationFilter, AdminWhereInput>
+  }
+
+  export type Approved_AdminOrderByWithRelationInput = {
+    id?: SortOrder
+    approval_code?: SortOrder
+    admin_id?: SortOrderInput | SortOrder
+    superAdmin_id?: SortOrder
+    is_used?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    admin?: UserOrderByWithRelationInput
+    superAdmin?: AdminOrderByWithRelationInput
+  }
+
+  export type Approved_AdminWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    approval_code?: string
+    admin_id?: string
+    AND?: Approved_AdminWhereInput | Approved_AdminWhereInput[]
+    OR?: Approved_AdminWhereInput[]
+    NOT?: Approved_AdminWhereInput | Approved_AdminWhereInput[]
+    superAdmin_id?: StringFilter<"Approved_Admin"> | string
+    is_used?: BoolFilter<"Approved_Admin"> | boolean
+    createdAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+    updatedAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+    admin?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+    superAdmin?: XOR<AdminScalarRelationFilter, AdminWhereInput>
+  }, "id" | "approval_code" | "admin_id">
+
+  export type Approved_AdminOrderByWithAggregationInput = {
+    id?: SortOrder
+    approval_code?: SortOrder
+    admin_id?: SortOrderInput | SortOrder
+    superAdmin_id?: SortOrder
+    is_used?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+    _count?: Approved_AdminCountOrderByAggregateInput
+    _max?: Approved_AdminMaxOrderByAggregateInput
+    _min?: Approved_AdminMinOrderByAggregateInput
+  }
+
+  export type Approved_AdminScalarWhereWithAggregatesInput = {
+    AND?: Approved_AdminScalarWhereWithAggregatesInput | Approved_AdminScalarWhereWithAggregatesInput[]
+    OR?: Approved_AdminScalarWhereWithAggregatesInput[]
+    NOT?: Approved_AdminScalarWhereWithAggregatesInput | Approved_AdminScalarWhereWithAggregatesInput[]
+    id?: StringWithAggregatesFilter<"Approved_Admin"> | string
+    approval_code?: StringWithAggregatesFilter<"Approved_Admin"> | string
+    admin_id?: StringNullableWithAggregatesFilter<"Approved_Admin"> | string | null
+    superAdmin_id?: StringWithAggregatesFilter<"Approved_Admin"> | string
+    is_used?: BoolWithAggregatesFilter<"Approved_Admin"> | boolean
+    createdAt?: DateTimeWithAggregatesFilter<"Approved_Admin"> | Date | string
+    updatedAt?: DateTimeWithAggregatesFilter<"Approved_Admin"> | Date | string
   }
 
   export type UserCreateInput = {
@@ -14396,11 +16030,16 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
     manager?: ManagerCreateNestedOneWithoutUserInput
     client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
     to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -14414,10 +16053,15 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
     to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserUpdateInput = {
@@ -14430,11 +16074,16 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
     manager?: ManagerUpdateOneWithoutUserNestedInput
     client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
     to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -14448,10 +16097,15 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
     to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -14465,6 +16119,9 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
   }
 
   export type UserUpdateManyMutationInput = {
@@ -14477,6 +16134,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -14490,6 +16150,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type StockTableCreateInput = {
@@ -14497,6 +16160,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentCreateNestedManyWithoutStockInput
@@ -14509,6 +16182,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentUncheckedCreateNestedManyWithoutStockInput
@@ -14521,6 +16204,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUpdateManyWithoutStockNestedInput
@@ -14533,6 +16226,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUncheckedUpdateManyWithoutStockNestedInput
@@ -14545,6 +16248,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -14554,6 +16267,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14563,6 +16286,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -14754,6 +16487,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
     portfolio: PortfolioCreateNestedOneWithoutTrade_requestInput
     stock: StockTableCreateNestedOneWithoutTrade_requestInput
@@ -14768,6 +16502,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -14776,6 +16511,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     portfolio?: PortfolioUpdateOneRequiredWithoutTrade_requestNestedInput
     stock?: StockTableUpdateOneRequiredWithoutTrade_requestNestedInput
@@ -14790,6 +16526,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14801,6 +16538,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -14809,6 +16547,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14820,6 +16559,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -14888,7 +16628,6 @@ export namespace Prisma {
     user: UserCreateNestedOneWithoutManagerInput
     managed_by?: UserCreateNestedManyWithoutClient_managerInput
     approvedBy?: Trade_requestCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerUncheckedCreateInput = {
@@ -14901,7 +16640,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     managed_by?: UserUncheckedCreateNestedManyWithoutClient_managerInput
     approvedBy?: Trade_requestUncheckedCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerUpdateInput = {
@@ -14914,7 +16652,6 @@ export namespace Prisma {
     user?: UserUpdateOneRequiredWithoutManagerNestedInput
     managed_by?: UserUpdateManyWithoutClient_managerNestedInput
     approvedBy?: Trade_requestUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerUncheckedUpdateInput = {
@@ -14927,7 +16664,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     managed_by?: UserUncheckedUpdateManyWithoutClient_managerNestedInput
     approvedBy?: Trade_requestUncheckedUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerCreateManyInput = {
@@ -14961,48 +16697,52 @@ export namespace Prisma {
 
   export type AdminCreateInput = {
     id?: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutTo_adminInput
     admin_id?: Approved_ManagerCreateNestedManyWithoutAdminInput
+    super_admin_id?: Approved_AdminCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminUncheckedCreateInput = {
     id?: string
     user_id: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     admin_id?: Approved_ManagerUncheckedCreateNestedManyWithoutAdminInput
+    super_admin_id?: Approved_AdminUncheckedCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutTo_adminNestedInput
     admin_id?: Approved_ManagerUpdateManyWithoutAdminNestedInput
+    super_admin_id?: Approved_AdminUpdateManyWithoutSuperAdminNestedInput
   }
 
   export type AdminUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     admin_id?: Approved_ManagerUncheckedUpdateManyWithoutAdminNestedInput
+    super_admin_id?: Approved_AdminUncheckedUpdateManyWithoutSuperAdminNestedInput
   }
 
   export type AdminCreateManyInput = {
     id?: string
     user_id: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -15010,7 +16750,7 @@ export namespace Prisma {
 
   export type AdminUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15019,7 +16759,7 @@ export namespace Prisma {
   export type AdminUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15032,14 +16772,14 @@ export namespace Prisma {
     is_used?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    manager?: ManagerCreateNestedOneWithoutApproved_ManagerInput
+    manager: UserCreateNestedOneWithoutApproved_ManagerInput
     admin: AdminCreateNestedOneWithoutAdmin_idInput
   }
 
   export type Approved_ManagerUncheckedCreateInput = {
     id?: string
     approval_code: string
-    manager_id?: string | null
+    user_id: string
     admin_id: string
     manager_slot?: number
     is_used?: boolean
@@ -15054,14 +16794,14 @@ export namespace Prisma {
     is_used?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    manager?: ManagerUpdateOneWithoutApproved_ManagerNestedInput
+    manager?: UserUpdateOneRequiredWithoutApproved_ManagerNestedInput
     admin?: AdminUpdateOneRequiredWithoutAdmin_idNestedInput
   }
 
   export type Approved_ManagerUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     approval_code?: StringFieldUpdateOperationsInput | string
-    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     manager_slot?: IntFieldUpdateOperationsInput | number
     is_used?: BoolFieldUpdateOperationsInput | boolean
@@ -15072,7 +16812,7 @@ export namespace Prisma {
   export type Approved_ManagerCreateManyInput = {
     id?: string
     approval_code: string
-    manager_id?: string | null
+    user_id: string
     admin_id: string
     manager_slot?: number
     is_used?: boolean
@@ -15092,9 +16832,77 @@ export namespace Prisma {
   export type Approved_ManagerUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
     approval_code?: StringFieldUpdateOperationsInput | string
-    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
     admin_id?: StringFieldUpdateOperationsInput | string
     manager_slot?: IntFieldUpdateOperationsInput | number
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_AdminCreateInput = {
+    id?: string
+    approval_code: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    admin?: UserCreateNestedOneWithoutAdd_adminInput
+    superAdmin: AdminCreateNestedOneWithoutSuper_admin_idInput
+  }
+
+  export type Approved_AdminUncheckedCreateInput = {
+    id?: string
+    approval_code: string
+    admin_id?: string | null
+    superAdmin_id: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_AdminUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    admin?: UserUpdateOneWithoutAdd_adminNestedInput
+    superAdmin?: AdminUpdateOneRequiredWithoutSuper_admin_idNestedInput
+  }
+
+  export type Approved_AdminUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    admin_id?: NullableStringFieldUpdateOperationsInput | string | null
+    superAdmin_id?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_AdminCreateManyInput = {
+    id?: string
+    approval_code: string
+    admin_id?: string | null
+    superAdmin_id: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_AdminUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_AdminUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    admin_id?: NullableStringFieldUpdateOperationsInput | string | null
+    superAdmin_id?: StringFieldUpdateOperationsInput | string
     is_used?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -15153,6 +16961,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type DateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
+  }
+
   export type PortfolioListRelationFilter = {
     every?: PortfolioWhereInput
     some?: PortfolioWhereInput
@@ -15173,6 +16992,16 @@ export namespace Prisma {
   export type AdminNullableScalarRelationFilter = {
     is?: AdminWhereInput | null
     isNot?: AdminWhereInput | null
+  }
+
+  export type Approved_AdminNullableScalarRelationFilter = {
+    is?: Approved_AdminWhereInput | null
+    isNot?: Approved_AdminWhereInput | null
+  }
+
+  export type Approved_ManagerNullableScalarRelationFilter = {
+    is?: Approved_ManagerWhereInput | null
+    isNot?: Approved_ManagerWhereInput | null
   }
 
   export type SortOrderInput = {
@@ -15199,6 +17028,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
     manager_id?: SortOrder
     restricted?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verificationTokenExpires?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -15212,6 +17044,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
     manager_id?: SortOrder
     restricted?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verificationTokenExpires?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -15225,6 +17060,9 @@ export namespace Prisma {
     updatedAt?: SortOrder
     manager_id?: SortOrder
     restricted?: SortOrder
+    isVerified?: SortOrder
+    verificationToken?: SortOrder
+    verificationTokenExpires?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -15295,6 +17133,20 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type DateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type DecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -15304,6 +17156,28 @@ export namespace Prisma {
     gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type DecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type BigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
   }
 
   export type InvestmentListRelationFilter = {
@@ -15341,12 +17215,28 @@ export namespace Prisma {
     symbol?: SortOrder
     company?: SortOrder
     price?: SortOrder
+    changePercent?: SortOrder
+    marketCap?: SortOrder
+    volume?: SortOrder
+    peRatio?: SortOrder
+    dividendYield?: SortOrder
+    fiftyTwoWeekLow?: SortOrder
+    fiftyTwoWeekHigh?: SortOrder
+    currency?: SortOrder
+    exchange?: SortOrder
+    lastUpdated?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type StockTableAvgOrderByAggregateInput = {
     price?: SortOrder
+    changePercent?: SortOrder
+    marketCap?: SortOrder
+    peRatio?: SortOrder
+    dividendYield?: SortOrder
+    fiftyTwoWeekLow?: SortOrder
+    fiftyTwoWeekHigh?: SortOrder
   }
 
   export type StockTableMaxOrderByAggregateInput = {
@@ -15354,6 +17244,16 @@ export namespace Prisma {
     symbol?: SortOrder
     company?: SortOrder
     price?: SortOrder
+    changePercent?: SortOrder
+    marketCap?: SortOrder
+    volume?: SortOrder
+    peRatio?: SortOrder
+    dividendYield?: SortOrder
+    fiftyTwoWeekLow?: SortOrder
+    fiftyTwoWeekHigh?: SortOrder
+    currency?: SortOrder
+    exchange?: SortOrder
+    lastUpdated?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -15363,12 +17263,28 @@ export namespace Prisma {
     symbol?: SortOrder
     company?: SortOrder
     price?: SortOrder
+    changePercent?: SortOrder
+    marketCap?: SortOrder
+    volume?: SortOrder
+    peRatio?: SortOrder
+    dividendYield?: SortOrder
+    fiftyTwoWeekLow?: SortOrder
+    fiftyTwoWeekHigh?: SortOrder
+    currency?: SortOrder
+    exchange?: SortOrder
+    lastUpdated?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
 
   export type StockTableSumOrderByAggregateInput = {
     price?: SortOrder
+    changePercent?: SortOrder
+    marketCap?: SortOrder
+    peRatio?: SortOrder
+    dividendYield?: SortOrder
+    fiftyTwoWeekLow?: SortOrder
+    fiftyTwoWeekHigh?: SortOrder
   }
 
   export type DecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -15385,6 +17301,38 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type DecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type BigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
   }
 
   export type UserScalarRelationFilter = {
@@ -15561,6 +17509,7 @@ export namespace Prisma {
     status?: SortOrder
     type?: SortOrder
     approved_by?: SortOrder
+    response?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15576,6 +17525,7 @@ export namespace Prisma {
     status?: SortOrder
     type?: SortOrder
     approved_by?: SortOrder
+    response?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15587,6 +17537,7 @@ export namespace Prisma {
     status?: SortOrder
     type?: SortOrder
     approved_by?: SortOrder
+    response?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -15632,11 +17583,6 @@ export namespace Prisma {
     every?: UserWhereInput
     some?: UserWhereInput
     none?: UserWhereInput
-  }
-
-  export type Approved_ManagerNullableScalarRelationFilter = {
-    is?: Approved_ManagerWhereInput | null
-    isNot?: Approved_ManagerWhereInput | null
   }
 
   export type UserOrderByRelationAggregateInput = {
@@ -15687,7 +17633,17 @@ export namespace Prisma {
     none?: Approved_ManagerWhereInput
   }
 
+  export type Approved_AdminListRelationFilter = {
+    every?: Approved_AdminWhereInput
+    some?: Approved_AdminWhereInput
+    none?: Approved_AdminWhereInput
+  }
+
   export type Approved_ManagerOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type Approved_AdminOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -15726,7 +17682,7 @@ export namespace Prisma {
   export type Approved_ManagerCountOrderByAggregateInput = {
     id?: SortOrder
     approval_code?: SortOrder
-    manager_id?: SortOrder
+    user_id?: SortOrder
     admin_id?: SortOrder
     manager_slot?: SortOrder
     is_used?: SortOrder
@@ -15741,7 +17697,7 @@ export namespace Prisma {
   export type Approved_ManagerMaxOrderByAggregateInput = {
     id?: SortOrder
     approval_code?: SortOrder
-    manager_id?: SortOrder
+    user_id?: SortOrder
     admin_id?: SortOrder
     manager_slot?: SortOrder
     is_used?: SortOrder
@@ -15752,7 +17708,7 @@ export namespace Prisma {
   export type Approved_ManagerMinOrderByAggregateInput = {
     id?: SortOrder
     approval_code?: SortOrder
-    manager_id?: SortOrder
+    user_id?: SortOrder
     admin_id?: SortOrder
     manager_slot?: SortOrder
     is_used?: SortOrder
@@ -15762,6 +17718,41 @@ export namespace Prisma {
 
   export type Approved_ManagerSumOrderByAggregateInput = {
     manager_slot?: SortOrder
+  }
+
+  export type UserNullableScalarRelationFilter = {
+    is?: UserWhereInput | null
+    isNot?: UserWhereInput | null
+  }
+
+  export type Approved_AdminCountOrderByAggregateInput = {
+    id?: SortOrder
+    approval_code?: SortOrder
+    admin_id?: SortOrder
+    superAdmin_id?: SortOrder
+    is_used?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type Approved_AdminMaxOrderByAggregateInput = {
+    id?: SortOrder
+    approval_code?: SortOrder
+    admin_id?: SortOrder
+    superAdmin_id?: SortOrder
+    is_used?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
+  }
+
+  export type Approved_AdminMinOrderByAggregateInput = {
+    id?: SortOrder
+    approval_code?: SortOrder
+    admin_id?: SortOrder
+    superAdmin_id?: SortOrder
+    is_used?: SortOrder
+    createdAt?: SortOrder
+    updatedAt?: SortOrder
   }
 
   export type PortfolioCreateNestedManyWithoutUserInput = {
@@ -15796,6 +17787,18 @@ export namespace Prisma {
     connect?: AdminWhereUniqueInput
   }
 
+  export type Approved_AdminCreateNestedOneWithoutAdminInput = {
+    create?: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutAdminInput
+    connect?: Approved_AdminWhereUniqueInput
+  }
+
+  export type Approved_ManagerCreateNestedOneWithoutManagerInput = {
+    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
+    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
+    connect?: Approved_ManagerWhereUniqueInput
+  }
+
   export type PortfolioUncheckedCreateNestedManyWithoutUserInput = {
     create?: XOR<PortfolioCreateWithoutUserInput, PortfolioUncheckedCreateWithoutUserInput> | PortfolioCreateWithoutUserInput[] | PortfolioUncheckedCreateWithoutUserInput[]
     connectOrCreate?: PortfolioCreateOrConnectWithoutUserInput | PortfolioCreateOrConnectWithoutUserInput[]
@@ -15822,6 +17825,18 @@ export namespace Prisma {
     connect?: AdminWhereUniqueInput
   }
 
+  export type Approved_AdminUncheckedCreateNestedOneWithoutAdminInput = {
+    create?: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutAdminInput
+    connect?: Approved_AdminWhereUniqueInput
+  }
+
+  export type Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput = {
+    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
+    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
+    connect?: Approved_ManagerWhereUniqueInput
+  }
+
   export type StringFieldUpdateOperationsInput = {
     set?: string
   }
@@ -15836,6 +17851,14 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type NullableStringFieldUpdateOperationsInput = {
+    set?: string | null
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type PortfolioUpdateManyWithoutUserNestedInput = {
@@ -15896,8 +17919,24 @@ export namespace Prisma {
     update?: XOR<XOR<AdminUpdateToOneWithWhereWithoutUserInput, AdminUpdateWithoutUserInput>, AdminUncheckedUpdateWithoutUserInput>
   }
 
-  export type NullableStringFieldUpdateOperationsInput = {
-    set?: string | null
+  export type Approved_AdminUpdateOneWithoutAdminNestedInput = {
+    create?: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutAdminInput
+    upsert?: Approved_AdminUpsertWithoutAdminInput
+    disconnect?: Approved_AdminWhereInput | boolean
+    delete?: Approved_AdminWhereInput | boolean
+    connect?: Approved_AdminWhereUniqueInput
+    update?: XOR<XOR<Approved_AdminUpdateToOneWithWhereWithoutAdminInput, Approved_AdminUpdateWithoutAdminInput>, Approved_AdminUncheckedUpdateWithoutAdminInput>
+  }
+
+  export type Approved_ManagerUpdateOneWithoutManagerNestedInput = {
+    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
+    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
+    upsert?: Approved_ManagerUpsertWithoutManagerInput
+    disconnect?: Approved_ManagerWhereInput | boolean
+    delete?: Approved_ManagerWhereInput | boolean
+    connect?: Approved_ManagerWhereUniqueInput
+    update?: XOR<XOR<Approved_ManagerUpdateToOneWithWhereWithoutManagerInput, Approved_ManagerUpdateWithoutManagerInput>, Approved_ManagerUncheckedUpdateWithoutManagerInput>
   }
 
   export type PortfolioUncheckedUpdateManyWithoutUserNestedInput = {
@@ -15948,6 +17987,26 @@ export namespace Prisma {
     update?: XOR<XOR<AdminUpdateToOneWithWhereWithoutUserInput, AdminUpdateWithoutUserInput>, AdminUncheckedUpdateWithoutUserInput>
   }
 
+  export type Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput = {
+    create?: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutAdminInput
+    upsert?: Approved_AdminUpsertWithoutAdminInput
+    disconnect?: Approved_AdminWhereInput | boolean
+    delete?: Approved_AdminWhereInput | boolean
+    connect?: Approved_AdminWhereUniqueInput
+    update?: XOR<XOR<Approved_AdminUpdateToOneWithWhereWithoutAdminInput, Approved_AdminUpdateWithoutAdminInput>, Approved_AdminUncheckedUpdateWithoutAdminInput>
+  }
+
+  export type Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput = {
+    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
+    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
+    upsert?: Approved_ManagerUpsertWithoutManagerInput
+    disconnect?: Approved_ManagerWhereInput | boolean
+    delete?: Approved_ManagerWhereInput | boolean
+    connect?: Approved_ManagerWhereUniqueInput
+    update?: XOR<XOR<Approved_ManagerUpdateToOneWithWhereWithoutManagerInput, Approved_ManagerUpdateWithoutManagerInput>, Approved_ManagerUncheckedUpdateWithoutManagerInput>
+  }
+
   export type InvestmentCreateNestedManyWithoutStockInput = {
     create?: XOR<InvestmentCreateWithoutStockInput, InvestmentUncheckedCreateWithoutStockInput> | InvestmentCreateWithoutStockInput[] | InvestmentUncheckedCreateWithoutStockInput[]
     connectOrCreate?: InvestmentCreateOrConnectWithoutStockInput | InvestmentCreateOrConnectWithoutStockInput[]
@@ -15996,6 +18055,22 @@ export namespace Prisma {
     decrement?: Decimal | DecimalJsLike | number | string
     multiply?: Decimal | DecimalJsLike | number | string
     divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableDecimalFieldUpdateOperationsInput = {
+    set?: Decimal | DecimalJsLike | number | string | null
+    increment?: Decimal | DecimalJsLike | number | string
+    decrement?: Decimal | DecimalJsLike | number | string
+    multiply?: Decimal | DecimalJsLike | number | string
+    divide?: Decimal | DecimalJsLike | number | string
+  }
+
+  export type NullableBigIntFieldUpdateOperationsInput = {
+    set?: bigint | number | null
+    increment?: bigint | number
+    decrement?: bigint | number
+    multiply?: bigint | number
+    divide?: bigint | number
   }
 
   export type InvestmentUpdateManyWithoutStockNestedInput = {
@@ -16372,12 +18447,6 @@ export namespace Prisma {
     connect?: Trade_requestWhereUniqueInput | Trade_requestWhereUniqueInput[]
   }
 
-  export type Approved_ManagerCreateNestedOneWithoutManagerInput = {
-    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
-    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
-    connect?: Approved_ManagerWhereUniqueInput
-  }
-
   export type UserUncheckedCreateNestedManyWithoutClient_managerInput = {
     create?: XOR<UserCreateWithoutClient_managerInput, UserUncheckedCreateWithoutClient_managerInput> | UserCreateWithoutClient_managerInput[] | UserUncheckedCreateWithoutClient_managerInput[]
     connectOrCreate?: UserCreateOrConnectWithoutClient_managerInput | UserCreateOrConnectWithoutClient_managerInput[]
@@ -16390,12 +18459,6 @@ export namespace Prisma {
     connectOrCreate?: Trade_requestCreateOrConnectWithoutApprovedInput | Trade_requestCreateOrConnectWithoutApprovedInput[]
     createMany?: Trade_requestCreateManyApprovedInputEnvelope
     connect?: Trade_requestWhereUniqueInput | Trade_requestWhereUniqueInput[]
-  }
-
-  export type Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput = {
-    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
-    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
-    connect?: Approved_ManagerWhereUniqueInput
   }
 
   export type UserUpdateOneRequiredWithoutManagerNestedInput = {
@@ -16434,16 +18497,6 @@ export namespace Prisma {
     deleteMany?: Trade_requestScalarWhereInput | Trade_requestScalarWhereInput[]
   }
 
-  export type Approved_ManagerUpdateOneWithoutManagerNestedInput = {
-    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
-    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
-    upsert?: Approved_ManagerUpsertWithoutManagerInput
-    disconnect?: Approved_ManagerWhereInput | boolean
-    delete?: Approved_ManagerWhereInput | boolean
-    connect?: Approved_ManagerWhereUniqueInput
-    update?: XOR<XOR<Approved_ManagerUpdateToOneWithWhereWithoutManagerInput, Approved_ManagerUpdateWithoutManagerInput>, Approved_ManagerUncheckedUpdateWithoutManagerInput>
-  }
-
   export type UserUncheckedUpdateManyWithoutClient_managerNestedInput = {
     create?: XOR<UserCreateWithoutClient_managerInput, UserUncheckedCreateWithoutClient_managerInput> | UserCreateWithoutClient_managerInput[] | UserUncheckedCreateWithoutClient_managerInput[]
     connectOrCreate?: UserCreateOrConnectWithoutClient_managerInput | UserCreateOrConnectWithoutClient_managerInput[]
@@ -16472,16 +18525,6 @@ export namespace Prisma {
     deleteMany?: Trade_requestScalarWhereInput | Trade_requestScalarWhereInput[]
   }
 
-  export type Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput = {
-    create?: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
-    connectOrCreate?: Approved_ManagerCreateOrConnectWithoutManagerInput
-    upsert?: Approved_ManagerUpsertWithoutManagerInput
-    disconnect?: Approved_ManagerWhereInput | boolean
-    delete?: Approved_ManagerWhereInput | boolean
-    connect?: Approved_ManagerWhereUniqueInput
-    update?: XOR<XOR<Approved_ManagerUpdateToOneWithWhereWithoutManagerInput, Approved_ManagerUpdateWithoutManagerInput>, Approved_ManagerUncheckedUpdateWithoutManagerInput>
-  }
-
   export type UserCreateNestedOneWithoutTo_adminInput = {
     create?: XOR<UserCreateWithoutTo_adminInput, UserUncheckedCreateWithoutTo_adminInput>
     connectOrCreate?: UserCreateOrConnectWithoutTo_adminInput
@@ -16495,11 +18538,25 @@ export namespace Prisma {
     connect?: Approved_ManagerWhereUniqueInput | Approved_ManagerWhereUniqueInput[]
   }
 
+  export type Approved_AdminCreateNestedManyWithoutSuperAdminInput = {
+    create?: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput> | Approved_AdminCreateWithoutSuperAdminInput[] | Approved_AdminUncheckedCreateWithoutSuperAdminInput[]
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutSuperAdminInput | Approved_AdminCreateOrConnectWithoutSuperAdminInput[]
+    createMany?: Approved_AdminCreateManySuperAdminInputEnvelope
+    connect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+  }
+
   export type Approved_ManagerUncheckedCreateNestedManyWithoutAdminInput = {
     create?: XOR<Approved_ManagerCreateWithoutAdminInput, Approved_ManagerUncheckedCreateWithoutAdminInput> | Approved_ManagerCreateWithoutAdminInput[] | Approved_ManagerUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: Approved_ManagerCreateOrConnectWithoutAdminInput | Approved_ManagerCreateOrConnectWithoutAdminInput[]
     createMany?: Approved_ManagerCreateManyAdminInputEnvelope
     connect?: Approved_ManagerWhereUniqueInput | Approved_ManagerWhereUniqueInput[]
+  }
+
+  export type Approved_AdminUncheckedCreateNestedManyWithoutSuperAdminInput = {
+    create?: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput> | Approved_AdminCreateWithoutSuperAdminInput[] | Approved_AdminUncheckedCreateWithoutSuperAdminInput[]
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutSuperAdminInput | Approved_AdminCreateOrConnectWithoutSuperAdminInput[]
+    createMany?: Approved_AdminCreateManySuperAdminInputEnvelope
+    connect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
   }
 
   export type UserUpdateOneRequiredWithoutTo_adminNestedInput = {
@@ -16524,6 +18581,20 @@ export namespace Prisma {
     deleteMany?: Approved_ManagerScalarWhereInput | Approved_ManagerScalarWhereInput[]
   }
 
+  export type Approved_AdminUpdateManyWithoutSuperAdminNestedInput = {
+    create?: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput> | Approved_AdminCreateWithoutSuperAdminInput[] | Approved_AdminUncheckedCreateWithoutSuperAdminInput[]
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutSuperAdminInput | Approved_AdminCreateOrConnectWithoutSuperAdminInput[]
+    upsert?: Approved_AdminUpsertWithWhereUniqueWithoutSuperAdminInput | Approved_AdminUpsertWithWhereUniqueWithoutSuperAdminInput[]
+    createMany?: Approved_AdminCreateManySuperAdminInputEnvelope
+    set?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    disconnect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    delete?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    connect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    update?: Approved_AdminUpdateWithWhereUniqueWithoutSuperAdminInput | Approved_AdminUpdateWithWhereUniqueWithoutSuperAdminInput[]
+    updateMany?: Approved_AdminUpdateManyWithWhereWithoutSuperAdminInput | Approved_AdminUpdateManyWithWhereWithoutSuperAdminInput[]
+    deleteMany?: Approved_AdminScalarWhereInput | Approved_AdminScalarWhereInput[]
+  }
+
   export type Approved_ManagerUncheckedUpdateManyWithoutAdminNestedInput = {
     create?: XOR<Approved_ManagerCreateWithoutAdminInput, Approved_ManagerUncheckedCreateWithoutAdminInput> | Approved_ManagerCreateWithoutAdminInput[] | Approved_ManagerUncheckedCreateWithoutAdminInput[]
     connectOrCreate?: Approved_ManagerCreateOrConnectWithoutAdminInput | Approved_ManagerCreateOrConnectWithoutAdminInput[]
@@ -16538,10 +18609,24 @@ export namespace Prisma {
     deleteMany?: Approved_ManagerScalarWhereInput | Approved_ManagerScalarWhereInput[]
   }
 
-  export type ManagerCreateNestedOneWithoutApproved_ManagerInput = {
-    create?: XOR<ManagerCreateWithoutApproved_ManagerInput, ManagerUncheckedCreateWithoutApproved_ManagerInput>
-    connectOrCreate?: ManagerCreateOrConnectWithoutApproved_ManagerInput
-    connect?: ManagerWhereUniqueInput
+  export type Approved_AdminUncheckedUpdateManyWithoutSuperAdminNestedInput = {
+    create?: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput> | Approved_AdminCreateWithoutSuperAdminInput[] | Approved_AdminUncheckedCreateWithoutSuperAdminInput[]
+    connectOrCreate?: Approved_AdminCreateOrConnectWithoutSuperAdminInput | Approved_AdminCreateOrConnectWithoutSuperAdminInput[]
+    upsert?: Approved_AdminUpsertWithWhereUniqueWithoutSuperAdminInput | Approved_AdminUpsertWithWhereUniqueWithoutSuperAdminInput[]
+    createMany?: Approved_AdminCreateManySuperAdminInputEnvelope
+    set?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    disconnect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    delete?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    connect?: Approved_AdminWhereUniqueInput | Approved_AdminWhereUniqueInput[]
+    update?: Approved_AdminUpdateWithWhereUniqueWithoutSuperAdminInput | Approved_AdminUpdateWithWhereUniqueWithoutSuperAdminInput[]
+    updateMany?: Approved_AdminUpdateManyWithWhereWithoutSuperAdminInput | Approved_AdminUpdateManyWithWhereWithoutSuperAdminInput[]
+    deleteMany?: Approved_AdminScalarWhereInput | Approved_AdminScalarWhereInput[]
+  }
+
+  export type UserCreateNestedOneWithoutApproved_ManagerInput = {
+    create?: XOR<UserCreateWithoutApproved_ManagerInput, UserUncheckedCreateWithoutApproved_ManagerInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApproved_ManagerInput
+    connect?: UserWhereUniqueInput
   }
 
   export type AdminCreateNestedOneWithoutAdmin_idInput = {
@@ -16550,14 +18635,12 @@ export namespace Prisma {
     connect?: AdminWhereUniqueInput
   }
 
-  export type ManagerUpdateOneWithoutApproved_ManagerNestedInput = {
-    create?: XOR<ManagerCreateWithoutApproved_ManagerInput, ManagerUncheckedCreateWithoutApproved_ManagerInput>
-    connectOrCreate?: ManagerCreateOrConnectWithoutApproved_ManagerInput
-    upsert?: ManagerUpsertWithoutApproved_ManagerInput
-    disconnect?: ManagerWhereInput | boolean
-    delete?: ManagerWhereInput | boolean
-    connect?: ManagerWhereUniqueInput
-    update?: XOR<XOR<ManagerUpdateToOneWithWhereWithoutApproved_ManagerInput, ManagerUpdateWithoutApproved_ManagerInput>, ManagerUncheckedUpdateWithoutApproved_ManagerInput>
+  export type UserUpdateOneRequiredWithoutApproved_ManagerNestedInput = {
+    create?: XOR<UserCreateWithoutApproved_ManagerInput, UserUncheckedCreateWithoutApproved_ManagerInput>
+    connectOrCreate?: UserCreateOrConnectWithoutApproved_ManagerInput
+    upsert?: UserUpsertWithoutApproved_ManagerInput
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutApproved_ManagerInput, UserUpdateWithoutApproved_ManagerInput>, UserUncheckedUpdateWithoutApproved_ManagerInput>
   }
 
   export type AdminUpdateOneRequiredWithoutAdmin_idNestedInput = {
@@ -16566,6 +18649,36 @@ export namespace Prisma {
     upsert?: AdminUpsertWithoutAdmin_idInput
     connect?: AdminWhereUniqueInput
     update?: XOR<XOR<AdminUpdateToOneWithWhereWithoutAdmin_idInput, AdminUpdateWithoutAdmin_idInput>, AdminUncheckedUpdateWithoutAdmin_idInput>
+  }
+
+  export type UserCreateNestedOneWithoutAdd_adminInput = {
+    create?: XOR<UserCreateWithoutAdd_adminInput, UserUncheckedCreateWithoutAdd_adminInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdd_adminInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type AdminCreateNestedOneWithoutSuper_admin_idInput = {
+    create?: XOR<AdminCreateWithoutSuper_admin_idInput, AdminUncheckedCreateWithoutSuper_admin_idInput>
+    connectOrCreate?: AdminCreateOrConnectWithoutSuper_admin_idInput
+    connect?: AdminWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutAdd_adminNestedInput = {
+    create?: XOR<UserCreateWithoutAdd_adminInput, UserUncheckedCreateWithoutAdd_adminInput>
+    connectOrCreate?: UserCreateOrConnectWithoutAdd_adminInput
+    upsert?: UserUpsertWithoutAdd_adminInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutAdd_adminInput, UserUpdateWithoutAdd_adminInput>, UserUncheckedUpdateWithoutAdd_adminInput>
+  }
+
+  export type AdminUpdateOneRequiredWithoutSuper_admin_idNestedInput = {
+    create?: XOR<AdminCreateWithoutSuper_admin_idInput, AdminUncheckedCreateWithoutSuper_admin_idInput>
+    connectOrCreate?: AdminCreateOrConnectWithoutSuper_admin_idInput
+    upsert?: AdminUpsertWithoutSuper_admin_idInput
+    connect?: AdminWhereUniqueInput
+    update?: XOR<XOR<AdminUpdateToOneWithWhereWithoutSuper_admin_idInput, AdminUpdateWithoutSuper_admin_idInput>, AdminUncheckedUpdateWithoutSuper_admin_idInput>
   }
 
   export type NestedStringFilter<$PrismaModel = never> = {
@@ -16617,6 +18730,17 @@ export namespace Prisma {
   export type NestedBoolFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedDateTimeNullableFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableFilter<$PrismaModel> | Date | string | null
   }
 
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
@@ -16707,6 +18831,20 @@ export namespace Prisma {
     _max?: NestedBoolFilter<$PrismaModel>
   }
 
+  export type NestedDateTimeNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Date | string | DateTimeFieldRefInput<$PrismaModel> | null
+    in?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    notIn?: Date[] | string[] | ListDateTimeFieldRefInput<$PrismaModel> | null
+    lt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    lte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gt?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    gte?: Date | string | DateTimeFieldRefInput<$PrismaModel>
+    not?: NestedDateTimeNullableWithAggregatesFilter<$PrismaModel> | Date | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _min?: NestedDateTimeNullableFilter<$PrismaModel>
+    _max?: NestedDateTimeNullableFilter<$PrismaModel>
+  }
+
   export type NestedDecimalFilter<$PrismaModel = never> = {
     equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel>
@@ -16716,6 +18854,28 @@ export namespace Prisma {
     gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
     not?: NestedDecimalFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string
+  }
+
+  export type NestedDecimalNullableFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+  }
+
+  export type NestedBigIntNullableFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableFilter<$PrismaModel> | bigint | number | null
   }
 
   export type NestedDecimalWithAggregatesFilter<$PrismaModel = never> = {
@@ -16732,6 +18892,49 @@ export namespace Prisma {
     _sum?: NestedDecimalFilter<$PrismaModel>
     _min?: NestedDecimalFilter<$PrismaModel>
     _max?: NestedDecimalFilter<$PrismaModel>
+  }
+
+  export type NestedDecimalNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel> | null
+    in?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    notIn?: Decimal[] | DecimalJsLike[] | number[] | string[] | ListDecimalFieldRefInput<$PrismaModel> | null
+    lt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    lte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gt?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    gte?: Decimal | DecimalJsLike | number | string | DecimalFieldRefInput<$PrismaModel>
+    not?: NestedDecimalNullableWithAggregatesFilter<$PrismaModel> | Decimal | DecimalJsLike | number | string | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedDecimalNullableFilter<$PrismaModel>
+    _sum?: NestedDecimalNullableFilter<$PrismaModel>
+    _min?: NestedDecimalNullableFilter<$PrismaModel>
+    _max?: NestedDecimalNullableFilter<$PrismaModel>
+  }
+
+  export type NestedBigIntNullableWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: bigint | number | BigIntFieldRefInput<$PrismaModel> | null
+    in?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    notIn?: bigint[] | number[] | ListBigIntFieldRefInput<$PrismaModel> | null
+    lt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    lte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gt?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    gte?: bigint | number | BigIntFieldRefInput<$PrismaModel>
+    not?: NestedBigIntNullableWithAggregatesFilter<$PrismaModel> | bigint | number | null
+    _count?: NestedIntNullableFilter<$PrismaModel>
+    _avg?: NestedFloatNullableFilter<$PrismaModel>
+    _sum?: NestedBigIntNullableFilter<$PrismaModel>
+    _min?: NestedBigIntNullableFilter<$PrismaModel>
+    _max?: NestedBigIntNullableFilter<$PrismaModel>
+  }
+
+  export type NestedFloatNullableFilter<$PrismaModel = never> = {
+    equals?: number | FloatFieldRefInput<$PrismaModel> | null
+    in?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    notIn?: number[] | ListFloatFieldRefInput<$PrismaModel> | null
+    lt?: number | FloatFieldRefInput<$PrismaModel>
+    lte?: number | FloatFieldRefInput<$PrismaModel>
+    gt?: number | FloatFieldRefInput<$PrismaModel>
+    gte?: number | FloatFieldRefInput<$PrismaModel>
+    not?: NestedFloatNullableFilter<$PrismaModel> | number | null
   }
 
   export type NestedIntWithAggregatesFilter<$PrismaModel = never> = {
@@ -16852,7 +19055,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     managed_by?: UserCreateNestedManyWithoutClient_managerInput
     approvedBy?: Trade_requestCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerUncheckedCreateWithoutUserInput = {
@@ -16864,7 +19066,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     managed_by?: UserUncheckedCreateNestedManyWithoutClient_managerInput
     approvedBy?: Trade_requestUncheckedCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerCreateOrConnectWithoutUserInput = {
@@ -16881,7 +19082,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutManagerInput
     approvedBy?: Trade_requestCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerUncheckedCreateWithoutManaged_byInput = {
@@ -16893,7 +19093,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     approvedBy?: Trade_requestUncheckedCreateNestedManyWithoutApprovedInput
-    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerCreateOrConnectWithoutManaged_byInput = {
@@ -16903,25 +19102,75 @@ export namespace Prisma {
 
   export type AdminCreateWithoutUserInput = {
     id?: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     admin_id?: Approved_ManagerCreateNestedManyWithoutAdminInput
+    super_admin_id?: Approved_AdminCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminUncheckedCreateWithoutUserInput = {
     id?: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     admin_id?: Approved_ManagerUncheckedCreateNestedManyWithoutAdminInput
+    super_admin_id?: Approved_AdminUncheckedCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminCreateOrConnectWithoutUserInput = {
     where: AdminWhereUniqueInput
     create: XOR<AdminCreateWithoutUserInput, AdminUncheckedCreateWithoutUserInput>
+  }
+
+  export type Approved_AdminCreateWithoutAdminInput = {
+    id?: string
+    approval_code: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    superAdmin: AdminCreateNestedOneWithoutSuper_admin_idInput
+  }
+
+  export type Approved_AdminUncheckedCreateWithoutAdminInput = {
+    id?: string
+    approval_code: string
+    superAdmin_id: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_AdminCreateOrConnectWithoutAdminInput = {
+    where: Approved_AdminWhereUniqueInput
+    create: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+  }
+
+  export type Approved_ManagerCreateWithoutManagerInput = {
+    id?: string
+    approval_code: string
+    manager_slot?: number
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    admin: AdminCreateNestedOneWithoutAdmin_idInput
+  }
+
+  export type Approved_ManagerUncheckedCreateWithoutManagerInput = {
+    id?: string
+    approval_code: string
+    admin_id: string
+    manager_slot?: number
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_ManagerCreateOrConnectWithoutManagerInput = {
+    where: Approved_ManagerWhereUniqueInput
+    create: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
   }
 
   export type PortfolioUpsertWithWhereUniqueWithoutUserInput = {
@@ -16995,7 +19244,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     managed_by?: UserUpdateManyWithoutClient_managerNestedInput
     approvedBy?: Trade_requestUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerUncheckedUpdateWithoutUserInput = {
@@ -17007,7 +19255,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     managed_by?: UserUncheckedUpdateManyWithoutClient_managerNestedInput
     approvedBy?: Trade_requestUncheckedUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerUpsertWithoutManaged_byInput = {
@@ -17030,7 +19277,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutManagerNestedInput
     approvedBy?: Trade_requestUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerUncheckedUpdateWithoutManaged_byInput = {
@@ -17042,7 +19288,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     approvedBy?: Trade_requestUncheckedUpdateManyWithoutApprovedNestedInput
-    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type AdminUpsertWithoutUserInput = {
@@ -17058,20 +19303,82 @@ export namespace Prisma {
 
   export type AdminUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     admin_id?: Approved_ManagerUpdateManyWithoutAdminNestedInput
+    super_admin_id?: Approved_AdminUpdateManyWithoutSuperAdminNestedInput
   }
 
   export type AdminUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     admin_id?: Approved_ManagerUncheckedUpdateManyWithoutAdminNestedInput
+    super_admin_id?: Approved_AdminUncheckedUpdateManyWithoutSuperAdminNestedInput
+  }
+
+  export type Approved_AdminUpsertWithoutAdminInput = {
+    update: XOR<Approved_AdminUpdateWithoutAdminInput, Approved_AdminUncheckedUpdateWithoutAdminInput>
+    create: XOR<Approved_AdminCreateWithoutAdminInput, Approved_AdminUncheckedCreateWithoutAdminInput>
+    where?: Approved_AdminWhereInput
+  }
+
+  export type Approved_AdminUpdateToOneWithWhereWithoutAdminInput = {
+    where?: Approved_AdminWhereInput
+    data: XOR<Approved_AdminUpdateWithoutAdminInput, Approved_AdminUncheckedUpdateWithoutAdminInput>
+  }
+
+  export type Approved_AdminUpdateWithoutAdminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    superAdmin?: AdminUpdateOneRequiredWithoutSuper_admin_idNestedInput
+  }
+
+  export type Approved_AdminUncheckedUpdateWithoutAdminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    superAdmin_id?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_ManagerUpsertWithoutManagerInput = {
+    update: XOR<Approved_ManagerUpdateWithoutManagerInput, Approved_ManagerUncheckedUpdateWithoutManagerInput>
+    create: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
+    where?: Approved_ManagerWhereInput
+  }
+
+  export type Approved_ManagerUpdateToOneWithWhereWithoutManagerInput = {
+    where?: Approved_ManagerWhereInput
+    data: XOR<Approved_ManagerUpdateWithoutManagerInput, Approved_ManagerUncheckedUpdateWithoutManagerInput>
+  }
+
+  export type Approved_ManagerUpdateWithoutManagerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    manager_slot?: IntFieldUpdateOperationsInput | number
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    admin?: AdminUpdateOneRequiredWithoutAdmin_idNestedInput
+  }
+
+  export type Approved_ManagerUncheckedUpdateWithoutManagerInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    admin_id?: StringFieldUpdateOperationsInput | string
+    manager_slot?: IntFieldUpdateOperationsInput | number
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type InvestmentCreateWithoutStockInput = {
@@ -17135,6 +19442,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
     portfolio: PortfolioCreateNestedOneWithoutTrade_requestInput
     approved?: ManagerCreateNestedOneWithoutApprovedByInput
@@ -17147,6 +19455,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -17245,6 +19554,7 @@ export namespace Prisma {
     status?: EnumStatusFilter<"Trade_request"> | $Enums.Status
     type?: EnumTransactionTypeFilter<"Trade_request"> | $Enums.TransactionType
     approved_by?: StringNullableFilter<"Trade_request"> | string | null
+    response?: StringNullableFilter<"Trade_request"> | string | null
     createdAt?: DateTimeFilter<"Trade_request"> | Date | string
   }
 
@@ -17258,10 +19568,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
     manager?: ManagerCreateNestedOneWithoutUserInput
     client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
     to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateWithoutPortfolioInput = {
@@ -17275,9 +19590,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
     to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserCreateOrConnectWithoutPortfolioInput = {
@@ -17346,6 +19666,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
     stock: StockTableCreateNestedOneWithoutTrade_requestInput
     approved?: ManagerCreateNestedOneWithoutApprovedByInput
@@ -17358,6 +19679,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -17392,10 +19714,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
     manager?: ManagerUpdateOneWithoutUserNestedInput
     client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
     to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutPortfolioInput = {
@@ -17409,9 +19736,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
     to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type InvestmentUpsertWithWhereUniqueWithoutPortfolioInput = {
@@ -17486,6 +19818,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     transaction?: TransactionCreateNestedManyWithoutStockInput
@@ -17497,6 +19839,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     transaction?: TransactionUncheckedCreateNestedManyWithoutStockInput
@@ -17549,6 +19901,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: TransactionUpdateManyWithoutStockNestedInput
@@ -17560,6 +19922,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     transaction?: TransactionUncheckedUpdateManyWithoutStockNestedInput
@@ -17590,6 +19962,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentCreateNestedManyWithoutStockInput
@@ -17601,6 +19983,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentUncheckedCreateNestedManyWithoutStockInput
@@ -17653,6 +20045,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUpdateManyWithoutStockNestedInput
@@ -17664,6 +20066,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUncheckedUpdateManyWithoutStockNestedInput
@@ -17694,6 +20106,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentCreateNestedManyWithoutStockInput
@@ -17705,6 +20127,16 @@ export namespace Prisma {
     symbol: string
     company: string
     price: Decimal | DecimalJsLike | number | string
+    changePercent?: Decimal | DecimalJsLike | number | string | null
+    marketCap?: bigint | number | null
+    volume?: string | null
+    peRatio?: Decimal | DecimalJsLike | number | string | null
+    dividendYield?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: Decimal | DecimalJsLike | number | string | null
+    currency?: string
+    exchange?: string | null
+    lastUpdated?: Date | string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     investment?: InvestmentUncheckedCreateNestedManyWithoutStockInput
@@ -17725,7 +20157,6 @@ export namespace Prisma {
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutManagerInput
     managed_by?: UserCreateNestedManyWithoutClient_managerInput
-    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerUncheckedCreateWithoutApprovedByInput = {
@@ -17737,7 +20168,6 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     managed_by?: UserUncheckedCreateNestedManyWithoutClient_managerInput
-    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type ManagerCreateOrConnectWithoutApprovedByInput = {
@@ -17786,6 +20216,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUpdateManyWithoutStockNestedInput
@@ -17797,6 +20237,16 @@ export namespace Prisma {
     symbol?: StringFieldUpdateOperationsInput | string
     company?: StringFieldUpdateOperationsInput | string
     price?: DecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string
+    changePercent?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    marketCap?: NullableBigIntFieldUpdateOperationsInput | bigint | number | null
+    volume?: NullableStringFieldUpdateOperationsInput | string | null
+    peRatio?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    dividendYield?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekLow?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    fiftyTwoWeekHigh?: NullableDecimalFieldUpdateOperationsInput | Decimal | DecimalJsLike | number | string | null
+    currency?: StringFieldUpdateOperationsInput | string
+    exchange?: NullableStringFieldUpdateOperationsInput | string | null
+    lastUpdated?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     investment?: InvestmentUncheckedUpdateManyWithoutStockNestedInput
@@ -17823,7 +20273,6 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutManagerNestedInput
     managed_by?: UserUpdateManyWithoutClient_managerNestedInput
-    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type ManagerUncheckedUpdateWithoutApprovedByInput = {
@@ -17835,7 +20284,6 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     managed_by?: UserUncheckedUpdateManyWithoutClient_managerNestedInput
-    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type UserCreateWithoutRefreshTokenInput = {
@@ -17848,10 +20296,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioCreateNestedManyWithoutUserInput
     manager?: ManagerCreateNestedOneWithoutUserInput
     client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
     to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateWithoutRefreshTokenInput = {
@@ -17865,9 +20318,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
     to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserCreateOrConnectWithoutRefreshTokenInput = {
@@ -17896,10 +20354,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUpdateManyWithoutUserNestedInput
     manager?: ManagerUpdateOneWithoutUserNestedInput
     client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
     to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutRefreshTokenInput = {
@@ -17913,9 +20376,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
     to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type UserCreateWithoutManagerInput = {
@@ -17928,10 +20396,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
     client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
     to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateWithoutManagerInput = {
@@ -17945,9 +20418,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserCreateOrConnectWithoutManagerInput = {
@@ -17965,10 +20443,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
     manager?: ManagerCreateNestedOneWithoutUserInput
     to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateWithoutClient_managerInput = {
@@ -17981,10 +20464,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
     to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserCreateOrConnectWithoutClient_managerInput = {
@@ -18002,6 +20490,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
     portfolio: PortfolioCreateNestedOneWithoutTrade_requestInput
     stock: StockTableCreateNestedOneWithoutTrade_requestInput
@@ -18014,6 +20503,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -18025,31 +20515,6 @@ export namespace Prisma {
   export type Trade_requestCreateManyApprovedInputEnvelope = {
     data: Trade_requestCreateManyApprovedInput | Trade_requestCreateManyApprovedInput[]
     skipDuplicates?: boolean
-  }
-
-  export type Approved_ManagerCreateWithoutManagerInput = {
-    id?: string
-    approval_code: string
-    manager_slot?: number
-    is_used?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    admin: AdminCreateNestedOneWithoutAdmin_idInput
-  }
-
-  export type Approved_ManagerUncheckedCreateWithoutManagerInput = {
-    id?: string
-    approval_code: string
-    admin_id: string
-    manager_slot?: number
-    is_used?: boolean
-    createdAt?: Date | string
-    updatedAt?: Date | string
-  }
-
-  export type Approved_ManagerCreateOrConnectWithoutManagerInput = {
-    where: Approved_ManagerWhereUniqueInput
-    create: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
   }
 
   export type UserUpsertWithoutManagerInput = {
@@ -18073,10 +20538,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
     client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
     to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutManagerInput = {
@@ -18090,9 +20560,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutClient_managerInput = {
@@ -18125,6 +20600,9 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"User"> | Date | string
     manager_id?: StringNullableFilter<"User"> | string | null
     restricted?: BoolFilter<"User"> | boolean
+    isVerified?: BoolFilter<"User"> | boolean
+    verificationToken?: StringNullableFilter<"User"> | string | null
+    verificationTokenExpires?: DateTimeNullableFilter<"User"> | Date | string | null
   }
 
   export type Trade_requestUpsertWithWhereUniqueWithoutApprovedInput = {
@@ -18143,37 +20621,6 @@ export namespace Prisma {
     data: XOR<Trade_requestUpdateManyMutationInput, Trade_requestUncheckedUpdateManyWithoutApprovedInput>
   }
 
-  export type Approved_ManagerUpsertWithoutManagerInput = {
-    update: XOR<Approved_ManagerUpdateWithoutManagerInput, Approved_ManagerUncheckedUpdateWithoutManagerInput>
-    create: XOR<Approved_ManagerCreateWithoutManagerInput, Approved_ManagerUncheckedCreateWithoutManagerInput>
-    where?: Approved_ManagerWhereInput
-  }
-
-  export type Approved_ManagerUpdateToOneWithWhereWithoutManagerInput = {
-    where?: Approved_ManagerWhereInput
-    data: XOR<Approved_ManagerUpdateWithoutManagerInput, Approved_ManagerUncheckedUpdateWithoutManagerInput>
-  }
-
-  export type Approved_ManagerUpdateWithoutManagerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    approval_code?: StringFieldUpdateOperationsInput | string
-    manager_slot?: IntFieldUpdateOperationsInput | number
-    is_used?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    admin?: AdminUpdateOneRequiredWithoutAdmin_idNestedInput
-  }
-
-  export type Approved_ManagerUncheckedUpdateWithoutManagerInput = {
-    id?: StringFieldUpdateOperationsInput | string
-    approval_code?: StringFieldUpdateOperationsInput | string
-    admin_id?: StringFieldUpdateOperationsInput | string
-    manager_slot?: IntFieldUpdateOperationsInput | number
-    is_used?: BoolFieldUpdateOperationsInput | boolean
-    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-  }
-
   export type UserCreateWithoutTo_adminInput = {
     id?: string
     email: string
@@ -18184,10 +20631,15 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
     manager?: ManagerCreateNestedOneWithoutUserInput
     client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
   }
 
   export type UserUncheckedCreateWithoutTo_adminInput = {
@@ -18201,9 +20653,14 @@ export namespace Prisma {
     updatedAt?: Date | string
     manager_id?: string | null
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
     portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
     refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
     manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
   }
 
   export type UserCreateOrConnectWithoutTo_adminInput = {
@@ -18218,13 +20675,13 @@ export namespace Prisma {
     is_used?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
-    manager?: ManagerCreateNestedOneWithoutApproved_ManagerInput
+    manager: UserCreateNestedOneWithoutApproved_ManagerInput
   }
 
   export type Approved_ManagerUncheckedCreateWithoutAdminInput = {
     id?: string
     approval_code: string
-    manager_id?: string | null
+    user_id: string
     manager_slot?: number
     is_used?: boolean
     createdAt?: Date | string
@@ -18238,6 +20695,34 @@ export namespace Prisma {
 
   export type Approved_ManagerCreateManyAdminInputEnvelope = {
     data: Approved_ManagerCreateManyAdminInput | Approved_ManagerCreateManyAdminInput[]
+    skipDuplicates?: boolean
+  }
+
+  export type Approved_AdminCreateWithoutSuperAdminInput = {
+    id?: string
+    approval_code: string
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    admin?: UserCreateNestedOneWithoutAdd_adminInput
+  }
+
+  export type Approved_AdminUncheckedCreateWithoutSuperAdminInput = {
+    id?: string
+    approval_code: string
+    admin_id?: string | null
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_AdminCreateOrConnectWithoutSuperAdminInput = {
+    where: Approved_AdminWhereUniqueInput
+    create: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput>
+  }
+
+  export type Approved_AdminCreateManySuperAdminInputEnvelope = {
+    data: Approved_AdminCreateManySuperAdminInput | Approved_AdminCreateManySuperAdminInput[]
     skipDuplicates?: boolean
   }
 
@@ -18262,10 +20747,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
     manager?: ManagerUpdateOneWithoutUserNestedInput
     client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTo_adminInput = {
@@ -18279,9 +20769,14 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     manager_id?: NullableStringFieldUpdateOperationsInput | string | null
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type Approved_ManagerUpsertWithWhereUniqueWithoutAdminInput = {
@@ -18306,7 +20801,7 @@ export namespace Prisma {
     NOT?: Approved_ManagerScalarWhereInput | Approved_ManagerScalarWhereInput[]
     id?: StringFilter<"Approved_Manager"> | string
     approval_code?: StringFilter<"Approved_Manager"> | string
-    manager_id?: StringNullableFilter<"Approved_Manager"> | string | null
+    user_id?: StringFilter<"Approved_Manager"> | string
     admin_id?: StringFilter<"Approved_Manager"> | string
     manager_slot?: IntFilter<"Approved_Manager"> | number
     is_used?: BoolFilter<"Approved_Manager"> | boolean
@@ -18314,51 +20809,100 @@ export namespace Prisma {
     updatedAt?: DateTimeFilter<"Approved_Manager"> | Date | string
   }
 
-  export type ManagerCreateWithoutApproved_ManagerInput = {
-    id?: string
-    approval_code: string
-    client_id?: string | null
-    manager_slot?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    user: UserCreateNestedOneWithoutManagerInput
-    managed_by?: UserCreateNestedManyWithoutClient_managerInput
-    approvedBy?: Trade_requestCreateNestedManyWithoutApprovedInput
+  export type Approved_AdminUpsertWithWhereUniqueWithoutSuperAdminInput = {
+    where: Approved_AdminWhereUniqueInput
+    update: XOR<Approved_AdminUpdateWithoutSuperAdminInput, Approved_AdminUncheckedUpdateWithoutSuperAdminInput>
+    create: XOR<Approved_AdminCreateWithoutSuperAdminInput, Approved_AdminUncheckedCreateWithoutSuperAdminInput>
   }
 
-  export type ManagerUncheckedCreateWithoutApproved_ManagerInput = {
-    id?: string
-    manager_id: string
-    approval_code: string
-    client_id?: string | null
-    manager_slot?: number
-    createdAt?: Date | string
-    updatedAt?: Date | string
-    managed_by?: UserUncheckedCreateNestedManyWithoutClient_managerInput
-    approvedBy?: Trade_requestUncheckedCreateNestedManyWithoutApprovedInput
+  export type Approved_AdminUpdateWithWhereUniqueWithoutSuperAdminInput = {
+    where: Approved_AdminWhereUniqueInput
+    data: XOR<Approved_AdminUpdateWithoutSuperAdminInput, Approved_AdminUncheckedUpdateWithoutSuperAdminInput>
   }
 
-  export type ManagerCreateOrConnectWithoutApproved_ManagerInput = {
-    where: ManagerWhereUniqueInput
-    create: XOR<ManagerCreateWithoutApproved_ManagerInput, ManagerUncheckedCreateWithoutApproved_ManagerInput>
+  export type Approved_AdminUpdateManyWithWhereWithoutSuperAdminInput = {
+    where: Approved_AdminScalarWhereInput
+    data: XOR<Approved_AdminUpdateManyMutationInput, Approved_AdminUncheckedUpdateManyWithoutSuperAdminInput>
+  }
+
+  export type Approved_AdminScalarWhereInput = {
+    AND?: Approved_AdminScalarWhereInput | Approved_AdminScalarWhereInput[]
+    OR?: Approved_AdminScalarWhereInput[]
+    NOT?: Approved_AdminScalarWhereInput | Approved_AdminScalarWhereInput[]
+    id?: StringFilter<"Approved_Admin"> | string
+    approval_code?: StringFilter<"Approved_Admin"> | string
+    admin_id?: StringNullableFilter<"Approved_Admin"> | string | null
+    superAdmin_id?: StringFilter<"Approved_Admin"> | string
+    is_used?: BoolFilter<"Approved_Admin"> | boolean
+    createdAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+    updatedAt?: DateTimeFilter<"Approved_Admin"> | Date | string
+  }
+
+  export type UserCreateWithoutApproved_ManagerInput = {
+    id?: string
+    email: string
+    username: string
+    password: string
+    fullname: string
+    roles?: $Enums.Roles
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
+    portfolio?: PortfolioCreateNestedManyWithoutUserInput
+    refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
+    manager?: ManagerCreateNestedOneWithoutUserInput
+    client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
+    to_admin?: AdminCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminCreateNestedOneWithoutAdminInput
+  }
+
+  export type UserUncheckedCreateWithoutApproved_ManagerInput = {
+    id?: string
+    email: string
+    username: string
+    password: string
+    fullname: string
+    roles?: $Enums.Roles
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    manager_id?: string | null
+    restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
+    portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
+    refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
+    to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    add_admin?: Approved_AdminUncheckedCreateNestedOneWithoutAdminInput
+  }
+
+  export type UserCreateOrConnectWithoutApproved_ManagerInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutApproved_ManagerInput, UserUncheckedCreateWithoutApproved_ManagerInput>
   }
 
   export type AdminCreateWithoutAdmin_idInput = {
     id?: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutTo_adminInput
+    super_admin_id?: Approved_AdminCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminUncheckedCreateWithoutAdmin_idInput = {
     id?: string
     user_id: string
-    super_admin_access: string
+    super_admin_access?: string | null
     super_admin?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
+    super_admin_id?: Approved_AdminUncheckedCreateNestedManyWithoutSuperAdminInput
   }
 
   export type AdminCreateOrConnectWithoutAdmin_idInput = {
@@ -18366,39 +20910,57 @@ export namespace Prisma {
     create: XOR<AdminCreateWithoutAdmin_idInput, AdminUncheckedCreateWithoutAdmin_idInput>
   }
 
-  export type ManagerUpsertWithoutApproved_ManagerInput = {
-    update: XOR<ManagerUpdateWithoutApproved_ManagerInput, ManagerUncheckedUpdateWithoutApproved_ManagerInput>
-    create: XOR<ManagerCreateWithoutApproved_ManagerInput, ManagerUncheckedCreateWithoutApproved_ManagerInput>
-    where?: ManagerWhereInput
+  export type UserUpsertWithoutApproved_ManagerInput = {
+    update: XOR<UserUpdateWithoutApproved_ManagerInput, UserUncheckedUpdateWithoutApproved_ManagerInput>
+    create: XOR<UserCreateWithoutApproved_ManagerInput, UserUncheckedCreateWithoutApproved_ManagerInput>
+    where?: UserWhereInput
   }
 
-  export type ManagerUpdateToOneWithWhereWithoutApproved_ManagerInput = {
-    where?: ManagerWhereInput
-    data: XOR<ManagerUpdateWithoutApproved_ManagerInput, ManagerUncheckedUpdateWithoutApproved_ManagerInput>
+  export type UserUpdateToOneWithWhereWithoutApproved_ManagerInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutApproved_ManagerInput, UserUncheckedUpdateWithoutApproved_ManagerInput>
   }
 
-  export type ManagerUpdateWithoutApproved_ManagerInput = {
+  export type UserUpdateWithoutApproved_ManagerInput = {
     id?: StringFieldUpdateOperationsInput | string
-    approval_code?: StringFieldUpdateOperationsInput | string
-    client_id?: NullableStringFieldUpdateOperationsInput | string | null
-    manager_slot?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fullname?: StringFieldUpdateOperationsInput | string
+    roles?: EnumRolesFieldUpdateOperationsInput | $Enums.Roles
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    user?: UserUpdateOneRequiredWithoutManagerNestedInput
-    managed_by?: UserUpdateManyWithoutClient_managerNestedInput
-    approvedBy?: Trade_requestUpdateManyWithoutApprovedNestedInput
+    restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    portfolio?: PortfolioUpdateManyWithoutUserNestedInput
+    refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
+    manager?: ManagerUpdateOneWithoutUserNestedInput
+    client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
+    to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
   }
 
-  export type ManagerUncheckedUpdateWithoutApproved_ManagerInput = {
+  export type UserUncheckedUpdateWithoutApproved_ManagerInput = {
     id?: StringFieldUpdateOperationsInput | string
-    manager_id?: StringFieldUpdateOperationsInput | string
-    approval_code?: StringFieldUpdateOperationsInput | string
-    client_id?: NullableStringFieldUpdateOperationsInput | string | null
-    manager_slot?: IntFieldUpdateOperationsInput | number
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fullname?: StringFieldUpdateOperationsInput | string
+    roles?: EnumRolesFieldUpdateOperationsInput | $Enums.Roles
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    managed_by?: UserUncheckedUpdateManyWithoutClient_managerNestedInput
-    approvedBy?: Trade_requestUncheckedUpdateManyWithoutApprovedNestedInput
+    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
+    refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
+    to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
   }
 
   export type AdminUpsertWithoutAdmin_idInput = {
@@ -18414,20 +20976,178 @@ export namespace Prisma {
 
   export type AdminUpdateWithoutAdmin_idInput = {
     id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutTo_adminNestedInput
+    super_admin_id?: Approved_AdminUpdateManyWithoutSuperAdminNestedInput
   }
 
   export type AdminUncheckedUpdateWithoutAdmin_idInput = {
     id?: StringFieldUpdateOperationsInput | string
     user_id?: StringFieldUpdateOperationsInput | string
-    super_admin_access?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
     super_admin?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    super_admin_id?: Approved_AdminUncheckedUpdateManyWithoutSuperAdminNestedInput
+  }
+
+  export type UserCreateWithoutAdd_adminInput = {
+    id?: string
+    email: string
+    username: string
+    password: string
+    fullname: string
+    roles?: $Enums.Roles
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
+    portfolio?: PortfolioCreateNestedManyWithoutUserInput
+    refreshToken?: RefreshTokenCreateNestedManyWithoutUserInput
+    manager?: ManagerCreateNestedOneWithoutUserInput
+    client_manager?: ManagerCreateNestedOneWithoutManaged_byInput
+    to_admin?: AdminCreateNestedOneWithoutUserInput
+    Approved_Manager?: Approved_ManagerCreateNestedOneWithoutManagerInput
+  }
+
+  export type UserUncheckedCreateWithoutAdd_adminInput = {
+    id?: string
+    email: string
+    username: string
+    password: string
+    fullname: string
+    roles?: $Enums.Roles
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    manager_id?: string | null
+    restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
+    portfolio?: PortfolioUncheckedCreateNestedManyWithoutUserInput
+    refreshToken?: RefreshTokenUncheckedCreateNestedManyWithoutUserInput
+    manager?: ManagerUncheckedCreateNestedOneWithoutUserInput
+    to_admin?: AdminUncheckedCreateNestedOneWithoutUserInput
+    Approved_Manager?: Approved_ManagerUncheckedCreateNestedOneWithoutManagerInput
+  }
+
+  export type UserCreateOrConnectWithoutAdd_adminInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutAdd_adminInput, UserUncheckedCreateWithoutAdd_adminInput>
+  }
+
+  export type AdminCreateWithoutSuper_admin_idInput = {
+    id?: string
+    super_admin_access?: string | null
+    super_admin?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    user: UserCreateNestedOneWithoutTo_adminInput
+    admin_id?: Approved_ManagerCreateNestedManyWithoutAdminInput
+  }
+
+  export type AdminUncheckedCreateWithoutSuper_admin_idInput = {
+    id?: string
+    user_id: string
+    super_admin_access?: string | null
+    super_admin?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    admin_id?: Approved_ManagerUncheckedCreateNestedManyWithoutAdminInput
+  }
+
+  export type AdminCreateOrConnectWithoutSuper_admin_idInput = {
+    where: AdminWhereUniqueInput
+    create: XOR<AdminCreateWithoutSuper_admin_idInput, AdminUncheckedCreateWithoutSuper_admin_idInput>
+  }
+
+  export type UserUpsertWithoutAdd_adminInput = {
+    update: XOR<UserUpdateWithoutAdd_adminInput, UserUncheckedUpdateWithoutAdd_adminInput>
+    create: XOR<UserCreateWithoutAdd_adminInput, UserUncheckedCreateWithoutAdd_adminInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutAdd_adminInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutAdd_adminInput, UserUncheckedUpdateWithoutAdd_adminInput>
+  }
+
+  export type UserUpdateWithoutAdd_adminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fullname?: StringFieldUpdateOperationsInput | string
+    roles?: EnumRolesFieldUpdateOperationsInput | $Enums.Roles
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    portfolio?: PortfolioUpdateManyWithoutUserNestedInput
+    refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
+    manager?: ManagerUpdateOneWithoutUserNestedInput
+    client_manager?: ManagerUpdateOneWithoutManaged_byNestedInput
+    to_admin?: AdminUpdateOneWithoutUserNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutAdd_adminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: StringFieldUpdateOperationsInput | string
+    username?: StringFieldUpdateOperationsInput | string
+    password?: StringFieldUpdateOperationsInput | string
+    fullname?: StringFieldUpdateOperationsInput | string
+    roles?: EnumRolesFieldUpdateOperationsInput | $Enums.Roles
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
+    refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
+    manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
+    to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
+  }
+
+  export type AdminUpsertWithoutSuper_admin_idInput = {
+    update: XOR<AdminUpdateWithoutSuper_admin_idInput, AdminUncheckedUpdateWithoutSuper_admin_idInput>
+    create: XOR<AdminCreateWithoutSuper_admin_idInput, AdminUncheckedCreateWithoutSuper_admin_idInput>
+    where?: AdminWhereInput
+  }
+
+  export type AdminUpdateToOneWithWhereWithoutSuper_admin_idInput = {
+    where?: AdminWhereInput
+    data: XOR<AdminUpdateWithoutSuper_admin_idInput, AdminUncheckedUpdateWithoutSuper_admin_idInput>
+  }
+
+  export type AdminUpdateWithoutSuper_admin_idInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
+    super_admin?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneRequiredWithoutTo_adminNestedInput
+    admin_id?: Approved_ManagerUpdateManyWithoutAdminNestedInput
+  }
+
+  export type AdminUncheckedUpdateWithoutSuper_admin_idInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    user_id?: StringFieldUpdateOperationsInput | string
+    super_admin_access?: NullableStringFieldUpdateOperationsInput | string | null
+    super_admin?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    admin_id?: Approved_ManagerUncheckedUpdateManyWithoutAdminNestedInput
   }
 
   export type PortfolioCreateManyUserInput = {
@@ -18505,6 +21225,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -18567,6 +21288,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     portfolio?: PortfolioUpdateOneRequiredWithoutTrade_requestNestedInput
     approved?: ManagerUpdateOneWithoutApprovedByNestedInput
@@ -18579,6 +21301,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18589,6 +21312,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18617,6 +21341,7 @@ export namespace Prisma {
     status?: $Enums.Status
     type: $Enums.TransactionType
     approved_by?: string | null
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -18679,6 +21404,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     stock?: StockTableUpdateOneRequiredWithoutTrade_requestNestedInput
     approved?: ManagerUpdateOneWithoutApprovedByNestedInput
@@ -18691,6 +21417,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18701,6 +21428,7 @@ export namespace Prisma {
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
     approved_by?: NullableStringFieldUpdateOperationsInput | string | null
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18714,6 +21442,9 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     restricted?: boolean
+    isVerified?: boolean
+    verificationToken?: string | null
+    verificationTokenExpires?: Date | string | null
   }
 
   export type Trade_requestCreateManyApprovedInput = {
@@ -18723,6 +21454,7 @@ export namespace Prisma {
     quantity: number
     status?: $Enums.Status
     type: $Enums.TransactionType
+    response?: string | null
     createdAt?: Date | string
   }
 
@@ -18736,10 +21468,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUpdateManyWithoutUserNestedInput
     manager?: ManagerUpdateOneWithoutUserNestedInput
     to_admin?: AdminUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClient_managerInput = {
@@ -18752,10 +21489,15 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     portfolio?: PortfolioUncheckedUpdateManyWithoutUserNestedInput
     refreshToken?: RefreshTokenUncheckedUpdateManyWithoutUserNestedInput
     manager?: ManagerUncheckedUpdateOneWithoutUserNestedInput
     to_admin?: AdminUncheckedUpdateOneWithoutUserNestedInput
+    add_admin?: Approved_AdminUncheckedUpdateOneWithoutAdminNestedInput
+    Approved_Manager?: Approved_ManagerUncheckedUpdateOneWithoutManagerNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutClient_managerInput = {
@@ -18768,6 +21510,9 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     restricted?: BoolFieldUpdateOperationsInput | boolean
+    isVerified?: BoolFieldUpdateOperationsInput | boolean
+    verificationToken?: NullableStringFieldUpdateOperationsInput | string | null
+    verificationTokenExpires?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   }
 
   export type Trade_requestUpdateWithoutApprovedInput = {
@@ -18775,6 +21520,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     portfolio?: PortfolioUpdateOneRequiredWithoutTrade_requestNestedInput
     stock?: StockTableUpdateOneRequiredWithoutTrade_requestNestedInput
@@ -18787,6 +21533,7 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -18797,14 +21544,24 @@ export namespace Prisma {
     quantity?: IntFieldUpdateOperationsInput | number
     status?: EnumStatusFieldUpdateOperationsInput | $Enums.Status
     type?: EnumTransactionTypeFieldUpdateOperationsInput | $Enums.TransactionType
+    response?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
   export type Approved_ManagerCreateManyAdminInput = {
     id?: string
     approval_code: string
-    manager_id?: string | null
+    user_id: string
     manager_slot?: number
+    is_used?: boolean
+    createdAt?: Date | string
+    updatedAt?: Date | string
+  }
+
+  export type Approved_AdminCreateManySuperAdminInput = {
+    id?: string
+    approval_code: string
+    admin_id?: string | null
     is_used?: boolean
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -18817,13 +21574,13 @@ export namespace Prisma {
     is_used?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
-    manager?: ManagerUpdateOneWithoutApproved_ManagerNestedInput
+    manager?: UserUpdateOneRequiredWithoutApproved_ManagerNestedInput
   }
 
   export type Approved_ManagerUncheckedUpdateWithoutAdminInput = {
     id?: StringFieldUpdateOperationsInput | string
     approval_code?: StringFieldUpdateOperationsInput | string
-    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
     manager_slot?: IntFieldUpdateOperationsInput | number
     is_used?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -18833,8 +21590,35 @@ export namespace Prisma {
   export type Approved_ManagerUncheckedUpdateManyWithoutAdminInput = {
     id?: StringFieldUpdateOperationsInput | string
     approval_code?: StringFieldUpdateOperationsInput | string
-    manager_id?: NullableStringFieldUpdateOperationsInput | string | null
+    user_id?: StringFieldUpdateOperationsInput | string
     manager_slot?: IntFieldUpdateOperationsInput | number
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_AdminUpdateWithoutSuperAdminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    admin?: UserUpdateOneWithoutAdd_adminNestedInput
+  }
+
+  export type Approved_AdminUncheckedUpdateWithoutSuperAdminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    admin_id?: NullableStringFieldUpdateOperationsInput | string | null
+    is_used?: BoolFieldUpdateOperationsInput | boolean
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type Approved_AdminUncheckedUpdateManyWithoutSuperAdminInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    approval_code?: StringFieldUpdateOperationsInput | string
+    admin_id?: NullableStringFieldUpdateOperationsInput | string | null
     is_used?: BoolFieldUpdateOperationsInput | boolean
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

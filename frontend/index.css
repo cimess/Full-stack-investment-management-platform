@@ -65,3 +65,145 @@ body {
 .spotlight:hover::before {
   opacity: 1;
 }
+.loader-7 .line1 {
+        left: 0;
+        -webkit-animation: line-grow 0.5s ease alternate infinite;
+        animation: line-grow 0.5s ease alternate infinite;
+    }
+
+    .loader-7 .line2 {
+        left: 20px;
+        -webkit-animation: line-grow 0.5s 0.2s ease alternate infinite;
+        animation: line-grow 0.5s 0.2s ease alternate infinite;
+    }
+
+    .loader-7 .line3 {
+        left: 40px;
+        -webkit-animation: line-grow 0.5s 0.4s ease alternate infinite;
+        animation: line-grow 0.5s 0.4s ease alternate infinite;
+    }
+    /* Base styles for the loader container */
+.loader {
+    width: 100px;
+    height: 100px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Base styles for the animated lines */
+.line {
+    width: 8px;
+    height: 40px;
+    background: #34d399; /* Initial color */
+    margin: 0 4px;
+    border-radius: 4px;
+    position: absolute; /* Added to make 'left' properties work */
+}
+
+/* The grow animation that changes height and color */
+@keyframes line-grow {
+    0% {
+        height: 40px;
+        background: #34d399;
+    }
+    100% {
+        height: 100px;
+        background: #3b82f6; /* End color */
+    }
+}
+
+
+/* Toggle Button Styles */
+
+.btn-toggle:focus,
+.btn-toggle.focus,
+.btn-toggle:focus:active {
+  outline: none;
+}
+
+.btn-toggle:before,
+.btn-toggle:after {
+  content: "";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 2;
+  transition: all 0.25s;
+  font-size: 0.625rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+
+
+.btn-toggle > .handle {
+  position: absolute;
+  top: 0.125rem;
+  left: 0.125rem;
+  width: 1.27rem;
+  height: 1.27rem;
+  border-radius: 1.27rem;
+  background: #fff;
+  transition: all 0.25s;
+  z-index: 3;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.btn-toggle.active {
+  background-color: #34d399; /* emerald-400 */
+}
+
+.btn-toggle.active > .handle {
+  left: 1.625rem;
+}
+
+.btn-toggle.active:before {
+  opacity: 0;
+}
+
+.btn-toggle.active:after {
+  opacity: 1;
+}
+
+/* Size Variants */
+.btn-toggle.btn-xs {
+  height: 1rem;
+  width: 2rem;
+  border-radius: 1rem;
+}
+
+.btn-toggle.btn-xs > .handle {
+  width: 0.77rem;
+  height: 0.77rem;
+  top: 0.125rem;
+  left: 0.125rem;
+}
+
+.btn-toggle.btn-xs.active > .handle {
+  left: 1.125rem;
+}
+
+.btn-toggle.btn-xs:before,
+.btn-toggle.btn-xs:after {
+  display: none;
+}
+
+.btn-toggle.btn-sm {
+  height: 1.25rem;
+  width: 2.5rem;
+  border-radius: 1.25rem;
+}
+
+.btn-toggle.btn-sm > .handle {
+  width: 1rem;
+  height: 1rem;
+  top: 0.125rem;
+  left: 0.125rem;
+}
+
+.btn-toggle.btn-sm.active > .handle {
+  left: 1.375rem;
+}
+

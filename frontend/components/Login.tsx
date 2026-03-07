@@ -1,56 +1,170 @@
-import {useState} from 'react'
+import {useState, useEffect} from 'react'
 import Header from './Header';
 import Footer from './Footer';
+import {login,register} from '../hooks/useQuery';
+import { toast ,Zoom} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import {isEmail,isPassword,isName} from '../hooks/validator';
+import {Eye,EyeOff} from "lucide-react"
+import {  useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+import Loader from './loadericon/loader';
+import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
+import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
+
 
 export default function Login({loginUi}:{loginUi:boolean}){
+  const navigate = useNavigate();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [firstName, setFirstName] = useState<string>("");
-  const [phone, setPhone] = useState<string>("");
-  const [country, setCountry] = useState<string>("");
+  const [email,setEmail]=useState<string>("");
   const [message, setMessage] = useState<string>("Sign in to access your account");
-  const [attempts, setAttempts] = useState<number>(0);
-  const [loading, setLoading] = useState<boolean>(false);
   const [success, setSuccess] = useState<boolean>(false);
   const [hoverBadge, setHoverBadge] = useState<boolean>(false);
   const [shake, setShake] = useState<boolean>(false);
 
-  const handleSubmit = (e:React.FormEvent<HTMLFormElement>)=> {
+const [showPassword,setShowPassword]=useState<boolean>(false);
+const queryClient=useQueryClient();
+
+const { startRedirect, showLoader, message: redirectMessage, success: redirectSuccess } = useLoadingRedirect({
+  initialMessage: "Login successful!",
+  loadingMessage: "Fetching account data...",
+  action: async () => {
+    const role = loginData?.roles;
+    if (role === "MANAGER") {
+      await queryClient.prefetchQuery({ queryKey: ["managerDashboard"], queryFn: getManagerAll });
+    } else if (role === "ADMIN") {
+      await queryClient.prefetchQuery({ queryKey: ["adminDashboard"], queryFn: getAdminDashboard });
+    } else {
+      await queryClient.prefetchQuery({ queryKey: ["dashboard"], queryFn: getClientAll });
+    }
+  }
+});
+    const {mutate:loginMutate,isSuccess:loginSuccess,isError:isLoginError,error:loginError,isPending:loginPending,data:loginData}=login();
+
+
+
+    const {mutate:registerMutate,isSuccess:registerSuccess,data:registerData,isError:isRegisterError,error:registerError,isPending:registerPending}=register();
+
+
+
+
+
+useEffect(() => {
+   if(loginSuccess||registerSuccess){
+    toast.success(loginUi ? loginData?.message : registerData?.message,{
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+    });
+  }else if(isLoginError||isRegisterError){
+     const specificLoginError = (loginError as any)?.response?.data?.message || loginError?.message;
+    const specificRegisterError = (registerError as any)?.response?.data?.message || registerError?.message;
+    toast.error(loginUi ? specificLoginError : specificRegisterError,{
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored red",
+      transition:Zoom,
+    });
+  }
+
+  if(loginPending||registerPending){
+      setMessage("Authenticating...");
+    }
+    if(registerSuccess){
+queryClient.setQueryData(["userEmail"],email);
+      setTimeout(()=>navigate("/verify"),3000);
+    }
+if (loginSuccess) {
+  const target = loginData?.roles === "MANAGER" ? "/dashboard/manager" :
+                 loginData?.roles === "ADMIN" ? "/dashboard/admin" :
+                 "/dashboard/client";
+  startRedirect(target);
+}
+
+if(isLoginError||isRegisterError){
+  setSuccess(false);
+  setMessage("Login failed!");
+
+
+}
+if(loginPending||registerPending){
+      setMessage("Authenticating...");
+    }
+if(loginSuccess||registerSuccess){
+  setSuccess(true);
+  setMessage("Login successful! Redirecting...");
+}
+
+  }, [loginSuccess,isLoginError,registerSuccess,isRegisterError]);
+
+
+  const handleTextValidation = async (e:React.FormEvent<HTMLFormElement>)=> {
     e.preventDefault();
 
-    if (!username || !password) {
-      setMessage("Please fill in all fields!");
+     if (!loginUi && (firstName.length<1 || lastName.length<1 || email.length<1)) {
+      setMessage("input field cant be empty!");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+    if (!email || !password) {
+      setMessage("Please fill all fields!");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
 
-    if (attempts === 0) {
-      setAttempts(1);
-      setMessage("Almost there... try once more!");
+
+   if(!loginUi){
+    if(!isName(firstName)){
+      setMessage("Please enter a valid first name!");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+    if(!isName(lastName)){
+      setMessage("Please enter a valid last name!");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
       return;
     }
 
-    setLoading(true);
-    setMessage("Authenticating...");
 
-    setTimeout(() => {
-      setLoading(false);
-      setSuccess(true);
-      setMessage("Login successful! Redirecting...");
-    }, 1500);
+    if(!isEmail(email)){
+      setMessage("Please enter a valid email address!");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if(!isPassword(password)){
+      setMessage("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+  }
+
+  if(loginUi){
+    loginMutate({email:email,password});
+  }else{
+    registerMutate({username,password,email,name:firstName+" "+lastName});
+  }
+
+
   };
-//   const loginMessage=["Hey, welcome back 👋",
-
-// "Nice to have you here again.",
-
-// "All set. Just one step left.",
-
-// "You're right on time.",
-
-// "Back for more? We like that."];
-// const loginMessageIndex=Math.floor(Math.random() * loginMessage.length);
 
 const passwordFeedback = () => {
     if (!password) return "";
@@ -61,8 +175,9 @@ const passwordFeedback = () => {
 
   return (
     <>
-    <Header/>
-    <div className="min-h-screen flex items-center justify-center ">
+
+    {showLoader && <Loader message={redirectMessage} />}
+    {!showLoader && <><Header/><div className="min-h-screen flex items-center justify-center ">
       <div
         className={`relative w-[90%] lg:w-[60%]  mt-[18vh] rounded-2xl p-10 pt-16 backdrop-blur-xl
         bg-white/5 border border-white/10 shadow-2xl transition-transform
@@ -75,7 +190,7 @@ const passwordFeedback = () => {
           className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full
           flex items-center justify-center text-white text-3xl shadow-xl
           transition-all duration-300 animate-float
-          ${success
+          ${redirectSuccess
             ? "bg-gradient-to-br from-green-400 to-emerald-600 animate-pulse"
             : "bg-gradient-to-br from-indigo-500 to-purple-700"}`}
         >
@@ -98,10 +213,10 @@ const passwordFeedback = () => {
           { message}
         </p>
 
-        <form onSubmit={handleSubmit} className="space-y-6  ">
+        <form onSubmit={handleTextValidation} className="space-y-6  ">
 
             {/* first name */}
-          <div className="relative">
+          {loginUi ? null :<div className="relative">
             <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -113,8 +228,9 @@ const passwordFeedback = () => {
               onFocus={() => setMessage("Enter your first name")}
             />
           </div>
+}
           {/* last name */}
-           <div className="relative">
+          {loginUi ? null :<div className="relative">
             <i className="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
@@ -126,19 +242,32 @@ const passwordFeedback = () => {
               onFocus={() => setMessage('Enter your last name')}
             />
           </div>
-
+}
 
           {/* Username */}
-          <div className="relative">
+            {loginUi ? null :<div className="relative">
             <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
-              placeholder="Username or Email"
+              placeholder="Username"
               className="w-full rounded-xl bg-white/10 border border-white/20
               text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
-              onFocus={() => setMessage("Enter your username or email")}
+              onFocus={() => setMessage("Enter your username")}
+            />
+          </div>
+            }
+           <div className="relative">
+            <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+            <input
+              type="email"
+              placeholder="Email"
+              className="w-full rounded-xl bg-white/10 border border-white/20
+              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              onFocus={() => setMessage("Enter your email")}
             />
           </div>
 
@@ -146,7 +275,7 @@ const passwordFeedback = () => {
           <div className="relative">
             <i className="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
-              type="password"
+              type={showPassword? "text": "password"}
               placeholder="Password"
               className="w-full rounded-xl bg-white/10 border border-white/20
               text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
@@ -154,10 +283,16 @@ const passwordFeedback = () => {
               onChange={(e) => { setPassword(e.target.value);setMessage(passwordFeedback())}}
               onFocus={()=>{setMessage("Enter your password")}}
             />
+            <button onClick={()=>setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+               type="button">
+              {showPassword ?<EyeOff size={18} /> : <Eye size={18} />}
+
+            </button>
           </div>
 
           {/* Options */}
-          <div className="flex items-center justify-between text-sm text-gray-400">
+
+          {loginUi ? <div className="flex items-center justify-between text-sm text-gray-400">
             <label className="flex items-center gap-2 cursor-pointer">
               <input type="checkbox" className="accent-indigo-500" />
               Remember me
@@ -165,11 +300,11 @@ const passwordFeedback = () => {
             <a href="#" className="text-cyan-400 hover:underline">
               Forgot password?
             </a>
-          </div>
-
+          </div> : null
+              }
           {/* Button */}
           <button
-            disabled={loading || success}
+            disabled={loginPending||loginSuccess||registerPending||registerSuccess}
             className={`w-full h-13 py-4 rounded-xl font-medium tracking-wide
             transition-all shadow-lg
             ${
@@ -178,14 +313,16 @@ const passwordFeedback = () => {
                 : "bg-gradient-to-r from-indigo-500 to-purple-700 hover:-translate-y-0.5"
             }
             disabled:opacity-70`}
+            type="submit"
           >
             {success
               ? "Access Granted"
-              : loading
+              : loginPending
               ? "Authenticating..."
-              : attempts === 0
-              ? "Sign In"
-              : "Press Again"}
+              :registerPending
+              ? "Registering..."
+              : "Sign In"}
+
           </button>
         </form>
 
@@ -224,6 +361,8 @@ const passwordFeedback = () => {
       `}</style>
     </div>
     <Footer/>
+    </>}
+
     </>
   );
 }

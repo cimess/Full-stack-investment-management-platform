@@ -36,23 +36,40 @@ model User {
   manager_id String?
   restricted Boolean  @default(false)
 
-  portfolio      Portfolio[]    @relation("portfolio")
-  refreshToken   RefreshToken[] @relation("refreshToken")
-  manager        Manager?       @relation("manager")
-  client_manager Manager?       @relation("managed_by", fields: [manager_id], references: [id])
-  to_admin       Admin?         @relation("admin")
+  // Email Verification Fields
+  isVerified               Boolean   @default(false)
+  verificationToken        String?
+  verificationTokenExpires DateTime?
+
+  portfolio        Portfolio[]       @relation("portfolio")
+  refreshToken     RefreshToken[]    @relation("refreshToken")
+  manager          Manager?          @relation("manager")
+  client_manager   Manager?          @relation("managed_by", fields: [manager_id], references: [id])
+  to_admin         Admin?            @relation("admin")
+  add_admin        Approved_Admin?   @relation("add_admin")
+  Approved_Manager Approved_Manager? @relation("Approved_Manager")
 }
 
 model StockTable {
-  id            String          @id @default(cuid())
-  symbol        String          @unique
-  company       String
-  price         Decimal         @db.Decimal(10, 2)
-  createdAt     DateTime        @default(now())
-  updatedAt     DateTime        @updatedAt
-  investment    Investment[]    @relation("stock")
-  transaction   Transaction[]   @relation("stockTransaction")
-  trade_request Trade_request[] @relation("trade_request")
+  id               String          @id @default(cuid())
+  symbol           String          @unique
+  company          String
+  price            Decimal         @db.Decimal(10, 2)
+  changePercent    Decimal?        @db.Decimal(8, 2)
+  marketCap        BigInt?
+  volume           String?
+  peRatio          Decimal?        @db.Decimal(10, 2)
+  dividendYield    Decimal?        @db.Decimal(8, 2)
+  fiftyTwoWeekLow  Decimal?        @db.Decimal(10, 2)
+  fiftyTwoWeekHigh Decimal?        @db.Decimal(10, 2)
+  currency         String          @default("USD")
+  exchange         String?
+  lastUpdated      DateTime?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+  investment       Investment[]    @relation("stock")
+  transaction      Transaction[]   @relation("stockTransaction")
+  trade_request    Trade_request[] @relation("trade_request")
 }
 
 model Portfolio {
@@ -101,6 +118,7 @@ model Trade_request {
   type         TransactionType
   approved     Manager?        @relation("approvedBy", fields: [approved_by], references: [id])
   approved_by  String?
+  response     String?
   createdAt    DateTime        @default(now())
 }
 
@@ -126,29 +144,40 @@ model Manager {
   createdAt    DateTime        @default(now())
   updatedAt    DateTime        @updatedAt
   approvedBy   Trade_request[] @relation("approvedBy")
-
-  Approved_Manager Approved_Manager? @relation("Approved_Manager")
 }
 
 model Admin {
   id                 String             @id @default(cuid())
   user               User               @relation("admin", fields: [user_id], references: [id])
   user_id            String             @unique
-  super_admin_access String
+  super_admin_access String?
   super_admin        Boolean            @default(false)
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
   admin_id           Approved_Manager[] @relation("admin_id")
+  super_admin_id     Approved_Admin[]   @relation("super_admin_id")
 }
 
 model Approved_Manager {
   id            String   @id @default(cuid())
   approval_code String   @unique
-  manager       Manager? @relation("Approved_Manager", fields: [manager_id], references: [id])
-  manager_id    String?  @unique
+  manager       User     @relation("Approved_Manager", fields: [user_id], references: [id])
+  user_id       String   @unique
   admin         Admin    @relation("admin_id", fields: [admin_id], references: [id])
   admin_id      String
   manager_slot  Int      @default(0)
+  is_used       Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
+model Approved_Admin {
+  id            String   @id @default(cuid())
+  approval_code String   @unique
+  admin         User?    @relation("add_admin", fields: [admin_id], references: [id])
+  admin_id      String?  @unique
+  superAdmin    Admin    @relation("super_admin_id", fields: [superAdmin_id], references: [id])
+  superAdmin_id String
   is_used       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt

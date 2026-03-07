@@ -1,29 +1,38 @@
-
-import {BrowserRouter as Router,Route,Routes} from 'react-router-dom'
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignUp from './pages/SignUp';
-import Dashboard from './dashboard/dashboard';
+import VerifyEmailPage from './pages/VerifyEmailPage';
+import ClientDashboard from './dashboard/client/ClientDashboard';
+import ManagerDashboard from './dashboard/manager/ManagerDashboard';
+import AdminDashboard from './dashboard/admin/AdminDashboard';
 
-const App= () => {
 
-
+const App = () => {
   return (
-     <Router>
-    <div className="bg-dark text-white min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200">
-      <main>
+    <Router>
+      <Routes>
+        {/* Public Routes */}
+        <Route path="/" element={<LandingPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/signup" element={<SignUp />} />
+        <Route path="/verify" element={<VerifyEmailPage />} />
 
+        {/* Client Dashboard */}
+        <Route path="/dashboard/client" element={<ClientDashboard />} />
+        <Route path="/dashboard/client/*" element={<ClientDashboard />} />
 
-        <Routes>
+        {/* Manager Dashboard */}
+        <Route path="/dashboard/manager" element={<ManagerDashboard />} />
+        <Route path="/dashboard/manager/*" element={<ManagerDashboard />} />
 
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-        </Routes>
+        {/* Admin Dashboard */}
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
+        <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
 
-      </main>
-     </div>
+        {/* Legacy fallback */}
+        <Route path="/dashboard" element={<ClientDashboard />} />
+      </Routes>
     </Router>
   );
 };
