@@ -7,11 +7,6 @@ export default defineConfig({
     // Run tests sequentially (we're hitting a real server, not isolated)
     // Run tests sequentially
     pool: 'forks',
-    poolOptions: {
-      forks: {
-        singleFork: true,
-      },
-    },
     // Note: If you get a warning about poolOptions, it might need to move to top level in newer Vitest
     // but for now let's keep it as per common stable configs unless error persists.
     // Wait, the error message said it was removed. Let's try to remove it as requested.
@@ -20,7 +15,7 @@ export default defineConfig({
     testTimeout: 15000,
     hookTimeout: 10000,
     // Pretty reporter
-    reporter: 'verbose',
+    reporters: ['verbose'],
     // globalSetup runs before ALL test files
     globalSetup: ['./tests/setup/vitest-global-setup.ts'],
     // setupFiles runs before EACH test file

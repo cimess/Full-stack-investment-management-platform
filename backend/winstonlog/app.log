@@ -7585,3 +7585,22 @@ Unique constraint failed on the fields: (`email`) {
   "10": "e",
   "11": "d"
 }
+2026-03-08 18:03:44 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-08 18:03:45 [info]: Worker: Starting background price refresh...
+2026-03-08 18:03:53 [info]: Worker: Successfully Updated DB.
+2026-03-08 18:05:25 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-08 18:05:26 [info]: Worker: Starting background price refresh...
+2026-03-08 18:05:27 [error]: Failed to fetch market data from Yahoo Finance: {
+  "0": "f",
+  "1": "e",
+  "2": "t",
+  "3": "c",
+  "4": "h",
+  "5": " ",
+  "6": "f",
+  "7": "a",
+  "8": "i",
+  "9": "l",
+  "10": "e",
+  "11": "d"
+}
