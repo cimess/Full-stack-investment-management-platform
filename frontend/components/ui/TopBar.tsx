@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle } from 'lucide-react';
+import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle, Menu } from 'lucide-react';
 
 interface Notification {
   id: number;
@@ -26,9 +26,11 @@ interface TopBarProps {
   pageTitle: string;
   userName?: string;
   userAvatar?: string;
+  onToggleSidebar?: () => void;
+  handleLogout?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User' }) => {
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar ,handleLogout}) => {
   const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
@@ -45,13 +47,23 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User' }) => {
   };
 
   return (
-    <header className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-sm sticky top-0 z-20">
-      {/* Page Title */}
-      <div>
-        <h1 className="text-xl font-bold text-white">{pageTitle}</h1>
-        <p className="text-slate-500 text-xs mt-0.5">
-          {new Date().toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-        </p>
+    <header className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-sm sticky top-0 z-20">
+      <div className="flex items-center gap-4">
+        {/* Mobile Menu Toggle */}
+        <button 
+          onClick={onToggleSidebar}
+          className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 lg:hidden"
+        >
+          <Menu className="w-6 h-6" />
+        </button>
+
+        {/* Page Title */}
+        <div>
+          <h1 className="text-lg lg:text-xl font-bold text-white leading-tight">{pageTitle}</h1>
+          <p className="text-slate-500 text-[10px] lg:text-xs mt-0.5">
+            {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
+          </p>
+        </div>
       </div>
 
       {/* Right Controls */}
@@ -113,7 +125,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User' }) => {
             <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold">
               {userName.charAt(0).toUpperCase()}
             </div>
-            <span className="text-slate-300 text-sm font-medium hidden md:block">{userName}</span>
+            {/* <span className="text-slate-300 text-sm font-medium hidden md:block">{userName}</span> */}
             <ChevronDown className={`w-4 h-4 text-slate-500 hidden md:block transition-transform ${showProfile ? 'rotate-180' : ''}`} />
           </button>
 
@@ -122,7 +134,11 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User' }) => {
               <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Profile</button>
               <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Settings</button>
               <div className="border-t border-white/5" />
-              <button className="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-red-500/10 transition-colors">Logout</button>
+              <button className="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-red-500/10 transition-colors"
+              onClick={handleLogout}
+              >
+                Logout
+              </button>
             </div>
           )}
         </div>

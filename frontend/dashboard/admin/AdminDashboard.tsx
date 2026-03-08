@@ -14,16 +14,41 @@ import UsersView from './views/UsersView';
 import ManagersView from './views/ManagersView';
 import TransactionsView from './views/TransactionsView';
 
+import { logout } from '../../hooks/useQuery';
+import { useNavigate } from 'react-router-dom';
+import { useQueryClient } from '@tanstack/react-query';
+
 const AdminDashboard: React.FC = () => {
   const [showSuperAdminForm, setShowSuperAdminForm] = useState(false);
   const [superAdminEmail, setSuperAdminEmail] = useState('');
+  const navigate = useNavigate();
+  const { mutate: performLogout } = logout();
+  const queryClient = useQueryClient();
+
+  const handleLogout = () => {
+    performLogout();
+    queryClient.clear();
+    navigate('/login');
+  };
+
+  const meData: any = queryClient.getQueryData(["me"]);
+  const user = meData?.data;
+  const firstName = user?.fullname?.split(" ")[0];
 
   return (
     <div className="flex h-screen bg-[#020617] overflow-hidden">
-      <DashboardSidebar role="admin" userName="Super Admin" />
+      <DashboardSidebar 
+        role="admin" 
+        userName={firstName || "Admin"} 
+        handleLogout={handleLogout}
+      />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar pageTitle="Admin Control Centre" userName="Super Admin" />
+        <TopBar 
+          pageTitle="Admin Control Centre" 
+          userName={firstName || "Admin"} 
+          handleLogout={handleLogout}
+        />
 
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
 

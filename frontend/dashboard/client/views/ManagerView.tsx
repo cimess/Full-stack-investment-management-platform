@@ -1,43 +1,74 @@
 import React, { useState } from 'react';
 import { Mail, Phone, Calendar, Award, MessageSquare, ExternalLink, ShieldCheck, UserPlus, UserMinus, Search, Info, Loader2 } from 'lucide-react';
+import { useGetDashboard, addManager, removeManager } from '../../../hooks/useQuery';
+import { toast } from 'react-toastify';
+import { useQueryClient } from '@tanstack/react-query';
 
 const ManagerView: React.FC = () => {
-  // Use local state for UI demonstration (as requested: no API implementation yet)
-  const [hasManager, setHasManager] = useState(true);
+  const queryClient = useQueryClient();
+  const { data, isLoading } = useGetDashboard();
+  const { mutate: assignManager, isPending: isAssigning } = addManager();
+  const { mutate: detachManager, isPending: isRemoving } = removeManager();
+  
   const [managerId, setManagerId] = useState('');
-  const [isAssigning, setIsAssigning] = useState(false);
+
+  const user = data?.data?.user;
+  const managerData = user?.client_manager;
+  const hasManager = !!managerData;
 
   const handleAssign = () => {
     if (!managerId.trim()) return;
-    setIsAssigning(true);
-    // Simulate API call
-    setTimeout(() => {
-      setIsAssigning(false);
-      setHasManager(true);
-    }, 1500);
+    
+    assignManager({ manager_id: managerId }, {
+      onSuccess: () => {
+        toast.success("Manager assigned successfully!");
+        queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+      },
+      onError: (err: any) => {
+        toast.error(err?.response?.data?.message || "Failed to assign manager");
+      }
+    });
   };
 
   const handleRemove = () => {
+    if (!managerData?.manager_id) return;
+    
     const confirmed = window.confirm("Are you sure you want to remove your manager? You will lose access to specialized portfolio guidance.");
     if (confirmed) {
-      setHasManager(false);
+      detachManager({ manager_id: managerData.manager_id }, {
+        onSuccess: () => {
+          toast.success("Manager removed successfully.");
+          queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+        },
+        onError: (err: any) => {
+          toast.error(err?.response?.data?.message || "Failed to remove manager");
+        }
+      });
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
   if (!hasManager) {
     return (
-      <div className="max-w-4xl mx-auto py-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
-        <div className="text-center space-y-4 mb-12">
-          <div className="inline-flex p-4 rounded-3xl bg-blue-500/10 border border-blue-500/20 mb-2">
-            <UserPlus className="w-10 h-10 text-blue-400" />
+      <div className="max-w-4xl mx-auto py-6 sm:py-12 animate-in fade-in slide-in-from-bottom-8 duration-1000">
+        <div className="text-center space-y-4 mb-8 sm:mb-12">
+          <div className="inline-flex p-3 sm:p-4 rounded-2xl sm:rounded-3xl bg-blue-500/10 border border-blue-500/20 mb-2">
+            <UserPlus className="w-8 h-8 sm:w-10 sm:h-10 text-blue-400" />
           </div>
-          <h1 className="text-4xl font-black text-white tracking-tight">Connect with a Manager</h1>
-          <p className="text-slate-500 max-w-lg mx-auto leading-relaxed">
+          <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight px-4">Connect with a Manager</h1>
+          <p className="text-slate-500 text-sm sm:text-base max-w-lg mx-auto leading-relaxed px-6">
             Assign a professional manager to your account to receive personalized investment strategies and portfolio oversight.
           </p>
         </div>
 
-        <div className="glass-panel p-10 rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden">
+        <div className="glass-panel p-6 sm:p-10 rounded-3xl sm:rounded-[2.5rem] border border-white/10 shadow-2xl relative overflow-hidden mx-4 sm:mx-0">
           <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/5 rounded-full blur-3xl -mr-32 -mt-32" />
           <div className="absolute bottom-0 left-0 w-64 h-64 bg-emerald-500/5 rounded-full blur-3xl -ml-32 -mb-32" />
 
@@ -110,7 +141,7 @@ const ManagerView: React.FC = () => {
       <div className="flex flex-col lg:flex-row items-start gap-8">
         {/* Manager Profile Card */}
         <div className="w-full lg:w-96 space-y-6">
-          <div className="glass-panel p-8 rounded-[2.5rem] border border-white/5 flex flex-col items-center text-center space-y-6 shadow-2xl relative overflow-hidden">
+          <div className="glass-panel p-6 sm:p-8 rounded-3xl sm:rounded-[2.5rem] border border-white/5 flex flex-col items-center text-center space-y-6 shadow-2xl relative overflow-hidden">
             <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-br from-blue-600/20 to-indigo-600/20" />
 
             <div className="relative pt-4">
@@ -123,13 +154,13 @@ const ManagerView: React.FC = () => {
             </div>
 
             <div className="relative">
-              <h2 className="text-white font-black text-2xl tracking-tight">Sarah Mitchell</h2>
+              <h2 className="text-white font-black text-2xl tracking-tight">{managerData.user.fullname}</h2>
               <p className="text-blue-400/80 text-[10px] font-bold uppercase tracking-[0.25em] mt-1">Senior Portfolio Manager</p>
             </div>
 
             <div className="flex gap-3 w-full">
               <button className="flex-1 py-4 bg-blue-600 text-white rounded-2xl text-xs font-black tracking-widest uppercase hover:bg-blue-700 transition shadow-xl shadow-blue-500/20 active:scale-95">
-                Message Broker
+                Message {managerData.user.fullname.split(' ')[0]}
               </button>
               <button className="p-4 bg-white/5 text-slate-400 rounded-2xl border border-white/10 hover:bg-white/10 transition active:scale-95">
                 <Phone className="w-4 h-4" />
@@ -183,7 +214,7 @@ const ManagerView: React.FC = () => {
                  <h3 className="text-white font-black text-xl tracking-tight">Executive Summary</h3>
                </div>
                <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                 Sarah Mitchell is an award-winning portfolio manager with a decade of experience in quantitative analysis and growth-focused investment strategies. She joined NovaInvest in 2023 to lead our growth equity division, managing over $1.2B in client assets with a focus on sustainable long-term returns.
+                 {managerData.user.fullname} is an award-winning portfolio manager with a decade of experience in quantitative analysis and growth-focused investment strategies. Leading the growth equity division and managing client assets with a focus on sustainable long-term returns.
                </p>
             </div>
 
@@ -198,7 +229,7 @@ const ManagerView: React.FC = () => {
                      </div>
                      <div>
                         <p className="text-white text-sm font-bold">Monthly Portfolio Intelligence</p>
-                        <p className="text-slate-500 text-[10px] font-medium mt-0.5">February 2026 • Published by Sarah Mitchell</p>
+                        <p className="text-slate-500 text-[10px] font-medium mt-0.5">{new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric'})} • Published by {managerData.user.fullname}</p>
                      </div>
                   </div>
                   <div className="flex items-center gap-2 text-slate-600 group-hover:text-blue-400 transition-colors">

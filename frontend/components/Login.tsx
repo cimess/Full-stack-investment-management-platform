@@ -32,7 +32,7 @@ const { startRedirect, showLoader, message: redirectMessage, success: redirectSu
   initialMessage: "Login successful!",
   loadingMessage: "Fetching account data...",
   action: async () => {
-    const role = loginData?.roles;
+    const role = loginData?.data?.roles;
     if (role === "MANAGER") {
       await queryClient.prefetchQuery({ queryKey: ["managerDashboard"], queryFn: getManagerAll });
     } else if (role === "ADMIN") {
@@ -64,6 +64,7 @@ useEffect(() => {
       theme:"colored",
       transition:Zoom,
     });
+    queryClient.setQueryData(['dashboard'], loginData);
   }else if(isLoginError||isRegisterError){
      const specificLoginError = (loginError as any)?.response?.data?.message || loginError?.message;
     const specificRegisterError = (registerError as any)?.response?.data?.message || registerError?.message;
@@ -74,7 +75,7 @@ useEffect(() => {
       closeOnClick:true,
       pauseOnHover:true,
       draggable:true,
-      theme:"colored red",
+      theme:"colored",
       transition:Zoom,
     });
   }
@@ -86,11 +87,16 @@ useEffect(() => {
 queryClient.setQueryData(["userEmail"],email);
       setTimeout(()=>navigate("/verify"),3000);
     }
-if (loginSuccess) {
-  const target = loginData?.roles === "MANAGER" ? "/dashboard/manager" :
-                 loginData?.roles === "ADMIN" ? "/dashboard/admin" :
+if (loginSuccess && loginData?.success) {
+  const roles = loginData?.data?.roles;
+  const target = roles === "MANAGER" ? "/dashboard/manager" :
+                 roles === "ADMIN" ? "/dashboard/admin" :
                  "/dashboard/client";
+  console.log("Login success, redirecting to:", target);
   startRedirect(target);
+}
+if (isLoginError) {
+  console.error("Login failed:", loginError);
 }
 
 if(isLoginError||isRegisterError){

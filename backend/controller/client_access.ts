@@ -15,7 +15,7 @@ if(req.user?.roles!==Roles.USER){
   return next(createError(401,"only user can add manager to client"));
 }
   if(!client_id || !manager_id){
-    return next(createError(401,"client id and manager id are required"));
+    return next(createError(400,"client id and manager id are required"));
   }
 
   try{
@@ -62,8 +62,7 @@ if(req.user?.roles!==Roles.USER){
      res.status(200).json({success:true,message:"manager added to client successfully"})
   }catch(err:any){
     logger.error(err);
-     next(err);
-
+    next(err);
   }
 }
 
@@ -77,7 +76,7 @@ if(req.user?.roles!==Roles.USER){
   return next(createError(401,"only user can remove manager to client"));
 }
   if(!client_id || !manager_id){
-    return next(createError(401,"client id and manager id are required"));
+    return next(createError(400,"client id and manager id are required"));
   }
 
   try{
@@ -120,7 +119,7 @@ if(req.user?.roles!==Roles.USER){
      res.status(200).json({success:true,message:"manager removed from client successfully"})
   }catch(err:any){
     logger.error(err);
-   next(err);
+    next(err);
   }
 }
 
@@ -133,7 +132,7 @@ export const buyStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     return next(createError(401,"only user can buy stock"));
   }
   if(!client_id || !stock_id || !quantity){
-    return next(createError(401,"client id and stock id and quantity are required"));
+    return next(createError(400,"client id and stock id and quantity are required"));
   }
 
   try{
@@ -148,7 +147,7 @@ export const buyStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     throw createError(401,"user is currently restricted");
   }
     if(!user?.manager_id){
-      throw createError(401,"assign a manager first before requesting for stock");
+      throw createError(403,"assign a manager first before requesting for stock");
     }
 
     let portfolio=await tx.portfolio.findFirst({
@@ -169,7 +168,7 @@ const stock=await tx.stockTable.findUnique({
   }
 })
 if(!stock){
-  throw createError(401,"stock not found");
+  throw createError(404,"stock not found");
 }
  await tx.trade_request.create({
       data: {
@@ -200,7 +199,7 @@ export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     return next(createError(401,"only user can sell stock"));
   }
   if(!client_id || !stock_id || !quantity){
-    return next(createError(401,"client id and stock id and quantity are required"));
+    return next(createError(400,"client id and stock id and quantity are required"));
   }
 
   try{
@@ -215,7 +214,7 @@ export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
     throw createError(401,"user is currently restricted");
   }
     if(!user?.manager_id){
-      throw createError(401,"assign a manager first before requesting for stock");
+      throw createError(403,"assign a manager first before requesting for stock");
     }
 
     let portfolio=await tx.portfolio.findFirst({
@@ -224,7 +223,7 @@ export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
       }
     })
     if(!portfolio){
-   throw createError(401,"portfolio not found");
+      throw createError(404,"portfolio not found");
     }
 const stock=await tx.stockTable.findUnique({
   where:{
@@ -232,7 +231,7 @@ const stock=await tx.stockTable.findUnique({
   }
 })
 if(!stock){
-  throw createError(401,"stock not found");
+  throw createError(404,"stock not found");
 }
  await tx.trade_request.create({
       data: {
@@ -250,7 +249,7 @@ if(!stock){
 res.status(200).json({success:true,message:"trade request sent successfully"})
 }catch(err:any){
       logger.error(err);
-      next(createError(500,"Internal Server Error"));
+      next(err);
     }
 }
 
@@ -271,7 +270,7 @@ export const getAll=async(req:AuthRequest,res:Response,next:NextFunction)=>{
         where:{ user_id:client_id }
       })
       if(!portfolio){
-        throw createError(401,"portfolio not found");
+        throw createError(404,"portfolio not found");
       }
 
       //  Fetch Actual Transactions (History of executed trades)
@@ -321,9 +320,32 @@ export const getAll=async(req:AuthRequest,res:Response,next:NextFunction)=>{
       })
 
 
+      // 4. Fetch User and Manager Info
+      const user = await prisma.user.findUnique({
+        where: { id: client_id },
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          client_manager: {
+            select: {
+              manager_id: true,
+              user: {
+                select: {
+                  fullname: true,
+                  email: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+
       res.status(200).json({
         success: true,
         data: {
+          user,
           transactions,
           trade_requests,
           investments

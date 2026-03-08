@@ -11,6 +11,7 @@ export interface AuthRequest extends Request {
 }
 
 export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction) => {
+
   // 2. Extract the token from the Authorization header
   // Format: "Bearer <token>"
 
@@ -22,7 +23,7 @@ export const verifyToken = (req: AuthRequest, res: Response, next: NextFunction)
   }
 
   // 4. Verify the token using your Secret Key
-  jwt.verify(token, process.env.JWT_SECRET_ACCESSTOKEN as string, (err:VerifyErrors | null, decodedPayload: any) => {
+  jwt.verify(token, process.env.JWT_SECRET_ACCESSTOKEN as string, (err: VerifyErrors | null, decodedPayload: any) => {
     // 5. If verification fails (expired or fake token)
     if (err) {
       return next(createError(401, "TOKEN_EXPIRED_OR_INVALID"));
@@ -48,17 +49,17 @@ export const verifyTokenSecret = (token: string) => {
   }
 };
 
-export const generateRefreshToken=(payload:{id:string;roles:string})=>{
+export const generateRefreshToken = (payload: { id: string; roles: string }) => {
 
-  return jwt.sign(payload,process.env.JWT_SECRET_REFRESHTOKEN as string,{
-    expiresIn:"7d"
+  return jwt.sign(payload, process.env.JWT_SECRET_REFRESHTOKEN as string, {
+    expiresIn: "7d"
   })
 }
 
-export const generateAccessToken=(payload:{id:string;roles:string})=>{
+export const generateAccessToken = (payload: { id: string; roles: string }) => {
 
-  return jwt.sign(payload,process.env.JWT_SECRET_ACCESSTOKEN as string,{
-    expiresIn:"10m"
+  return jwt.sign(payload, process.env.JWT_SECRET_ACCESSTOKEN as string, {
+    expiresIn: "10m"
   })
 }
 

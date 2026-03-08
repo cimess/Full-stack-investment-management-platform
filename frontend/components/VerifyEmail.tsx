@@ -143,6 +143,20 @@ export default function VerifyEmail() {
           </p>
 
           <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Email */}
+            <div className="relative">
+              <i className="fas fa-envelope absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
+              <input
+                type="email"
+                placeholder="Email Address"
+                className="w-full rounded-xl bg-white/10 border border-white/20
+                text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={() => setMessage('Enter your registered email')}
+              />
+            </div>
+
 
             {/* OTP */}
             <div className="relative">
@@ -155,8 +169,7 @@ export default function VerifyEmail() {
                 text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400 tracking-widest text-center text-lg"
                 value={otp}
                 onChange={(e) => {
-                   const val = e.target.value.replace(/\D/g, ''); // Keep only numbers
-                   setOtp(val);
+                   setOtp(e.target.value);
                 }}
                 onFocus={() => setMessage('Enter the 6-digit code sent to your email')}
               />

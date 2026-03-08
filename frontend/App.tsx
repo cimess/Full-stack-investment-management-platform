@@ -6,11 +6,17 @@ import VerifyEmailPage from './pages/VerifyEmailPage';
 import ClientDashboard from './dashboard/client/ClientDashboard';
 import ManagerDashboard from './dashboard/manager/ManagerDashboard';
 import AdminDashboard from './dashboard/admin/AdminDashboard';
+import ProtectedRoute from './components/protectedRoute';
 
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const App = () => {
   return (
-    <Router>
+    <>
+      <ToastContainer />
+      <Router>
+
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -19,21 +25,51 @@ const App = () => {
         <Route path="/verify" element={<VerifyEmailPage />} />
 
         {/* Client Dashboard */}
-        <Route path="/dashboard/client" element={<ClientDashboard />} />
-        <Route path="/dashboard/client/*" element={<ClientDashboard />} />
+
+        <Route path="/dashboard/client" element={
+             <ProtectedRoute allowedRoles={['USER']}>
+              <ClientDashboard />
+             </ProtectedRoute>
+        } />
+        <Route path="/dashboard/client/*" element={
+             <ProtectedRoute allowedRoles={['USER']}>
+              <ClientDashboard />
+             </ProtectedRoute>
+        } />
 
         {/* Manager Dashboard */}
-        <Route path="/dashboard/manager" element={<ManagerDashboard />} />
-        <Route path="/dashboard/manager/*" element={<ManagerDashboard />} />
+        <Route path="/dashboard/manager" element={
+             <ProtectedRoute allowedRoles={['MANAGER']}>
+              <ManagerDashboard />
+             </ProtectedRoute>
+        } />
+        <Route path="/dashboard/manager/*" element={
+             <ProtectedRoute allowedRoles={['MANAGER']}>
+              <ManagerDashboard />
+             </ProtectedRoute>
+        } />
 
         {/* Admin Dashboard */}
-        <Route path="/dashboard/admin" element={<AdminDashboard />} />
-        <Route path="/dashboard/admin/*" element={<AdminDashboard />} />
+        <Route path="/dashboard/admin" element={
+             <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminDashboard />
+             </ProtectedRoute>
+        } />
+        <Route path="/dashboard/admin/*" element={
+             <ProtectedRoute allowedRoles={['ADMIN']}>
+              <AdminDashboard />
+             </ProtectedRoute>
+        } />
 
         {/* Legacy fallback */}
-        <Route path="/dashboard" element={<ClientDashboard />} />
+        <Route path="/dashboard" element={
+                <ProtectedRoute allowedRoles={['USER']}>
+        <ClientDashboard />
+      </ProtectedRoute>
+        } />
       </Routes>
     </Router>
+    </>
   );
 };
 

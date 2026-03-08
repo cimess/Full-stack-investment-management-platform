@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api=axios.create({
-  baseURL:"http://localhost:4000/api",
+  baseURL: "/api",
   withCredentials:true,
   timeout:10000,
   headers:{
@@ -13,10 +13,18 @@ api.interceptors.response.use(
   (response)=>response,
   async(error)=>{
     const originalRequest=error.config;
-    if(error.response?.status===401&&!originalRequest._retry){
+    const isAuthRoute = originalRequest.url?.includes("/login") || originalRequest.url?.includes("/refresh");
+    if(error.response?.status===401 && !originalRequest._retry && !isAuthRoute){
       originalRequest._retry=true;
-      await api.post("/refresh");
-      return api(originalRequest);
+      try {
+        await api.post("/refresh");
+        return api(originalRequest);
+      } catch (refreshError) {
+
+  window.location.replace("/login?message=session_expired");
+        return Promise.reject(refreshError);
+        
+      }
     }
     return Promise.reject(error);
   }

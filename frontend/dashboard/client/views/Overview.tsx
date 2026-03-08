@@ -1,8 +1,9 @@
 import React from 'react';
-import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Briefcase } from 'lucide-react';
+import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Briefcase, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
 import { useGetDashboard } from "../../../hooks/useQuery";
+
 const chartData = [
   { name: 'Mon', value: 38400 },
   { name: 'Tue', value: 39100 },
@@ -14,50 +15,72 @@ const chartData = [
 ];
 
 const ClientOverview: React.FC = () => {
-  const {data,isLoading,isError}=useGetDashboard()
-  console.log(data)
+  const { data, isLoading, isError } = useGetDashboard();
+
+  if (isLoading) {
+    return (
+      <div className="flex h-full items-center justify-center p-12">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError || !data?.data) {
+    return (
+      <div className="flex h-full items-center justify-center p-12 text-slate-400">
+        Failed to load dashboard data.
+      </div>
+    );
+  }
+
+  const { investments = [], user } = data.data;
+
+  // Calculate dynamic stats
+  const portfolioValue = investments.reduce((acc: number, inv: any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
+  const totalProfit = investments.reduce((acc: number, inv: any) => acc + (inv.quantity * (Number(inv.stock.price) - Number(inv.avgPrice))), 0);
+  const activePositions = investments.length;
+
+  const initialInvestment = portfolioValue - totalProfit;
+  const percentageChange = initialInvestment > 0 ? (totalProfit / initialInvestment) * 100 : 0;
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <StatCard
           title="Portfolio Value"
-          value="$42,300"
-          change="+5.2%"
-          changeType="up"
+          value={`$${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
           icon={<DollarSign className="w-5 h-5 text-emerald-400" />}
           iconBg="bg-emerald-500/10"
         />
         <StatCard
           title="Total Profit"
-          value="$3,840"
-          change="+12.4%"
-          changeType="up"
+          value={`${totalProfit >= 0 ? '+' : ''}$${Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          change={`${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(2)}%`}
+          changeType={totalProfit >= 0 ? "up" : "down"}
           icon={<TrendingUp className="w-5 h-5 text-blue-400" />}
           iconBg="bg-blue-500/10"
         />
         <StatCard
           title="Active Positions"
-          value="12"
-          change="5 stocks"
-          changeType="neutral"
+          value={activePositions}
           icon={<Briefcase className="w-5 h-5 text-purple-400" />}
           iconBg="bg-purple-500/10"
         />
         <StatCard
-          title="total stock value"
-          value="$1,250"
-          icon={<DollarSign className="w-5 h-5 text-amber-400" />}
+          title="Risk Level"
+          value="Moderate"
+          icon={<TrendingUp className="w-5 h-5 text-amber-400" />}
           iconBg="bg-amber-500/10"
-          subtitle="Ready to invest"
+          subtitle="Based on holdings"
         />
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-        <div className="xl:col-span-2 glass-panel rounded-2xl p-6 border border-white/5">
+        <div className="xl:col-span-2 glass-panel rounded-2xl p-4 lg:p-6 border border-white/5">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-white font-bold text-lg">Portfolio Performance</h2>
-              <p className="text-slate-500 text-sm">Growth over the last 7 days</p>
+              <h2 className="text-white font-bold text-base lg:text-lg">Portfolio Performance</h2>
+              <p className="text-slate-500 text-xs lg:text-sm">Growth over the last 7 days</p>
             </div>
           </div>
           <ResponsiveContainer width="100%" height={300}>
@@ -79,9 +102,9 @@ const ClientOverview: React.FC = () => {
             </AreaChart>
           </ResponsiveContainer>
         </div>
-
-        <div className="glass-panel rounded-2xl p-6 border border-white/5 space-y-6">
-          <h2 className="text-white font-bold text-lg">Quick Actions</h2>
+ 
+        <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-white/5 space-y-4 lg:space-y-6">
+          <h2 className="text-white font-bold text-base lg:text-lg">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             {['Market', 'Portfolio', 'History', 'Manager'].map((item) => (
               <button key={item} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-colors group">
@@ -92,12 +115,24 @@ const ClientOverview: React.FC = () => {
               </button>
             ))}
           </div>
+          
           <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20">
              <h3 className="text-white text-sm font-bold mb-1">Portfolio Manager</h3>
-             <p className="text-indigo-200/70 text-xs mb-3">Sarah Mitchell is overseeing your requests.</p>
-             <button className="w-full py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-colors">
-               Contact Sarah
-             </button>
+             {user?.client_manager ? (
+               <>
+                  <p className="text-indigo-200/70 text-xs mb-3">{user.client_manager.user.fullname} is overseeing your requests.</p>
+                  <button className="w-full py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-colors">
+                    Contact {user.client_manager.user.fullname.split(' ')[0]}
+                  </button>
+               </>
+             ) : (
+               <>
+                  <p className="text-indigo-200/70 text-xs mb-3">You currently do not have a dedicated portfolio manager.</p>
+                  <button className="w-full py-2 bg-slate-700 text-white rounded-lg text-xs font-bold hover:bg-slate-600 transition-colors">
+                    Assign Manager
+                  </button>
+               </>
+             )}
           </div>
         </div>
       </div>

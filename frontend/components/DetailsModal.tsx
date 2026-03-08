@@ -4,7 +4,7 @@ import{StockCardProps} from '../types'
 import { useNavigate } from 'react-router-dom';
 
 
-const DetailsModal = ({ item, onClose }:{item:StockCardProps,onClose:()=>void}) => {
+const DetailsModal = ({ item, onClose,targetPath="/signup" }:{item:StockCardProps,onClose:()=>void,targetPath?:string}) => {
 
   const navigate=useNavigate();
   if (!item) return null;
@@ -21,13 +21,13 @@ const DetailsModal = ({ item, onClose }:{item:StockCardProps,onClose:()=>void}) 
       <div className="relative w-full max-w-4xl bg-gradient-to-br from-gray-900/90 to-black/90 backdrop-blur-xl border border-white/10 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.37)] overflow-hidden flex flex-col max-h-[90vh] animate-in fade-in zoom-in-95 duration-300 ring-1 ring-white/5">
 
         {/* Header */}
-        <div className="flex items-center justify-between p-8 border-b border-white/5 bg-white/5 backdrop-blur-sm">
-          <div className="flex items-center gap-6">
-            <div className="w-16 h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-white/10 to-white/5 border border-white/10 shadow-inner p-1">
+        <div className="flex items-center justify-between p-5 sm:p-8 border-b border-white/5 bg-white/5 backdrop-blur-sm">
+          <div className="flex items-center gap-4 sm:gap-6">
+            <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-2xl overflow-hidden bg-gradient-to-br from-white/10 to-white/5 border border-white/10 shadow-inner p-1">
               <img src={item.image} alt={item.label} className="w-full h-full object-cover rounded-xl" />
             </div>
             <div>
-              <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">{item.label}</h2>
+              <h2 className="text-xl sm:text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-400">{item.label}</h2>
               <div className="flex items-center gap-2 mt-1">
                 <span className="px-2 py-0.5 rounded-md bg-white/5 border border-white/10 text-xs font-medium text-emerald-400 shadow-[inset_0_1px_2px_rgba(0,0,0,0.2)]">
                   {item.symbol}
@@ -45,7 +45,7 @@ const DetailsModal = ({ item, onClose }:{item:StockCardProps,onClose:()=>void}) 
         </div>
 
         {/* Scrollable Content */}
-        <div className="overflow-y-auto p-8 space-y-8 custom-scrollbar">
+        <div className="overflow-y-auto p-5 sm:p-8 space-y-6 sm:space-y-8 custom-scrollbar">
 
           {/* Key Stats Grid */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -79,12 +79,12 @@ const DetailsModal = ({ item, onClose }:{item:StockCardProps,onClose:()=>void}) 
           </div>
 
           {/* About Section */}
-          <div className="p-6 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-inner">
-            <h3 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-              <span className="w-1 h-6 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
+          <div className="p-4 sm:p-6 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/5 shadow-inner">
+            <h3 className="text-lg sm:text-xl font-bold text-white mb-3 flex items-center gap-2">
+              <span className="w-1 h-5 sm:h-6 bg-blue-500 rounded-full shadow-[0_0_10px_rgba(59,130,246,0.5)]"></span>
               About {item.label}
             </h3>
-            <p className="text-gray-300 leading-relaxed text-lg font-light tracking-wide">
+            <p className="text-gray-300 leading-relaxed text-sm sm:text-lg font-light tracking-wide">
               {item.about}
             </p>
           </div>
@@ -107,7 +107,7 @@ const DetailsModal = ({ item, onClose }:{item:StockCardProps,onClose:()=>void}) 
             Close
           </button>
           <button
-          onClick={()=>navigate("/signup")}
+          onClick={()=>navigate(targetPath)}
           className="px-8 py-3 rounded-xl font-bold text-white bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 transition-all duration-300 shadow-[0_0_20px_rgba(16,185,129,0.3)] hover:shadow-[0_0_30px_rgba(16,185,129,0.5)] border border-emerald-400/20 transform hover:scale-105 active:scale-95">
             Invest Now
           </button>

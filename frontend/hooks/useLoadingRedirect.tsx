@@ -14,8 +14,8 @@ export const useLoadingRedirect = ({
   initialMessage,
   loadingMessage,
   target,
-  initialDelay = 3000,
-  minLoadingTime = 2000,
+  initialDelay = 500, // Reduced from 3000
+  minLoadingTime = 500, // Reduced from 2000
   action,
 }: UseLoadingRedirectOptions) => {
   const navigate = useNavigate();

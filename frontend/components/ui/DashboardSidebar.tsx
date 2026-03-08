@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import {logout} from "../../hooks/useQuery"
 import {
   LayoutDashboard,
   TrendingUp,
@@ -74,25 +75,45 @@ const roleBadgeColors: Record<UserRole, string> = {
 interface DashboardSidebarProps {
   role: UserRole;
   userName?: string;
+  mobileOpen?: boolean;
+  setMobileOpen?: (open: boolean) => void;
+  handleLogout: () => void;
 }
 
-const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ role, userName = 'User' }) => {
+const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ 
+  role, 
+  userName = 'User',
+  mobileOpen = false,
+  setMobileOpen,
+  handleLogout
+}) => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const navItems = navByRole[role];
 
-  const handleLogout = () => {
-    // TODO: Clear token and redirect
-    navigate('/login');
+
+
+  const handleNavClick = (path: string) => {
+    navigate(path);
+    if (setMobileOpen) setMobileOpen(false);
   };
 
   return (
-    <aside
-      className={`relative flex flex-col h-screen bg-[#020617] border-r border-white/5 transition-all duration-300 ${
-        collapsed ? 'w-20' : 'w-64'
-      }`}
-    >
+    <>
+      {/* Mobile Overlay */}
+      {mobileOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 lg:hidden"
+          onClick={() => setMobileOpen?.(false)}
+        />
+      )}
+
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-[#020617] border-r border-white/5 transition-all duration-300 transform 
+        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} 
+        lg:relative lg:translate-x-0 ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
+      >
       {/* Logo */}
       <div className={`flex items-center gap-3 px-6 py-6 border-b border-white/5 ${collapsed ? 'justify-center px-3' : ''}`}>
         <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center flex-shrink-0">
@@ -109,11 +130,10 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ role, userName = 'U
       {/* Collapse Toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="absolute -right-3 top-8 w-6 h-6 bg-slate-800 border border-white/10 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-8 w-6 h-6 bg-slate-800 border border-white/10 rounded-full items-center justify-center text-slate-400 hover:text-white transition-colors z-10"
       >
         {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
       </button>
-
       {/* User Info */}
       {!collapsed && (
         <div className="px-4 py-4 border-b border-white/5">
@@ -138,7 +158,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ role, userName = 'U
           return (
             <button
               key={item.path}
-              onClick={() => navigate(item.path)}
+              onClick={() => handleNavClick(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
@@ -172,6 +192,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({ role, userName = 'U
         </button>
       </div>
     </aside>
+    </>
   );
 };
 

@@ -12,7 +12,7 @@ export const managerAccessKey=async(req:AuthRequest,res:Response,next:NextFuncti
     const {manager_access_key,slot,userid}=req.body;
     const user_id=req.user?.id;
       if(!manager_access_key||!slot||!userid){
-        return next(createError(401,"invalid credentials"));
+        return next(createError(400,"invalid credentials"));
       }
       if(!user_id){
         return next(createError(401,"pls login to continue"));
@@ -124,41 +124,47 @@ export const getAdminDashboard=async(req:AuthRequest,res:Response,next:NextFunct
 
 
 
-// export const addSuperAdmin=async(req:AuthRequest,res:Response,next:NextFunction)=>{
-//   try{
-//     const {super_admin_access}=req.body;
-//     const user_id=req.user?.id;
-//     await prisma.$transaction(async(tx)=>{
-//       if(user_id){
-//     const add_admin=await tx.user.update({
-//       where:{
-//         id:user_id
-//       },
-//       data:{
-//         roles:Roles.ADMIN
-//       }
-//     })
-//     if(!add_admin){
-//       return next(createError(500,"Internal Server Error"));
-//     }
-//     const hashesPassword=await bcrypt.hash(super_admin_access,10);
-//     if(add_admin){
-//       await tx.admin.create({
-//         data:{
-//           user_id:user_id,
-//           super_admin_access:hashesPassword,
-//           super_admin:true
-//         }
-//       })
-//     }
-//   }
-//   })
-//     return res.status(200).json({success:true,message:"admin access granted successfully"})
-//   }catch(err:any){
-//     logger.error(err);
-//     return next(createError(500,"Internal Server Error"));
-//   }
-// }
+export const addSuperAdmin=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+  try{
+    const {super_admin_access}=req.body;
+    const user_id=req.user?.id;
+    await prisma.$transaction(async(tx)=>{
+      if(!super_admin_access){
+        return next(createError(400,"invalid credentials"));
+      }
+      if(!user_id){
+        return next(createError(401,"pls login to continue"));
+      }
+      if(user_id){
+    const add_admin=await tx.user.update({
+      where:{
+        id:user_id
+      },
+      data:{
+        roles:Roles.ADMIN
+      }
+    })
+    if(!add_admin){
+      return next(createError(500,"Internal Server Error"));
+    }
+    const hashesPassword=await bcrypt.hash(super_admin_access,10);
+    if(add_admin){
+      await tx.admin.create({
+        data:{
+          user_id:user_id,
+          super_admin_access:hashesPassword,
+          super_admin:true
+        }
+      })
+    }
+  }
+  })
+    return res.status(200).json({success:true,message:"admin access granted successfully"})
+  }catch(err:any){
+    logger.error(err);
+    return next(createError(500,"Internal Server Error"));
+  }
+}
 
 export const addAdmin=async(req:AuthRequest,res:Response,next:NextFunction)=>{
 
@@ -296,3 +302,43 @@ export const restrictManager=async(req:AuthRequest,res:Response,next:NextFunctio
     return next(createError(500,"Internal Server Error"));
   }
 }
+
+export const remoteShutdown = async (req: AuthRequest, res: Response,next:NextFunction) => {
+  logger.warn(`Remote shutdown initiated by Admin: ${req.user?.id}`);
+
+  const {super_admin_access}=req.body;
+
+  try{
+    if(!super_admin_access||!req.user?.id){
+    return next(createError(401,"invalid super admin access"));
+  }
+
+  const super_admin=await prisma.admin.findFirst({
+    where:{
+      user_id:req.user?.id,
+      super_admin:true
+    },
+    select:{
+      super_admin:true,
+      super_admin_access:true
+    }
+  })
+
+  if(!super_admin){
+    return next(createError(401,"invalid super admin access"));
+  }
+
+}catch(err:any){
+  logger.error(err);
+  return next(createError(500,"Internal Server Error"));
+}
+  res.status(200).json({ 
+    success: true, 
+    message: "Initiating emergency shutdown... Goodbye." 
+  });
+
+  // Small delay to allow the response to reach the client
+  setTimeout(() => {
+    process.kill(process.pid, 'SIGTERM');
+  }, 1000);
+};

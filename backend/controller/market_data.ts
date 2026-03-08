@@ -1,31 +1,63 @@
 import type { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
-import { getQuotes,searchStock } from "../services/marketservice.js";
+import { getQuotes, searchStock, getStockDetails } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is required
+
+export const postStockDetails = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const { symbol } = req.body;
+    if (!symbol) {
+      return next(createError(400, "Symbol is required"));
+    }
+
+    const result = await getStockDetails(symbol);
+
+    const status = !result.message ? 429 : 500;
+
+    if (!result.success) {
+      // If hit API limit, we return 429 Too Many Requests
+      return res.status(status).json(result);
+    }
+
+    return res.status(200).json(result);
+  } catch (err: any) {
+    logger.error("Error in postStockDetails controller:", err);
+    return next(err);
+  }
+};
 
 /**
  * Controller to fetch global quotes for one or multiple stock symbols.
  * Expects `symbols` in the query string (e.g., ?symbols=AAPL,TSLA)
  */
-export const getMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const postMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  const { symbols } = req.body;
+  const userId = req.user?.roles;
+  if (userId !== "ADMIN" && userId !== "MANAGER") {
+    return next(createError(401, "Unauthorized"));
+  }
   try {
-    const { symbols } = req.body;
+
+    // const symbols =['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG','XOM','BAC','WMT','COST','HD','INTC','CSCO','ORCL','IBM','T','PFE','MRK','ABBV','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO']
+    if (!symbols || (Array.isArray(symbols) && symbols.length === 0)) {
+      return next(createError(400, "Symbols are required"));
+    }
 
     // Handle symbols as an array (if sent as JSON) or a string
     let symbolArray: string[] = [];
     if (Array.isArray(symbols)) {
-       symbolArray = symbols.map(s => s.toString().trim().toUpperCase());
-    } else if (typeof symbols === 'string') {
-       symbolArray = symbols.split(',').map(s => s.trim().toUpperCase());
+      symbolArray = symbols.map(s => s.toString().trim().toUpperCase());
     }
 
     const result = await getQuotes(symbolArray);
 
+    logger.info("Result: ", result);
+
     if (!result.success) {
-       // If hit API limit, we return 429 Too Many Requests
-       return res.status(429).json(result);
+      // If hit API limit, we return 429 Too Many Requests
+      return res.status(429).json(result);
     }
     const quoteData = result.data;
 
@@ -76,6 +108,35 @@ export const getMarketQuotes = async (req: AuthRequest, res: Response, next: Nex
     return next(err);
   }
 };
+export const getMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+
+
+  try {
+
+    const stocks = await prisma.stockTable.findMany({
+      orderBy: {
+        symbol: 'asc'
+      }
+    });
+    // 3. IMPORTANT: BigInt cannot be serialized to JSON directly
+
+    const formattedData = stocks.map(stock => ({
+      ...stock,
+      marketCap: stock.marketCap ? stock.marketCap.toString() : null,
+      price: Number(stock.price)
+    }));
+
+    return res.status(200).json({
+      success: true,
+      message: "Data fetched successfully",
+      data: formattedData
+    });
+
+  } catch (err: any) {
+    logger.error("Error in getMarketQuotes controller:", err);
+    return next(err);
+  }
+};
 
 export const searchStockController = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
@@ -86,8 +147,8 @@ export const searchStockController = async (req: AuthRequest, res: Response, nex
     const result = await searchStock(symbols);
 
     if (!result.success) {
-       // If hit API limit, we return 429 Too Many Requests
-       return res.status(429).json(result);
+      // If hit API limit, we return 429 Too Many Requests
+      return res.status(429).json(result);
     }
 
 

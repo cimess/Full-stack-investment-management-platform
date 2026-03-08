@@ -1,29 +1,95 @@
-import React, { useState } from 'react';
-import { Search, TrendingUp, TrendingDown, ArrowUpRight } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Search, TrendingUp, TrendingDown, ArrowUpRight, Loader2 } from 'lucide-react';
+import { useGetMarketQuotes, useSearchStock, useFetchStockDetails } from '../../../hooks/useQuery';
+import DetailsModal from '../../../components/DetailsModal';
+import { StockCardProps } from '../../../types';
 
-const marketStocks = [
-  { symbol: 'AAPL', name: 'Apple Inc.', price: 182.30, change: +1.25, cap: '2.8T' },
-  { symbol: 'NVDA', name: 'NVIDIA Corp.', price: 673.20, change: +4.82, cap: '1.6T' },
-  { symbol: 'MSFT', name: 'Microsoft Corp.', price: 298.50, change: -0.45, cap: '3.1T' },
-  { symbol: 'TSLA', name: 'Tesla Inc.', price: 221.40, change: +2.15, cap: '700B' },
-  { symbol: 'GOOGL', name: 'Alphabet Inc.', price: 142.80, change: +0.85, cap: '1.8T' },
-  { symbol: 'AMZN', name: 'Amazon Inc.', price: 155.80, change: +1.10, cap: '1.6T' },
-];
+const DEFAULT_SYMBOLS = ['AAPL', 'NVDA', 'MSFT', 'TSLA', 'GOOGL', 'AMZN'];
 
 const MarketView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [marketStocks, setMarketStocks] = useState<any[]>([]);
+  const [selectedStock, setSelectedStock] = useState<StockCardProps | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [fetchingSymbol, setFetchingSymbol] = useState<string | null>(null);
 
-  const filtered = marketStocks.filter(s =>
-    s.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    s.name.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const { data, isLoading: isMarketLoading } = useGetMarketQuotes();
+  const { mutate: searchStocks, isPending: isSearching } = useSearchStock();
+  const { mutate: fetchDetails, isPending: isFetchingDetails } = useFetchStockDetails();
+
+  // Load default top stocks on mount
+  useEffect(() => {
+    if (data?.success && data.data) {
+      setMarketStocks(Array.isArray(data.data) ? data.data : []);
+    }
+  }, [data, searchTerm.length < 1]);
+
+  // Simple debounce for search
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (searchTerm.length > 0) {
+        searchStocks({ symbols: searchTerm }, {
+          onSuccess: (res) => {
+            if (res.success && res.data) {
+              // If the search returns a list, set it. Otherwise wrap it in an array if it's a single stock.
+              const results = Array.isArray(res.data) ? res.data : [res.data];
+              setMarketStocks(results);
+            } else {
+              setMarketStocks([]); // Not found
+            }
+          }
+        });
+      }
+    }, 1000);
+
+    return () => clearTimeout(delayDebounceFn);
+  }, [searchTerm]);
+
+  const handleStockClick = (symbol: string, basicName: string) => {
+    setFetchingSymbol(symbol);
+    fetchDetails({ symbol }, {
+      onSuccess: (res) => {
+        setFetchingSymbol(null);
+        if (res.success && res.data) {
+          const apiData = res.data;
+
+          // Map API detailed data to StockCardProps for the DetailsModal
+          const detailItem: StockCardProps = {
+            label: apiData.company || basicName || symbol,
+            image: `https://logo.clearbit.com/${apiData.website?.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0] || 'apple.com'}`, // fallback generic logo generator
+            type: "STOCK",
+            return: `${apiData.changePercent >= 0 ? '+' : ''}${apiData.changePercent?.toFixed(2)}%`,
+            risk: "Variable",
+            invest: apiData.price?.toFixed(2) || "0.00",
+            symbol: apiData.symbol || symbol,
+            financial: apiData.financialSummary || "No financial summary available.",
+            about: apiData.about || "No description available.",
+            stats: {
+              ceo: apiData.ceo || "N/A",
+              more: `Employees: ${apiData.employees || "N/A"}. Sector: ${apiData.sector || "N/A"}`,
+              industry: apiData.industry || "N/A",
+              hq: apiData.hq || "N/A",
+              founded: "N/A"
+            }
+          };
+          setSelectedStock(detailItem);
+          setIsModalOpen(true);
+        }
+      },
+      onError: () => {
+        setFetchingSymbol(null);
+      }
+    });
+  };
+
+  const loading = isMarketLoading || isSearching;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 lg:space-y-6">
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
-          <h2 className="text-white font-bold text-2xl">Market Explorer</h2>
-          <p className="text-slate-500 text-sm">Discover and analyze global stocks</p>
+          <h2 className="text-white font-bold text-xl lg:text-2xl">Market Explorer</h2>
+          <p className="text-slate-500 text-xs lg:text-sm">Discover and analyze global stocks</p>
         </div>
         <div className="relative group">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
@@ -37,39 +103,93 @@ const MarketView: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map(s => (
-          <div key={s.symbol} className="glass-panel p-5 rounded-2xl border border-white/5 hover:border-emerald-500/30 transition-all group">
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white font-bold border border-white/5 group-hover:bg-emerald-500/10 group-hover:text-emerald-400 transition-colors">
-                  {s.symbol.charAt(0)}
-                </div>
-                <div>
-                  <p className="text-white font-bold">{s.symbol}</p>
-                  <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest">{s.name}</p>
-                </div>
-              </div>
-              <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
-                 <ArrowUpRight className="w-4 h-4" />
-              </button>
-            </div>
+      {loading ? (
+        <div className="flex justify-center items-center py-24">
+          <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+        </div>
+      ) : marketStocks.length === 0 ? (
+        <div className="flex justify-center items-center py-24 text-slate-500 text-sm">
+          No stocks found
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {marketStocks.map((s, index) => {
+            // Robust data mapping from backend
+            const symbol = s.symbol || 'N/A';
+            const name = s.company || s.name || symbol;
+            const price = Number(s.price || 0);
+            const change = Number(s.changePercent || 0);
+            const marketCap = s.displayMarketCap || (s.marketCap ? `${(Number(s.marketCap) / 1e9).toFixed(1)}B` : 'N/A');
+            const volume = s.displayVolume || (s.volume ? `${(Number(s.volume) / 1e6).toFixed(1)}M` : 'N/A');
 
-            <div className="flex items-end justify-between">
-              <div>
-                <p className="text-slate-500 text-xs mb-1">Price</p>
-                <p className="text-white text-lg font-bold">${s.price.toFixed(2)}</p>
-              </div>
-              <div className="text-right">
-                <p className="text-slate-500 text-xs mb-1">24h Change</p>
-                <p className={`text-sm font-bold ${s.change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
-                  {s.change >= 0 ? '+' : ''}{s.change.toFixed(2)}%
-                </p>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
+            return (
+              <React.Fragment key={`${symbol}-${index}`}>
+                {isFetchingDetails && fetchingSymbol === symbol ? (
+                  <div className="flex justify-center items-center py-24 glass-panel rounded-2xl border border-emerald-500/30">
+                    <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+                  </div>
+                ) : (
+                  <div
+                    onClick={() => handleStockClick(symbol, name)}
+                    className={`glass-panel p-5 rounded-2xl border ${isFetchingDetails && fetchingSymbol === symbol ? 'border-emerald-500 opacity-50' : 'border-white/5 hover:border-emerald-500/30'} transition-all group cursor-pointer`}
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white font-bold border border-white/5 group-hover:bg-emerald-500/10 group-hover:text-emerald-400 transition-colors">
+                          {symbol !== 'N/A' ? symbol.charAt(0) : '?'}
+                        </div>
+                        <div>
+                          <p className="text-white font-bold">{symbol}</p>
+                          <p className="text-slate-500 text-[10px] uppercase font-bold tracking-widest truncate max-w-[120px]">{name === symbol ? 'Company N/A' : name}</p>
+                        </div>
+                      </div>
+                      <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
+                        {isFetchingDetails && fetchingSymbol === symbol ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUpRight className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <div className="flex items-baseline justify-between mb-4">
+                      <div>
+                        <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-1">Price</p>
+                        <p className="text-white text-lg font-bold">${price > 0 ? price.toLocaleString(undefined, { minimumFractionDigits: 2 }) : '0.00'}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-1">24h Change</p>
+                        <p className={`text-sm font-bold ${change >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {change >= 0 ? '+' : ''}{change.toFixed(2)}%
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/5">
+                      <div>
+                        <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">Mkt Cap</p>
+                        <p className="text-slate-300 text-xs font-semibold">{marketCap}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-slate-500 text-[10px] uppercase font-bold tracking-wider mb-0.5">Volume</p>
+                        <p className="text-slate-300 text-xs font-semibold">{volume}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </React.Fragment>
+            )
+          })}
+        </div>
+      )}
+
+      {isModalOpen && selectedStock && (
+        <DetailsModal
+          item={selectedStock}
+          onClose={() => {
+            setIsModalOpen(false);
+            setSelectedStock(null);
+            
+          }}
+          targetPath={"/dashboard/client/portfolio"}
+        />
+      )}
     </div>
   );
 };
