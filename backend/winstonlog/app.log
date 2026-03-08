@@ -7604,3 +7604,4 @@ Unique constraint failed on the fields: (`email`) {
   "10": "e",
   "11": "d"
 }
+2026-03-08 18:16:49 [info]: SIGINT received: Starting graceful shutdown...

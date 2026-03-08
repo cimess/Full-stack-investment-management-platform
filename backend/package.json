@@ -16,8 +16,10 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
+    "@google/generative-ai": "^0.21.0",
     "@prisma/adapter-pg": "^7.4.0",
     "@prisma/client": "^7.4.0",
+    "@prisma/config": "^7.4.2",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.3.1",
@@ -29,8 +31,7 @@
     "pg": "^8.18.0",
     "prisma": "^7.4.0",
     "winston": "^3.19.0",
-    "yahoo-finance2": "^3.13.2",
-    "@google/generative-ai": "^0.21.0"
+    "yahoo-finance2": "^3.13.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
