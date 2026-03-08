@@ -5,6 +5,9 @@
   "type": "module",
   "scripts": {
     "dev": "tsx watch server.ts",
+    "build": "tsc",
+    "postinstall": "prisma generate",
+    "start": "node dist/server.js",
     "test:api": "vitest run --config vitest.config.ts",
     "test:seed": "tsx tests/setup/seed-test-users.ts"
   },
