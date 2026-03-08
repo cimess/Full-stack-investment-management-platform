@@ -9,7 +9,7 @@ import { sendEmail } from "../services/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { AuthRequest } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
-import { Roles } from "../prisma/generated/index.js";
+import { Roles } from "@prisma/client";
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
 
   const result = registerSchema.safeParse(req.body);

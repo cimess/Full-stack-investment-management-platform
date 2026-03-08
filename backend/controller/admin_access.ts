@@ -1,4 +1,4 @@
-import { Roles } from "../prisma/generated/index.js";
+import { Roles } from "@prisma/client";
 import type { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";

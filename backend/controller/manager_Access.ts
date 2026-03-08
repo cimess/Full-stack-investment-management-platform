@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { prisma } from "../lib/prisma.js";
 import logger from "../winstonlog/logger.js";
 import createError from "http-errors";
-import { Roles } from "../prisma/generated/index.js";
+import { Roles } from "@prisma/client";
 import type { AuthRequest } from "../middlewear/auth.js";
 
 export const getManagerAccess=async(req:AuthRequest,res:Response,next:NextFunction)=>{

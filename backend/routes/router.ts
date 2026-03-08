@@ -2,7 +2,7 @@ import { Router } from "express";
 import { registerUser, loginUser, refreshToken, logoutUser, verifyEmail ,getMe} from "../controller/authentication.js";
 import { verifyToken } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
-import { Roles } from "../prisma/generated/index.js";
+import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll } from "../controller/manager_Access.js";
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, managerAccessKey, remoteShutdown} from "../controller/admin_access.js";
