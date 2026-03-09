@@ -16,6 +16,8 @@ export { app };
 
 app.use(cookieParser());
 app.use(express.json({ limit: "5mb" }));
+// In production, requests arrive via Netlify reverse proxy (/api/* → this server)
+// so the origin will be the Netlify domain. FRONTEND_URL must be set on Render.
 app.use(cors({
   origin: process.env.FRONTEND_URL || "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
@@ -27,6 +29,19 @@ app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === "production" ? 100 : 10000,
 }));
+
+// Production-only request logger
+if (process.env.NODE_ENV === "production") {
+  app.use((req, res, next) => {
+    const start = Date.now();
+    res.on("finish", () => {
+      const duration = Date.now() - start;
+      logger.info(`[${req.method}] ${req.path} → ${res.statusCode} (${duration}ms)`);
+    });
+    next();
+  });
+}
+
 app.use("/api", router);
 
 

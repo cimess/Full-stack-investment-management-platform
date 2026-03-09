@@ -57,8 +57,13 @@ export const useGetAdminDashboard = () => {
 // all post by users
 
 export const login = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: loginUser
+    mutationFn: loginUser,
+    onSuccess: () => {
+      // Invalidate and refetch 'me' so ProtectedRoute sees the logged-in user immediately
+      void queryClient.invalidateQueries({ queryKey: ["me"] });
+    }
   })
 }
 
@@ -75,8 +80,13 @@ export const verifyUserEmail = () => {
 }
 
 export const logout = () => {
+  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: logoutUser
+    mutationFn: logoutUser,
+    onSuccess: () => {
+      // Clear cached user so ProtectedRoute redirects to login immediately
+      queryClient.removeQueries({ queryKey: ["me"] });
+    }
   })
 }
 
