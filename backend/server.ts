@@ -14,16 +14,6 @@ dotenv.config();
 const app = express();
 export { app };
 
-// Verbose request logging
-app.use((req, res, next) => {
-  const start = Date.now();
-  console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Origin: ${req.headers.origin}`);
-  res.on('finish', () => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url} - Status: ${res.statusCode} - Duration: ${Date.now() - start}ms`);
-  });
-  next();
-});
-
 app.use(cookieParser());
 app.use(express.json({ limit: "5mb" }));
 app.use(cors({

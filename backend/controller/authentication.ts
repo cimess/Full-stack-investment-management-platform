@@ -85,7 +85,7 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
     }
 
     if (user.verificationToken !== otp || !user.verificationTokenExpires ||
-       user.verificationTokenExpires < new Date()) {
+      user.verificationTokenExpires < new Date()) {
       return next(createError(400, "Invalid or expired verification code"));
     }
 
@@ -176,8 +176,10 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       }
       const { id, roles, username, fullname, manager_id } = user
       const email_user = user.email
-      return res.status(200).json({ success: true, message: "user logged in successfully", 
-        data: { id, roles, fullname, email_user, username, manager_id } })
+      return res.status(200).json({
+        success: true, message: "user logged in successfully",
+        data: { id, roles, fullname, email_user, username, manager_id }
+      })
     })
   } catch (err: any) {
     logger.error(err);
@@ -247,7 +249,7 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
   if (!user_logged_in) {
     return next(createError(401, "Unauthorized"));
   }
-  const user=await prisma.user.findUnique({
+  const user = await prisma.user.findUnique({
     where: { id: user_logged_in.id },
     select: {
       roles: true,
@@ -256,7 +258,7 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
 
     }
   })
-  if(!user){
+  if (!user) {
     return next(createError(401, "Unauthorized"));
   }
   return res.json({ success: true, data: user })
