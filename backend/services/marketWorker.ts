@@ -8,7 +8,7 @@ export const refreshMarketData = async () => {
   try {
     logger.info("Worker: Starting background price refresh...");
     const result = await getQuotes(SYMBOLS);
-
+if(process.env.NODE_ENV === "production"){
     if (result.success && Array.isArray(result.data)) {
       await Promise.all(result.data.map(async (stock: any) => {
         return prisma.stockTable.upsert({
@@ -31,6 +31,7 @@ export const refreshMarketData = async () => {
       }));
       logger.info("Worker: Successfully Updated DB.");
     }
+  }
   } catch (err) {
     logger.error("Worker Error:", err);
   }
