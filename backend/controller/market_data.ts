@@ -109,17 +109,46 @@ export const postMarketQuotes = async (req: AuthRequest, res: Response, next: Ne
   }
 };
 export const getMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
-
+  const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
 
   try {
-
-    const stocks = await prisma.stockTable.findMany({
-      orderBy: {
-        symbol: 'asc'
-      }
+    let stocks = await prisma.stockTable.findMany({
+      orderBy: { symbol: 'asc' }
     });
-    // 3. IMPORTANT: BigInt cannot be serialized to JSON directly
 
+    // If DB is empty, fetch from Yahoo Finance and seed it
+    if (stocks.length === 0) {
+      logger.info("[Market] DB is empty, seeding from Yahoo Finance...");
+      const result = await getQuotes(DEFAULT_SYMBOLS);
+
+      if (result.success && Array.isArray(result.data)) {
+        await Promise.all(result.data.map(async (stock: any) => {
+          return prisma.stockTable.upsert({
+            where: { symbol: stock.symbol },
+            update: {
+              price: stock.price,
+              changePercent: stock.changePercent,
+              marketCap: stock.marketCap ? BigInt(Math.floor(Number(stock.marketCap))) : null,
+              lastUpdated: new Date(),
+            },
+            create: {
+              symbol: stock.symbol,
+              company: stock.company,
+              price: stock.price,
+              changePercent: stock.changePercent,
+              marketCap: stock.marketCap ? BigInt(Math.floor(Number(stock.marketCap))) : null,
+              lastUpdated: new Date(),
+            }
+          });
+        }));
+        logger.info("[Market] DB seeded successfully.");
+        stocks = await prisma.stockTable.findMany({ orderBy: { symbol: 'asc' } });
+      } else {
+        logger.error("[Market] Failed to seed DB from Yahoo Finance (rate limited or error).");
+      }
+    }
+
+    // BigInt cannot be serialized to JSON directly
     const formattedData = stocks.map(stock => ({
       ...stock,
       marketCap: stock.marketCap ? stock.marketCap.toString() : null,

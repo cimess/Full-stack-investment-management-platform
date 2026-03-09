@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Search, TrendingUp, TrendingDown, ArrowUpRight, Loader2 } from 'lucide-react';
+import { Search, ArrowUpRight, Loader2 } from 'lucide-react';
 import { useGetMarketQuotes, useSearchStock, useFetchStockDetails } from '../../../hooks/useQuery';
 import DetailsModal from '../../../components/DetailsModal';
 import { StockCardProps } from '../../../types';
-
-const DEFAULT_SYMBOLS = ['AAPL', 'NVDA', 'MSFT', 'TSLA', 'GOOGL', 'AMZN'];
 
 const MarketView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -17,12 +15,12 @@ const MarketView: React.FC = () => {
   const { mutate: searchStocks, isPending: isSearching } = useSearchStock();
   const { mutate: fetchDetails, isPending: isFetchingDetails } = useFetchStockDetails();
 
-  // Load default top stocks on mount
+  // Load stocks from DB on mount / when search is cleared
   useEffect(() => {
     if (data?.success && data.data) {
       setMarketStocks(Array.isArray(data.data) ? data.data : []);
     }
-  }, [data, searchTerm.length < 1]);
+  }, [data, searchTerm === '']);
 
   // Simple debounce for search
   useEffect(() => {
@@ -31,11 +29,10 @@ const MarketView: React.FC = () => {
         searchStocks({ symbols: searchTerm }, {
           onSuccess: (res) => {
             if (res.success && res.data) {
-              // If the search returns a list, set it. Otherwise wrap it in an array if it's a single stock.
               const results = Array.isArray(res.data) ? res.data : [res.data];
               setMarketStocks(results);
             } else {
-              setMarketStocks([]); // Not found
+              setMarketStocks([]);
             }
           }
         });
@@ -53,10 +50,9 @@ const MarketView: React.FC = () => {
         if (res.success && res.data) {
           const apiData = res.data;
 
-          // Map API detailed data to StockCardProps for the DetailsModal
           const detailItem: StockCardProps = {
             label: apiData.company || basicName || symbol,
-            image: `https://logo.clearbit.com/${apiData.website?.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0] || 'apple.com'}`, // fallback generic logo generator
+            image: `https://logo.clearbit.com/${apiData.website?.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0] || 'apple.com'}`,
             type: "STOCK",
             return: `${apiData.changePercent >= 0 ? '+' : ''}${apiData.changePercent?.toFixed(2)}%`,
             risk: "Variable",
@@ -114,7 +110,6 @@ const MarketView: React.FC = () => {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {marketStocks.map((s, index) => {
-            // Robust data mapping from backend
             const symbol = s.symbol || 'N/A';
             const name = s.company || s.name || symbol;
             const price = Number(s.price || 0);
@@ -185,7 +180,6 @@ const MarketView: React.FC = () => {
           onClose={() => {
             setIsModalOpen(false);
             setSelectedStock(null);
-            
           }}
           targetPath={"/dashboard/client/portfolio"}
         />

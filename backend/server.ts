@@ -70,7 +70,7 @@ if (process.env.NODE_ENV !== "test") {
   });
 
   try {
-    startMarketWorker(30);
+    startMarketWorker(300);
   } catch (err) {
     logger.error("Error in startMarketWorker:", err);
   }
