@@ -16,17 +16,22 @@ const __dirname = path.dirname(__filename);
 const connectionString = `${process.env.DATABASE_URL}`;
 
 // Secure SSL configuration: Option B (Verify identity using CA)
-// Check both ../certs (dev) and ../../certs (prod dist)
-const devCaPath = path.resolve(__dirname, "../certs/ca.pem");
-const prodCaPath = path.resolve(__dirname, "../../certs/ca.pem");
-const caPath = fs.existsSync(prodCaPath) ? prodCaPath : devCaPath;
+// Check multiple locations for resilience
+const pathsToCheck = [
+  path.resolve(__dirname, "../certs/ca.pem"),    // local development
+  path.resolve(__dirname, "../../certs/ca.pem"), // production (running from dist/)
+  path.resolve(process.cwd(), "ca.pem"),         // Case where Render puts it in root
+  path.resolve(process.cwd(), "backend/ca.pem"),  // Case where it's at repo root
+];
+
+const caPath = pathsToCheck.find(p => fs.existsSync(p));
 
 let sslConfig: any = { rejectUnauthorized: true };
 
-if (fs.existsSync(caPath)) {
+if (caPath) {
   sslConfig.ca = fs.readFileSync(caPath).toString();
 } else {
-  console.warn("CA Certificate not found at", caPath, ". SSL verification might fail.");
+  console.warn("CA Certificate not found. Checked paths:", pathsToCheck);
 }
 
 const pool = new Pool({
