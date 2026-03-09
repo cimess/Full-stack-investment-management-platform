@@ -4,11 +4,11 @@ import logger from "../winstonlog/logger.js";
 
 const SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
 
-export const refreshMarketData = async () => {
+export const refreshMarketData = async (run:boolean) => {
   try {
     logger.info("Worker: Starting background price refresh...");
     const result = await getQuotes(SYMBOLS);
-if(process.env.NODE_ENV === "production"){
+if(process.env.NODE_ENV === "production"||run ){
     if (result.success && Array.isArray(result.data)) {
       await Promise.all(result.data.map(async (stock: any) => {
         return prisma.stockTable.upsert({
@@ -37,7 +37,8 @@ if(process.env.NODE_ENV === "production"){
   }
 };
 
-export const startMarketWorker = (mins: number) => {
-  refreshMarketData(); // Run once immediately on start
+export const startMarketWorker = (mins: number,run:boolean) => {
+  refreshMarketData(run); // Run once immediately on start
   setInterval(refreshMarketData, mins * 60 * 1000);
 };
+  
