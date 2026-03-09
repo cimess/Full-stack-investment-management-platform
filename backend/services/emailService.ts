@@ -6,7 +6,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
 export const sendEmail = async (to: string, subject: string, text: string, html?: string) => {
   try {
     const { data, error } = await resend.emails.send({
-      from: `Nova Invest <${process.env.EMAIL_USER || 'onboarding@resend.dev'}>`,
+      from: 'onboarding@resend.dev', // Use Resend's default testing address
       to: [to],
       subject,
       text,
