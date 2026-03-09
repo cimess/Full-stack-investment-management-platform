@@ -8,3 +8,5 @@ frontend/node_modules/
 dist/
 frontend/dist/
 backend/dist/
+certs/
+*.pem
