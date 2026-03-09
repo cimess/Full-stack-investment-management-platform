@@ -32,13 +32,14 @@ const pathsToCheck = [
 
 const caPath = pathsToCheck.find(p => fs.existsSync(p));
 
-let sslConfig: any = { rejectUnauthorized: true };
+let sslConfig: any = { rejectUnauthorized: false };
 
 if (caPath) {
   logger.info(`[Database] Using CA Certificate from: ${caPath}`);
   sslConfig.ca = fs.readFileSync(caPath).toString();
+  sslConfig.rejectUnauthorized = true;
 } else {
-  logger.error("[Database] CA Certificate NOT found. Connection will likely fail.");
+  logger.error("[Database] CA Certificate NOT found. Connecting without verifying CA.");
   logger.error(`[Database] Current Directory: ${process.cwd()}`);
   try {
     const files = fs.readdirSync(process.cwd());
