@@ -19,6 +19,9 @@ const authLimiter = rateLimit({
 
 const router = Router();
 
+// --- Health Check ---
+router.get("/health", (req, res) => res.status(200).json({ success: true, message: "Server is healthy" }));
+
 // --- Market Data ---
 router.post("/market/quotes", verifyToken, postMarketQuotes);
 router.get("/market/quotes", verifyToken, getMarketQuotes);
