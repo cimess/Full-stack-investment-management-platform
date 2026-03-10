@@ -149,6 +149,7 @@ export const getQuotes = async (symbols: string | string[]) => {
     return { success: false, message: error.message || "Failed to fetch market data" };
   }
 };
+
 export const searchStock = async (symbols: string) => {
 
   try {

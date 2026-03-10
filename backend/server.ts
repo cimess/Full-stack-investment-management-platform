@@ -70,7 +70,9 @@ if (process.env.NODE_ENV !== "test") {
   });
 
   try {
-    startMarketWorker(300,false);
+    if(process.env.NODE_ENV==="production"){
+      startMarketWorker(300,true);
+    }
   } catch (err) {
     logger.error("Error in startMarketWorker:", err);
   }
