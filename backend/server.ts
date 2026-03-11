@@ -9,6 +9,7 @@ import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
 import { startMarketWorker } from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
+import passport from "./config/passport.js";
 dotenv.config();
 
 const app = express();
@@ -41,7 +42,7 @@ if (process.env.NODE_ENV === "production") {
     next();
   });
 }
-
+app.use(passport.initialize());
 app.use("/api", router);
 
 

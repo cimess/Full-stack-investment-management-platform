@@ -5,7 +5,7 @@ import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import type { AuthRequest } from "../middlewear/auth.js";
 
-export const getManagerAccess=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const getManagerAccess=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {access_key}=req.body;
   const userId=req.user?.id;
@@ -21,7 +21,8 @@ export const getManagerAccess=async(req:AuthRequest,res:Response,next:NextFuncti
 const user=await prisma.user.findUnique({
   where:{
     id:userId,
-    roles:Roles.USER
+    roles:Roles.USER,
+    isVerified:true
   }
 })
 if(user?.roles===Roles.MANAGER){
@@ -87,7 +88,7 @@ res.status(200).json({success:true,message:"manager access granted successfully"
   }
 }
 
-export const handleRequest=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const handleRequest=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {requestId,status,response,price}=req.body;
   const managerId=req.user?.id;
@@ -216,7 +217,7 @@ res.status(200).json({success:true,message:"request handled successfully"})
   }
 }
 
-export const getAll = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   const managerId = req.user?.id;
 
   if (!managerId) {

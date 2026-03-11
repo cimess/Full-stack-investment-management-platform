@@ -5,62 +5,28 @@ import { simplifyQuote } from '../lib/formatter.js';
 // Alpha Vantage API base URL
 const ALPHA_VANTAGE_BASE_URL = 'https://www.alphavantage.co/query';
 
-const isRateLimitMessage = (message: string): boolean => {
-  return /rate limit|call frequency|too many requests/i.test(message);
-};
-
-const alphaVantageProviderMessage = (data: any): string | null => {
-  if (typeof data?.Note === 'string') return data.Note;
-  if (typeof data?.Information === 'string') return data.Information;
-  if (typeof data?.['Error Message'] === 'string') return data['Error Message'];
-  return null;
-};
-
 // Fetch from Alpha Vantage for a single stock
 const getAlphaVantageQuote = async (symbol: string) => {
-  if (!process.env.ALPHA_VANTAGE_API_KEY) {
-    const missingKeyError: any = new Error('Alpha Vantage API key is not configured');
-    missingKeyError.status = 500;
-    throw missingKeyError;
-  }
-
   const params = new URLSearchParams({
     function: 'GLOBAL_QUOTE',
     symbol: symbol,
-    apikey: process.env.ALPHA_VANTAGE_API_KEY
+    apikey: process.env.ALPHA_VANTAGE_API_KEY || ''
   });
 
   try {
     const response = await fetch(`${ALPHA_VANTAGE_BASE_URL}?${params.toString()}`);
-    if (!response.ok) {
-      const httpError: any = new Error(`Alpha Vantage HTTP ${response.status} for ${symbol}`);
-      httpError.status = response.status;
-      throw httpError;
-    }
-
     const data = await response.json() as any;
-    const providerMessage = alphaVantageProviderMessage(data);
 
-    if (providerMessage) {
-      const providerError: any = new Error(providerMessage);
-      providerError.status = isRateLimitMessage(providerMessage) ? 429 : 502;
-      throw providerError;
+    if (!data['Global Quote'] || !data['Global Quote']['05. price']) {
+      throw new Error(`No data found for ${symbol}`);
     }
 
-    const quote = data?.['Global Quote'];
-    const price = Number.parseFloat(quote?.['05. price'] ?? '');
-
-    if (!quote || !Number.isFinite(price)) {
-      const noDataError: any = new Error(`No quote data returned for ${symbol}`);
-      noDataError.status = 404;
-      throw noDataError;
-    }
-
+    const quote = data['Global Quote'];
     return {
       symbol: symbol,
       company: symbol,
-      price,
-      changePercent: Number.parseFloat(quote['10. change percent']?.replace('%', '') || '0'),
+      price: parseFloat(quote['05. price']),
+      changePercent: parseFloat(quote['10. change percent']?.replace('%', '') || '0'),
       currency: 'USD'
     };
   } catch (error: any) {
@@ -106,35 +72,15 @@ export const getQuotes = async (symbols: string | string[]) => {
     } catch (yahooError: any) {
       logger.warn(`Yahoo Finance batch fetch failed: ${yahooError.message}, falling back to Alpha Vantage...`);
       
-      // Fallback to Alpha Vantage with individual requests while preserving partial success.
+      // Fallback to Alpha Vantage with individual Promise.all fetches
       logger.info(`Fetching ${symbolList.length} stocks from Alpha Vantage (individual)...`);
-      const alphaResults = await Promise.allSettled(
+      const alphaVantageQuotes = await Promise.all(
         symbolList.map(symbol => getAlphaVantageQuote(symbol))
       );
-
-      const alphaVantageQuotes = alphaResults
-        .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
-        .map(result => result.value);
-
-      const failedErrors = alphaResults
-        .filter((result): result is PromiseRejectedResult => result.status === 'rejected')
-        .map(result => result.reason);
-
-      if (alphaVantageQuotes.length === 0) {
-        const hasRateLimit = failedErrors.some((error: any) => error?.status === 429 || isRateLimitMessage(error?.message || ''));
-        if (hasRateLimit) {
-          return { success: false, message: "Rate limit reached. Please slow down requests." };
-        }
-
-        const fallbackMessage = failedErrors[0]?.message || "Failed to fetch market data";
-        return { success: false, message: fallbackMessage };
-      }
       
       return {
         success: true,
-        message: failedErrors.length > 0
-          ? "Data fetched partially (Alpha Vantage fallback)"
-          : "Data fetched successfully (Alpha Vantage fallback)",
+        message: "Data fetched successfully (Alpha Vantage fallback)",
         data: alphaVantageQuotes
       };
     }
@@ -149,7 +95,6 @@ export const getQuotes = async (symbols: string | string[]) => {
     return { success: false, message: error.message || "Failed to fetch market data" };
   }
 };
-
 export const searchStock = async (symbols: string) => {
 
   try {

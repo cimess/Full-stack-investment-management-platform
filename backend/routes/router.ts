@@ -1,5 +1,7 @@
 import { Router } from "express";
-import { registerUser, loginUser, refreshToken, logoutUser, verifyEmail ,getMe} from "../controller/authentication.js";
+import { registerUser, loginUser, refreshToken, logoutUser, 
+  // verifyEmail ,
+  getMe,googleAuth} from "../controller/authentication.js";
 import { verifyToken } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
@@ -9,7 +11,7 @@ import { restrictManager, restrictUser, addAdmin, getAdminDashboard, managerAcce
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails } from "../controller/market_data.js";
 import { addSuperAdmin } from "../controller/admin_access.js";
 import rateLimit from "express-rate-limit";
-
+import passport from "passport";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -19,18 +21,29 @@ const authLimiter = rateLimit({
 
 const router = Router();
 
+// googgle auth routes
+router.get(
+  "/auth/google",
+  passport.authenticate("google", {
+    scope: ["profile", "email"] // what info you want from Google
+  })
+);
+
+router.get(  "/auth/google/callback",
+  passport.authenticate("google", { session: false, failureRedirect: "/login" }),googleAuth);
+
 // --- Health Check ---
 router.get("/health", (req, res) => res.status(200).json({ success: true, message: "Server is healthy" }));
 
 // --- Market Data ---
-router.post("/market/quotes", verifyToken, postMarketQuotes);
+router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
 router.get("/market/quotes", verifyToken, getMarketQuotes);
 router.post("/market/search", verifyToken, searchStockController);
 router.post("/market/stock-details", verifyToken, postStockDetails);
 
 // --- Authentication Routes ---
 router.post("/register", registerUser);
-router.post("/verify/email", verifyEmail);
+// router.post("/verify/email", verifyEmail);
 router.post("/login", loginUser);
 router.post("/refresh", refreshToken);
 router.post("/logout", verifyToken, logoutUser);

@@ -1,13 +1,14 @@
 import type {AuthRequest} from "../middlewear/auth.js";
 import type {Response,NextFunction} from "express";
 import createError from "http-errors";
+import type{ RequestHandler } from "express";
 
 
+export const authorise=(allowedRoles:string[]):RequestHandler=>{
 
-export const authorise=(allowedRoles:string[])=>{
+  return (req,res:Response,next:NextFunction)=>{
 
-  return (req:AuthRequest,res:Response,next:NextFunction)=>{
-
+    
     const userRole=req.user?.roles;
 
     if(!userRole){
