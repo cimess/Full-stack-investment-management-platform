@@ -21,7 +21,10 @@ export const logoutUser = async () => {
   const response = await api.post("/logout")
   return response.data
 }
-
+export const googleAuth = async () => {
+  const response = await api.get("/auth/google")
+  return response.data
+}
 
 
 export const verifyEmail = async ({ email, otp }: {

@@ -7,7 +7,7 @@ import bcrypt from "bcrypt";
 import type{ AuthRequest } from "../middlewear/auth.js";
 
 
-export const managerAccessKey=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=>{
 
     const {manager_access_key,slot,userid}=req.body;
     const user_id=req.user?.id;
@@ -60,7 +60,7 @@ export const managerAccessKey=async(req:AuthRequest,res:Response,next:NextFuncti
 
 
 
-export const getAdminDashboard=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const getAdminDashboard=async(req:Request,res:Response,next:NextFunction)=>{
 
 
   try{
@@ -124,7 +124,7 @@ export const getAdminDashboard=async(req:AuthRequest,res:Response,next:NextFunct
 
 
 
-export const addSuperAdmin=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const addSuperAdmin=async(req:Request,res:Response,next:NextFunction)=>{
   try{
     const {super_admin_access}=req.body;
     const user_id=req.user?.id;
@@ -162,7 +162,7 @@ export const addSuperAdmin=async(req:AuthRequest,res:Response,next:NextFunction)
   }
 };
 
-export const addAdmin=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const addAdmin=async(req:Request,res:Response,next:NextFunction)=>{
 
   try{
 
@@ -227,7 +227,7 @@ const {access_key}=req.body;
   }
 }
 
-export const restrictUser=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const restrictUser=async(req:Request,res:Response,next:NextFunction)=>{
 
   try{
     const {user_id,super_admin_access}=req.body;
@@ -261,7 +261,7 @@ export const restrictUser=async(req:AuthRequest,res:Response,next:NextFunction)=
   }
 }
 
-export const restrictManager=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const restrictManager=async(req:Request,res:Response,next:NextFunction)=>{
 
   try{
     const {user_id,super_admin_access}=req.body;
@@ -299,7 +299,7 @@ export const restrictManager=async(req:AuthRequest,res:Response,next:NextFunctio
   }
 }
 
-export const remoteShutdown = async (req: AuthRequest, res: Response,next:NextFunction) => {
+export const remoteShutdown = async (req: Request, res: Response,next:NextFunction) => {
   logger.warn(`Remote shutdown initiated by Admin: ${req.user?.id}`);
 
   const {super_admin_access}=req.body;

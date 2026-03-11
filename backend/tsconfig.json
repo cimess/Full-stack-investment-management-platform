@@ -9,7 +9,6 @@
     // See also https://aka.ms/tsconfig/module
     "module": "nodenext",
     "target": "esnext",
-    "types": [],
     // For nodejs:
     // "lib": ["esnext"],
     // "types": ["node"],
@@ -41,5 +40,9 @@
     "moduleDetection": "force",
     "skipLibCheck": true
   },
+  "include": [
+   "**/*.ts",     // all your TS files
+    "type/**/*.d.ts"   // ✅ include your types folder
+  ],
   "exclude": ["node_modules", "dist", "prisma/generated", "tests", "vitest.config.ts", "**/*.test.ts"]
 }

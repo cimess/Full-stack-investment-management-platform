@@ -4,8 +4,9 @@ import {
   logoutUser, getManagerAccess, addManagerToClient, restrictUser, restrictManager,
   handleRequest, buyStock, sellStock, removeManagerFromClient, getManagerAll,
   getAdminDashboard, addAdmin, getMarketQuotes, searchStock, managerAccessKey,
-  postMarketQuotes, getMe, fetchStockDetailsAPI
+  postMarketQuotes, getMe, fetchStockDetailsAPI,googleAuth
 } from "../services/queryServices"
+import { use } from "chai"
 
 
 
@@ -15,6 +16,16 @@ export const useRefreshToken = () => {
   return useMutation({
     mutationFn: refreshToken
   })
+}
+// google auth
+export  const useGoogleAuth = (p0: { enabled: boolean })=>{
+  return useQuery(
+    {
+      queryKey: ["googleAuth"],
+      queryFn: googleAuth,
+      
+    }
+  )
 }
 // role check for navigation
 export const useGetMe = () => {

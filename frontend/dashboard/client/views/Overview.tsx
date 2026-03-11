@@ -1,8 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Briefcase, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
 import { useGetDashboard } from "../../../hooks/useQuery";
+import { useQueryClient } from '@tanstack/react-query';
+import { toast,Zoom } from 'react-toastify';
+import { use } from 'chai';
 
 const chartData = [
   { name: 'Mon', value: 38400 },
@@ -13,9 +16,65 @@ const chartData = [
   { name: 'Sat', value: 41200 },
   { name: 'Sun', value: 42300 },
 ];
+type User = {
+  id: string;
+  name: string;
+  isVerified: boolean;
+};
+
 
 const ClientOverview: React.FC = () => {
   const { data, isLoading, isError } = useGetDashboard();
+
+    const queryClient = useQueryClient();
+  const me = queryClient.getQueryData<{data:User}>(["me"]);
+  const checkVerification = me?.data?.isVerified
+
+
+  useEffect(()=>{
+ toast.success("Welcome to CimessInvestment Management Platform .", {
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+      });
+  },[]
+  )
+  useEffect(()=>{
+
+   
+    if(me?.data && !me.data.isVerified){
+      toast.info("Your account is not verified. Please verify your email to access all features.", {
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+      });
+    }
+
+    if(isError){
+           toast.error("Failed to fetch dashboard data.", {
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+      });
+      }
+
+  }
+,[checkVerification,data,isError])
 
   if (isLoading) {
     return (

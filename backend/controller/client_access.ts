@@ -6,7 +6,7 @@ import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js";
 
 
-export const add_manager_to_client=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const add_manager_to_client=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {manager_id}=req.body;
 const client_id=req.user?.id;
@@ -18,6 +18,7 @@ if(req.user?.roles!==Roles.USER){
     return next(createError(400,"client id and manager id are required"));
   }
 
+  
   try{
     await prisma.$transaction(async(tx)=>{
       const user=await tx.user.findUnique({
@@ -31,6 +32,9 @@ if(req.user?.roles!==Roles.USER){
 }
     if(user?.restricted){
       throw createError(401,"user is currently restricted");
+    }
+    if(!user?.isVerified){
+      throw createError(401,"user is currently not verified");
     }
       if(user?.manager_id){
         throw createError(401,"manager already assigned to client");
@@ -67,7 +71,7 @@ if(req.user?.roles!==Roles.USER){
 }
 
 
-export const remove_manager_to_client=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const remove_manager_to_client=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {manager_id}=req.body;
 const client_id=req.user?.id;
@@ -93,6 +97,9 @@ if(req.user?.roles!==Roles.USER){
 }
     if(user?.restricted){
       throw createError(401,"user is currently restricted");
+    }
+     if(!user?.isVerified){
+      throw createError(401,"user is currently not verified");
     }
       if(user?.manager_id!==manager_id){
         throw createError(401,"manager not assigned to client");
@@ -123,7 +130,7 @@ if(req.user?.roles!==Roles.USER){
   }
 }
 
-export const buyStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const buyStock=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {stock_id,quantity}=req.body;
   const client_id=req.user?.id;
@@ -146,9 +153,13 @@ export const buyStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
   if(user?.restricted){
     throw createError(401,"user is currently restricted");
   }
+   if(!user?.isVerified){
+      throw createError(401,"user is currently not verified");
+    }
     if(!user?.manager_id){
       throw createError(403,"assign a manager first before requesting for stock");
     }
+
 
     let portfolio=await tx.portfolio.findFirst({
       where:{
@@ -190,7 +201,7 @@ res.status(200).json({success:true,message:"trade request sent successfully"})
     }
 }
 
-export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const sellStock=async(req:Request,res:Response,next:NextFunction)=>{
 
   const {stock_id,quantity}=req.body;
   const client_id=req.user?.id;
@@ -201,6 +212,7 @@ export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
   if(!client_id || !stock_id || !quantity){
     return next(createError(400,"client id and stock id and quantity are required"));
   }
+  
 
   try{
     await prisma.$transaction(async(tx)=>{
@@ -215,6 +227,9 @@ export const sellStock=async(req:AuthRequest,res:Response,next:NextFunction)=>{
   }
     if(!user?.manager_id){
       throw createError(403,"assign a manager first before requesting for stock");
+    }
+     if(!user?.isVerified){
+      throw createError(401,"user is currently not verified");
     }
 
     let portfolio=await tx.portfolio.findFirst({
@@ -253,7 +268,7 @@ res.status(200).json({success:true,message:"trade request sent successfully"})
     }
 }
 
-export const getAll=async(req:AuthRequest,res:Response,next:NextFunction)=>{
+export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
 
   const client_id=req.user?.id;
 

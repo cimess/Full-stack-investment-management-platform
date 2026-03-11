@@ -1,13 +1,13 @@
-import type { Request, Response, NextFunction } from "express";
+import type { Request, Response, NextFunction ,RequestHandler} from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is required
-
-export const postStockDetails = async (req: AuthRequest, res: Response, next: NextFunction) => {
+import { Roles } from "@prisma/client";
+export const postStockDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { symbol } = req.body;
+    const { symbol } = req.body ;
     if (!symbol) {
       return next(createError(400, "Symbol is required"));
     }
@@ -32,12 +32,9 @@ export const postStockDetails = async (req: AuthRequest, res: Response, next: Ne
  * Controller to fetch global quotes for one or multiple stock symbols.
  * Expects `symbols` in the query string (e.g., ?symbols=AAPL,TSLA)
  */
-export const postMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const postMarketQuotes = async (req: Request, res: Response, next: NextFunction) => {
   const { symbols } = req.body;
-  const userId = req.user?.roles;
-  if (userId !== "ADMIN" && userId !== "MANAGER") {
-    return next(createError(401, "Unauthorized"));
-  }
+
   try {
 
     // const symbols =['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG','XOM','BAC','WMT','COST','HD','INTC','CSCO','ORCL','IBM','T','PFE','MRK','ABBV','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO','AVGO']
@@ -108,7 +105,7 @@ export const postMarketQuotes = async (req: AuthRequest, res: Response, next: Ne
     return next(err);
   }
 };
-export const getMarketQuotes = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getMarketQuotes = async (req: Request, res: Response, next: NextFunction) => {
   const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
 
   try {
@@ -167,7 +164,7 @@ export const getMarketQuotes = async (req: AuthRequest, res: Response, next: Nex
   }
 };
 
-export const searchStockController = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const searchStockController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { symbols } = req.body;
 

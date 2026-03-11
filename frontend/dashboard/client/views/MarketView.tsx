@@ -3,7 +3,7 @@ import { Search, ArrowUpRight, Loader2 } from 'lucide-react';
 import { useGetMarketQuotes, useSearchStock, useFetchStockDetails } from '../../../hooks/useQuery';
 import DetailsModal from '../../../components/DetailsModal';
 import { StockCardProps } from '../../../types';
-
+import { toast, Zoom } from 'react-toastify';
 const MarketView: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [marketStocks, setMarketStocks] = useState<any[]>([]);
@@ -11,7 +11,7 @@ const MarketView: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fetchingSymbol, setFetchingSymbol] = useState<string | null>(null);
 
-  const { data, isLoading: isMarketLoading } = useGetMarketQuotes();
+  const { data, isLoading: isMarketLoading,isError } = useGetMarketQuotes();
   const { mutate: searchStocks, isPending: isSearching } = useSearchStock();
   const { mutate: fetchDetails, isPending: isFetchingDetails } = useFetchStockDetails();
 
@@ -19,8 +19,30 @@ const MarketView: React.FC = () => {
   useEffect(() => {
     if (data?.success && data.data) {
       setMarketStocks(Array.isArray(data.data) ? data.data : []);
+       toast.success("Fetched market data.", {
+            position:"top-center",
+            autoClose:5000,
+            hideProgressBar:true,
+            closeOnClick:true,
+            pauseOnHover:true,
+            draggable:true,
+            theme:"colored",
+            transition:Zoom,
+            });
     }
-  }, [data, searchTerm === '']);
+    if(isError){
+       toast.error("Failed to fetch market data. Please try again later.", {
+            position:"top-center",
+            autoClose:5000,
+            hideProgressBar:true,
+            closeOnClick:true,
+            pauseOnHover:true,
+            draggable:true,
+            theme:"colored",
+            transition:Zoom,
+            });
+          }
+  }, [data, searchTerm === '',isError]);
 
   // Simple debounce for search
   useEffect(() => {
@@ -31,6 +53,16 @@ const MarketView: React.FC = () => {
             if (res.success && res.data) {
               const results = Array.isArray(res.data) ? res.data : [res.data];
               setMarketStocks(results);
+               toast.success("Fetched market data.", {
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+      });
             } else {
               setMarketStocks([]);
             }

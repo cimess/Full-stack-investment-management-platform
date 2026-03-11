@@ -7,9 +7,71 @@ import bcrypt from "bcrypt";
 import crypto from "crypto";
 import { sendEmail } from "../services/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
-import type { AuthRequest } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
-import { Roles } from "@prisma/client";
+
+
+
+
+export const googleAuth=async (req: Request, res:Response) => {
+
+    const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null ;isVerified:boolean};
+
+    const oldRefreshToken = req.cookies?.refreshToken;
+
+
+    if (oldRefreshToken) {
+      await prisma.refreshToken.deleteMany({
+        where: {
+          user_id:user?.id,
+          token: oldRefreshToken
+        }
+      });
+    }
+    if(!user.isVerified){
+      await prisma.user.update({
+        where:{id:user.id},
+        data:{isVerified:true}
+      });
+    }
+
+    const accessToken = generateAccessToken({
+      id: user.id,
+      roles: user.roles
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: user.id,
+      roles: user.roles
+    });
+
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        user_id: user.id
+      }
+    });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+    const { id, roles, username, fullname ,email,manager_id:managerId} = user
+    // After successful OAuth, set cookies and redirect to frontend dashboard
+    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+
+  }
+
+
+
 export const registerUser = async (req: Request, res: Response, next: NextFunction) => {
 
   const result = registerSchema.safeParse(req.body);
@@ -25,33 +87,83 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   const testCode = '123456'
 
   try {
-    const emailResponse = await sendEmail(
-      email,
-      "Verify your Nova Invest Account",
-      `Your verification code is: ${otp}`
-    );
-    if (!emailResponse.success) {
-      return next(createError(500, "Failed to send verification email"));
-    }
-    const user = await prisma.user.create({
-      data: {
-        username: username,
-        fullname: name,
-        password: hashedPassword,
-        email: email,
-        roles: 'USER',
-        verificationToken: otp,
-        verificationTokenExpires: otpExpires
+    // const emailResponse = await sendEmail(
+    //   email,
+    //   "Verify your Nova Invest Account",
+    //   `Your verification code is: ${otp}`
+    // );
+    // if (!emailResponse.success) {
+    //   return next(createError(500, "Failed to send verification email"));
+    // }
+    // const user = await prisma.user.create({
+    //   data: {
+    //     username: username,
+    //     fullname: name,
+    //     password: hashedPassword,
+    //     email: email,
+    //     roles: 'USER',
+    //     verificationToken: otp,
+    //     verificationTokenExpires: otpExpires
+    //   }
+    // })
+
+
+
+    // logger.info('user created', user)
+    // return res.status(201)
+    //   .json({
+    //     success: true, message: "user created successfully. Please check your email to verify your account."
+    //   })
+
+
+
+    const user=await prisma.user.create({
+      data:{
+        email,
+        fullname:name+' '+username,
+        password:hashedPassword,
+        username,
+        roles:'USER',
+        isVerified:false,
+        verificationToken:null,
+        verificationTokenExpires:null
       }
     })
 
+    const accessToken = generateAccessToken({
+      id: user.id,
+      roles: user.roles
+    });
 
+    const refreshToken = generateRefreshToken({
+      id: user.id,
+      roles: user.roles
+    });
 
-    logger.info('user created', user)
-    return res.status(201)
-      .json({
-        success: true, message: "user created successfully. Please check your email to verify your account."
-      })
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        user_id: user.id
+      }
+    });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+ 
+    // After successful OAuth, set cookies and redirect to frontend dashboard
+    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+
   } catch (err: any) {
     logger.error(err);
     if (err.code === 'P2002') {
@@ -134,6 +246,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       if (!user.isVerified) {
         return next(createError(403, "Please verify your email address to log in"));
       }
+      if(!user.password){
+        return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));  
+      }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
 
@@ -156,14 +271,15 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
+        sameSite: "lax",
         maxAge: 7 * 24 * 60 * 60 * 1000
       })
+      // access token cookie should be short lived
       res.cookie("accessToken", accessToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "strict",
-        maxAge: 7 * 24 * 60 * 60 * 1000
+        sameSite: "lax",
+        maxAge: 10 * 60 * 1000
       })
       const saveRefreshToken = await tx.refreshToken.create({
         data: {
@@ -230,13 +346,13 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
   res.cookie("refreshToken", refreshToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 7 * 24 * 60 * 60 * 1000
   })
   res.cookie("accessToken", accessToken, {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    sameSite: "lax",
     maxAge: 10 * 60 * 1000
   })
 
@@ -244,7 +360,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 
 }
 
-export const getMe = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   const user_logged_in = req.user;
   if (!user_logged_in) {
     return next(createError(401, "Unauthorized"));
@@ -255,6 +371,7 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
       roles: true,
       fullname: true,
       email: true,
+      isVerified:true
 
     }
   })
@@ -266,7 +383,7 @@ export const getMe = async (req: AuthRequest, res: Response, next: NextFunction)
 
 
 
-export const logoutUser = async (req: AuthRequest, res: Response, next: NextFunction) => {
+export const logoutUser = async (req: Request, res: Response, next: NextFunction) => {
 
   const userId = req.user?.id;
   const token = req.cookies.refreshToken;

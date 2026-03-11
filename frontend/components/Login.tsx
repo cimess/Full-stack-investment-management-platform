@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import Header from './Header';
 import Footer from './Footer';
-import {login,register} from '../hooks/useQuery';
+import {login,register,useGoogleAuth } from '../hooks/useQuery';
 import { toast ,Zoom} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {isEmail,isPassword,isName} from '../hooks/validator';
@@ -11,6 +11,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import Loader from './loadericon/loader';
 import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
+import { SiGoogle } from "react-icons/si";
+
+
 
 
 export default function Login({loginUi}:{loginUi:boolean}){
@@ -24,6 +27,8 @@ export default function Login({loginUi}:{loginUi:boolean}){
   const [success, setSuccess] = useState<boolean>(false);
   const [hoverBadge, setHoverBadge] = useState<boolean>(false);
   const [shake, setShake] = useState<boolean>(false);
+  const [googleAuthData, setGoogleAuthData] = useState<any>(null);
+
 
 const [showPassword,setShowPassword]=useState<boolean>(false);
 const queryClient=useQueryClient();
@@ -49,12 +54,16 @@ const { startRedirect, showLoader, message: redirectMessage, success: redirectSu
     const {mutate:registerMutate,isSuccess:registerSuccess,data:registerData,isError:isRegisterError,error:registerError,isPending:registerPending}=register();
 
 
+ 
 
+
+
+const apiMessage= loginData?.message ??  registerData?.message
 
 
 useEffect(() => {
    if(loginSuccess||registerSuccess){
-    toast.success(loginUi ? loginData?.message : registerData?.message,{
+    toast.success(apiMessage,{
       position:"top-center",
       autoClose:5000,
       hideProgressBar:true,
@@ -65,22 +74,32 @@ useEffect(() => {
       transition:Zoom,
     });
     queryClient.setQueryData(['dashboard'], loginData);
-  }else if(isLoginError||isRegisterError){
-     const specificLoginError = (loginError as any)?.response?.data?.message || loginError?.message;
-    const specificRegisterError = (registerError as any)?.response?.data?.message || registerError?.message;
-    toast.error(loginUi ? specificLoginError : specificRegisterError,{
-      position:"top-center",
-      autoClose:5000,
-      hideProgressBar:true,
-      closeOnClick:true,
-      pauseOnHover:true,
-      draggable:true,
-      theme:"colored",
-      transition:Zoom,
-    });
-  }
+  }else if (isLoginError || isRegisterError) {
+  const apiErrorMessage =
+    (loginError as any)?.response?.data?.message ??
+    loginError?.message ??
+    (registerError as any)?.response?.data?.message ??
+    registerError?.message 
+    // ??(data as any)?.response?.data?.message ??
+    // "Something went wrong";
 
-  if(loginPending||registerPending){
+  toast.error(apiErrorMessage, {
+    position: "top-center",
+    autoClose: 5000,
+    hideProgressBar: true,
+    closeOnClick: true,
+    pauseOnHover: true,
+    draggable: true,
+    theme: "colored",
+    transition: Zoom,
+  });
+
+  setMessage(apiErrorMessage);
+  setSuccess(false);
+}
+
+
+  if(loginPending||registerPending ){
       setMessage("Authenticating...");
     }
     if(registerSuccess){
@@ -110,12 +129,16 @@ if(loginPending||registerPending){
     }
 if(loginSuccess||registerSuccess){
   setSuccess(true);
-  setMessage("Login successful! Redirecting...");
+  setMessage(loginSuccess?"Login successful! Redirecting...":"Registration successful! Redirecting to verification...");
 }
 
   }, [loginSuccess,isLoginError,registerSuccess,isRegisterError]);
 
 
+
+
+
+// handle form validation and submit
   const handleTextValidation = async (e:React.FormEvent<HTMLFormElement>)=> {
     e.preventDefault();
 
@@ -219,6 +242,19 @@ const passwordFeedback = () => {
           { message}
         </p>
 
+        {/* Google Button */}
+        <div className="flex justify-center mb-4">
+          <button
+            type="button"
+            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-gray-700 shadow border border-gray-200 hover:bg-gray-100"
+            onClick={() => (window.location.href = "http://localhost:4000/api/auth/google")}
+          >
+            <SiGoogle />
+            <span>Continue with Google</span>
+          </button>
+        </div>
+
+        {/*   LOGIN AND SIGNUP LAYOUT */}
         <form onSubmit={handleTextValidation} className="space-y-6  ">
 
             {/* first name */}
