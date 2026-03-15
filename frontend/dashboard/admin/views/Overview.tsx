@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Briefcase, DollarSign, AlertTriangle, TrendingUp } from 'lucide-react';
+import { Users, Briefcase, DollarSign, AlertTriangle, TrendingUp, Loader2 } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
 
@@ -35,40 +35,59 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
+import { useGetAdminDashboard } from '../../../hooks/useQuery';
+
 const Overview: React.FC = () => {
+  const { data: adminData, isLoading } = useGetAdminDashboard();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-purple-500 animate-spin" />
+      </div>
+    );
+  }
+
+  const {
+    users = [],
+    managers = [],
+    restrictedUser = [],
+    restrictedManagers = [],
+    transactions = [],
+  } = adminData?.data || {};
+
+  // Calculate total volume from last 30 transactions
+  const totalVolume = transactions.reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0);
+  const registeredUsersCount = users.length + managers.length;
+  const activeManagersCount = managers.length;
+  const restrictedCount = restrictedUser.length + restrictedManagers.length;
+
   return (
     <div className="space-y-6">
       {/* Platform Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           title="Total Platform Volume"
-          value="$2.1M"
-          change="+28.6%"
-          changeType="up"
+          value={`$${(totalVolume / 1000).toFixed(1)}k`}
           icon={<DollarSign className="w-5 h-5 text-emerald-400" />}
           iconBg="bg-emerald-500/10"
-          subtitle="This month"
+          subtitle="Last 30 transactions"
         />
         <StatCard
           title="Registered Users"
-          value="284"
-          change="+18 this month"
-          changeType="up"
+          value={registeredUsersCount.toString()}
           icon={<Users className="w-5 h-5 text-blue-400" />}
           iconBg="bg-blue-500/10"
         />
         <StatCard
           title="Active Managers"
-          value="12"
+          value={activeManagersCount.toString()}
           icon={<Briefcase className="w-5 h-5 text-purple-400" />}
           iconBg="bg-purple-500/10"
-          subtitle="3 pending onboarding"
         />
         <StatCard
           title="Restricted Accounts"
-          value="7"
-          change="+2 this week"
-          changeType="down"
+          value={restrictedCount.toString()}
           icon={<AlertTriangle className="w-5 h-5 text-red-400" />}
           iconBg="bg-red-500/10"
         />
@@ -78,7 +97,7 @@ const Overview: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2 glass-panel rounded-2xl p-6 border border-white/5">
           <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
-          <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform (6 months)</p>
+          <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform (mock trend)</p>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={platformVolumeData}>
               <defs>
@@ -98,9 +117,12 @@ const Overview: React.FC = () => {
 
         <div className="glass-panel rounded-2xl p-6 border border-white/5">
           <h2 className="text-white font-bold text-lg mb-1">Transaction Types</h2>
-          <p className="text-slate-500 text-sm mb-5">All-time breakdown</p>
+          <p className="text-slate-500 text-sm mb-5">Last 30 transactions breakdown</p>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={transactionsByTypeData} layout="vertical">
+            <BarChart data={[
+              { type: 'Buy', count: transactions.filter((tx: any) => tx.type === 'BUY').length },
+              { type: 'Sell', count: transactions.filter((tx: any) => tx.type === 'SELL').length },
+            ]} layout="vertical">
               <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
               <YAxis type="category" dataKey="type" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} width={60} />
               <Tooltip content={<CustomTooltip />} />

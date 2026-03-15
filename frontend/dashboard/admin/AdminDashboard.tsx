@@ -19,6 +19,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 
 const AdminDashboard: React.FC = () => {
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showSuperAdminForm, setShowSuperAdminForm] = useState(false);
   const [superAdminEmail, setSuperAdminEmail] = useState('');
   const navigate = useNavigate();
@@ -40,6 +41,8 @@ const AdminDashboard: React.FC = () => {
       <DashboardSidebar 
         role="admin" 
         userName={firstName || "Admin"} 
+        mobileOpen={isMobileMenuOpen}
+        setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
       />
 
@@ -47,6 +50,7 @@ const AdminDashboard: React.FC = () => {
         <TopBar 
           pageTitle="Admin Control Centre" 
           userName={firstName || "Admin"} 
+          onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
         />
 

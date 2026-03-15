@@ -9,13 +9,29 @@ const clients = [
   { id: 5, name: 'Tom Baker', email: 'tom@email.com', portfolioValue: 63200, joined: 'Nov 2025', status: 'restricted', requests: 0 },
 ];
 
+import { useGetManagerDashboard } from '../../../hooks/useQuery';
+import { Loader2 } from 'lucide-react';
+
 const ClientsView: React.FC = () => {
+  const { data: managerData, isLoading } = useGetManagerDashboard();
   const [activeTab, setActiveTab] = useState<'all' | 'active' | 'restricted'>('all');
   const [searchTerm, setSearchTerm] = useState('');
+  // show loading spinner
 
-  const filteredClients = clients.filter(c => {
-    const matchesTab = activeTab === 'all' || c.status === activeTab;
-    const matchesSearch = c.name.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase());
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <Loader2 className="w-8 h-8 text-emerald-500 animate-spin" />
+      </div>
+    );
+  }
+
+  const clients = managerData?.data || [];
+
+  const filteredClients = clients.filter((c: any) => {
+    const status = c.restricted ? 'restricted' : 'active';
+    const matchesTab = activeTab === 'all' || status === activeTab;
+    const matchesSearch = c.fullname.toLowerCase().includes(searchTerm.toLowerCase()) || c.email.toLowerCase().includes(searchTerm.toLowerCase());
     return matchesTab && matchesSearch;
   });
 
@@ -66,41 +82,51 @@ const ClientsView: React.FC = () => {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/3">
-              {filteredClients.map(c => (
-                <tr key={c.id} className="hover:bg-white/2 transition-colors">
-                  <td className="px-6 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-white text-sm font-bold border border-white/5">
-                        {c.name.charAt(0)}
+              {filteredClients.map((c: any) => {
+                const portfolioValue = c.portfolio?.investment?.reduce((acc: number, inv: any) => {
+                  return acc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
+                }, 0) || 0;
+                
+                const pendingRequests = c.portfolio?.trade_request?.filter((req: any) => req.status === 'PENDING').length || 0;
+                const status = c.restricted ? 'restricted' : 'active';
+                const joinedDate = new Date(c.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+
+                return (
+                  <tr key={c.id} className="hover:bg-white/2 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 flex items-center justify-center text-white text-sm font-bold border border-white/5">
+                          {c.fullname.charAt(0)}
+                        </div>
+                        <div>
+                          <p className="text-white text-sm font-semibold">{c.fullname}</p>
+                          <p className="text-slate-500 text-xs">{c.email}</p>
+                        </div>
                       </div>
-                      <div>
-                        <p className="text-white text-sm font-semibold">{c.name}</p>
-                        <p className="text-slate-500 text-xs">{c.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-4 py-4 text-right text-white text-sm font-bold">
-                    ${c.portfolioValue.toLocaleString()}
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${c.status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                      {c.status}
-                    </span>
-                  </td>
-                  <td className="px-4 py-4 text-center">
-                    {c.requests > 0
-                      ? <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-xs font-bold ring-1 ring-inset ring-amber-500/20">{c.requests} pending</span>
-                      : <span className="text-slate-600 text-sm">—</span>
-                    }
-                  </td>
-                  <td className="px-4 py-4 text-slate-400 text-sm">{c.joined}</td>
-                  <td className="px-6 py-4 text-right">
-                    <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
-                      <Eye className="w-4 h-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                    </td>
+                    <td className="px-4 py-4 text-right text-white text-sm font-bold">
+                      ${portfolioValue.toLocaleString()}
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${status === 'active' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
+                        {status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-4 text-center">
+                      {pendingRequests > 0
+                        ? <span className="px-2 py-0.5 rounded-md bg-amber-500/10 text-amber-400 text-xs font-bold ring-1 ring-inset ring-amber-500/20">{pendingRequests} pending</span>
+                        : <span className="text-slate-600 text-sm">—</span>
+                      }
+                    </td>
+                    <td className="px-4 py-4 text-slate-400 text-sm">{joinedDate}</td>
+                    <td className="px-6 py-4 text-right">
+                      <button className="p-2 rounded-lg bg-white/5 text-slate-400 hover:bg-emerald-500/10 hover:text-emerald-400 transition-colors">
+                        <Eye className="w-4 h-4" />
+                      </button>
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
