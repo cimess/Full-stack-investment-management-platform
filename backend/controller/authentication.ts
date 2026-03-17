@@ -366,6 +366,7 @@ export const refreshToken = async (req: Request, res: Response, next: NextFuncti
 
 }
 
+
 export const getMe = async (req: Request, res: Response, next: NextFunction) => {
   const user_logged_in = req.user;
   if (!user_logged_in) {
@@ -374,17 +375,53 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   const user = await prisma.user.findUnique({
     where: { id: user_logged_in.id },
     select: {
+      id: true,
       roles: true,
       fullname: true,
       email: true,
-      isVerified:true
-
+      isVerified: true,
+      settings: true,
+      manager: true, // The manager's OWN profile
+      client_manager: { // The manager attached TO this client
+        select: {
+          manager_id: true,
+          bio: true,
+          title: true,
+          specialization: true,
+          years_experience: true,
+          success_rate: true,
+          contact_email: true,
+          availability: true,
+          linkedin_url: true,
+          aum_managed: true,
+          user: {
+            select: {
+              fullname: true,
+              email: true
+            }
+          }
+        }
+      } as any // Bypass TS error 'bio does not exist' until user runs prisma generate locally
     }
   })
   if (!user) {
     return next(createError(401, "Unauthorized"));
   }
-  return res.json({ success: true, data: user })
+  
+  // Convert BigInt to string to avoid JSON serialization errors
+  const serializedUser = {
+    ...user,
+    manager: user.manager ? {
+      ...user.manager,
+      aum_managed: (user.manager as any).aum_managed ? (user.manager as any).aum_managed.toString() : null
+    } : null,
+    client_manager: user.client_manager ? {
+      ...user.client_manager,
+      aum_managed: (user.client_manager as any).aum_managed ? (user.client_manager as any).aum_managed.toString() : null
+    } : null
+  };
+
+  return res.json({ success: true, data: serializedUser })
 }
 
 

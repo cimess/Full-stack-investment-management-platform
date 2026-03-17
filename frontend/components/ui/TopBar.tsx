@@ -1,25 +1,26 @@
 import React, { useState } from 'react';
 import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle, Menu } from 'lucide-react';
+import { useGetNotifications, useMarkNotificationsRead } from '../../hooks/useQuery';
+import { useQueryClient } from '@tanstack/react-query';
 
-interface Notification {
-  id: number;
-  type: 'success' | 'info' | 'warning';
-  message: string;
-  time: string;
-  read: boolean;
-}
-
-const initialNotifications: Notification[] = [
-  { id: 1, type: 'success', message: 'AAPL buy order executed — 10 shares @ $182.50', time: '2m ago', read: false },
-  { id: 2, type: 'info', message: 'Your manager approved your trade request', time: '15m ago', read: false },
-  { id: 3, type: 'warning', message: 'Portfolio down 2.1% — market volatility detected', time: '1h ago', read: true },
-  { id: 4, type: 'success', message: 'TSLA position gain +8.4% today', time: '3h ago', read: true },
-];
-
-const notifIcons = {
+const notifIcons: Record<string, React.ReactNode> = {
   success: <CheckCircle className="w-4 h-4 text-emerald-400" />,
   info: <TrendingUp className="w-4 h-4 text-blue-400" />,
   warning: <AlertCircle className="w-4 h-4 text-amber-400" />,
+  TRADE: <TrendingUp className="w-4 h-4 text-blue-400" />,
+  MESSAGE: <CheckCircle className="w-4 h-4 text-emerald-400" />,
+  SYSTEM: <AlertCircle className="w-4 h-4 text-amber-400" />,
+};
+
+const formatTime = (dateString: string) => {
+  const date = new Date(dateString);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+  
+  if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
+  if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
+  if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
+  return `${Math.floor(diffInSeconds / 86400)}d ago`;
 };
 
 interface TopBarProps {
@@ -31,19 +32,29 @@ interface TopBarProps {
 }
 
 const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar ,handleLogout}) => {
-  const [notifications, setNotifications] = useState<Notification[]>(initialNotifications);
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  const unread = notifications.filter(n => !n.read).length;
+  
+  const queryClient = useQueryClient();
+  const { data: notificationsResponse } = useGetNotifications();
+  const { mutate: markNotificationsRead } = useMarkNotificationsRead();
 
-  const handleReadMsg = (id: number) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    );
+  const notifications = (notificationsResponse as any)?.data || [];
+  const unread = (notificationsResponse as any)?.unreadCount || 0;
+
+  const handleReadMsg = (id: string) => {
+    // If it's already a bulk mark-as-read API, run it for all when clicked anywhere unread
+    markAllRead();
   };
 
   const markAllRead = () => {
-    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+    if (unread > 0) {
+      markNotificationsRead(undefined, {
+        onSuccess: () => {
+          queryClient.invalidateQueries({ queryKey: ["notifications"] });
+        }
+      });
+    }
   };
 
   return (
@@ -99,18 +110,25 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
                 <span onClick={markAllRead} className="text-emerald-400 text-xs font-medium cursor-pointer hover:text-emerald-300">Mark all read</span>
               </div>
               <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
-                {notifications.map(n => (
-                  <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
-                  onClick={() => handleReadMsg(n.id)}
-                  >
-                    <div className="flex-shrink-0 mt-0.5">{notifIcons[n.type]}</div>
-                    <div className="flex-1 min-w-0">
-                      <p className={`text-xs leading-relaxed ${!n.read ? 'text-slate-200' : 'text-slate-400'}`}>{n.message}</p>
-                      <p className="text-slate-600 text-xs mt-1">{n.time}</p>
-                    </div>
-                    {!n.read && <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />}
+                {notifications.length === 0 ? (
+                  <div className="px-4 py-6 text-center text-slate-500 text-sm">
+                    No notifications yet.
                   </div>
-                ))}
+                ) : (
+                  notifications.map((n: any) => (
+                    <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
+                    onClick={() => handleReadMsg(n.id)}
+                    >
+                      <div className="flex-shrink-0 mt-0.5">{notifIcons[n.type] || notifIcons.info}</div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-xs font-semibold mb-0.5">{n.title}</p>
+                        <p className={`text-xs leading-relaxed ${!n.read ? 'text-slate-200' : 'text-slate-400'}`}>{n.message}</p>
+                        <p className="text-slate-600 text-xs mt-1">{formatTime(n.createdAt)}</p>
+                      </div>
+                      {!n.read && <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />}
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           )}
@@ -135,7 +153,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
               <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Settings</button>
               <div className="border-t border-white/5" />
               <button className="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-red-500/10 transition-colors"
-              onClick={handleLogout}
+                onClick={handleLogout}
               >
                 Logout
               </button>

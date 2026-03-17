@@ -2,6 +2,8 @@ import React from 'react';
 import { Link, Route, Routes } from 'react-router-dom';
 import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
+import { toast,Zoom } from 'react-toastify';
+import { useEffect } from 'react';
 
 // Views
 import Overview from './views/Overview';
@@ -19,7 +21,9 @@ const ClientDashboard: React.FC = () => {
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
+  const [isWelcomeToastShown, setIsWelcomeToastShown] = React.useState(false);
   const navigate = useNavigate();
+
 
   const handleLogout = () => {
     performLogout();
@@ -29,6 +33,19 @@ const ClientDashboard: React.FC = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
+    useEffect(()=>{
+   toast.success("Welcome to CimessInvestment Management Platform .", {
+        position:"top-center",
+        autoClose:5000,
+        hideProgressBar:true,
+        closeOnClick:true,
+        pauseOnHover:true,
+        draggable:true,
+        theme:"colored",
+        transition:Zoom,
+        });
+    },[!isWelcomeToastShown]
+    )
 
   return (
     <div className="flex h-screen bg-[#020617] overflow-hidden">
@@ -47,17 +64,13 @@ const ClientDashboard: React.FC = () => {
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
         />
-           {/* Google Button */}
-                  <div className="flex justify-center mb-4 items-center gap-2 text-sm text-white-4000 md:text-base mt-2 underline">
-                    
-                     
+           {/* Google Verify Banner - shown when user is NOT verified */}
+                 {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
                       <SiGoogle />
                       <Link to="http://localhost:4000/api/auth/google">
                     verify your email address
                     </Link>
-                      
-                    
-                  </div>
+                  </div>}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           <Routes>
             <Route index element={<Overview />} />

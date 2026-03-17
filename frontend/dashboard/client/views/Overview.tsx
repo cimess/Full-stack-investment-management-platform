@@ -5,7 +5,7 @@ import StatCard from '../../../components/ui/StatCard';
 import { getUserDashboard } from "../../../hooks/useQuery";
 import { useQueryClient } from '@tanstack/react-query';
 import { toast,Zoom } from 'react-toastify';
-import { use } from 'chai';
+import { useNavigate } from 'react-router-dom';
 
 const chartData = [
   { name: 'Mon', value: 38400 },
@@ -24,26 +24,15 @@ type User = {
 
 
 const ClientOverview: React.FC = () => {
-  const { data, isLoading, isError } = getUserDashboard();
+  const { data, isLoading, isError ,error} = getUserDashboard();
+  const navigate = useNavigate();
 
     const queryClient = useQueryClient();
   const me = queryClient.getQueryData<{data:User}>(["me"]);
   const checkVerification = me?.data?.isVerified
 
 
-  useEffect(()=>{
- toast.success("Welcome to CimessInvestment Management Platform .", {
-      position:"top-center",
-      autoClose:5000,
-      hideProgressBar:true,
-      closeOnClick:true,
-      pauseOnHover:true,
-      draggable:true,
-      theme:"colored",
-      transition:Zoom,
-      });
-  },[]
-  )
+
   useEffect(()=>{
 
    
@@ -60,7 +49,7 @@ const ClientOverview: React.FC = () => {
       });
     }
 
-    if(isError){
+    if(isError && !((error as any)?.response?.status===404)){
            toast.error("Failed to fetch dashboard data.", {
       position:"top-center",
       autoClose:5000,
@@ -85,11 +74,35 @@ const ClientOverview: React.FC = () => {
   }
 
   if (isError || !data?.data) {
+    if((error as any)?.response?.status===404){
+      toast.warn("Pls create a new portfolio to start trading.", {
+      position:"top-center",
+      autoClose:5000,
+      hideProgressBar:true,
+      closeOnClick:true,
+      pauseOnHover:true,
+      draggable:true,
+      theme:"colored",
+      transition:Zoom,
+      });
+
+  return(
+    <div className="flex h-full items-center justify-center p-12">
+      <button className=" rounded-xl font-bold text-gray-300 transition-all 
+      shadow-lg p-5 lg:p-8 bg-gradient-to-r from-green-600 to-emerald-600 
+      hover:from-green-500 shadow-green-500/20"
+      onClick={()=>navigate("/dashboard/client/portfolio")}>
+        Start Trading
+      </button>
+    </div>
+  )
+}else{
     return (
       <div className="flex h-full items-center justify-center p-12 text-slate-400">
         Failed to load dashboard data.
       </div>
     );
+  }
   }
 
   const { investments = [], user } = data.data;

@@ -4,7 +4,8 @@ import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
 import bcrypt from "bcrypt";
-import type{ AuthRequest } from "../middlewear/auth.js";
+import crypto from "crypto";
+import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 
 
 export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=>{
@@ -137,38 +138,73 @@ export const getAdminDashboard=async(req:Request,res:Response,next:NextFunction)
 
 
 
-export const addSuperAdmin=async(req:Request,res:Response,next:NextFunction)=>{
-  try{
-    const {super_admin_access}=req.body;
-    const user_id=req.user?.id;
-    await prisma.$transaction(async (tx) => {
-      if (!super_admin_access) {
-        throw createError(400, "invalid credentials");
-      }
-      if (!user_id) {
-        throw createError(401, "pls login to continue");
-      }
+export const addSuperAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { super_admin_access } = req.body;
+    const user_id = req.user?.id;
 
-      const add_admin = await tx.user.update({
+    if (!super_admin_access) {
+      return next(createError(400, "invalid credentials"));
+    }
+    if (!user_id) {
+      return next(createError(401, "pls login to continue"));
+    }
+
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Clear existing tokens
+      await tx.refreshToken.deleteMany({
+        where: { user_id: user_id }
+      });
+
+      // 2. Update user to ADMIN
+      const updatedUser = await tx.user.update({
         where: { id: user_id },
         data: { roles: Roles.ADMIN }
       });
 
-      if (!add_admin) {
-        throw createError(500, "Internal Server Error");
-      }
-
-      const hashesPassword = await bcrypt.hash(super_admin_access, 10);
+      // 3. Create Admin profile
+      const hashedPassword = await bcrypt.hash(super_admin_access, 10);
       await tx.admin.create({
         data: {
           user_id: user_id,
-          super_admin_access: hashesPassword,
+          super_admin_access: hashedPassword,
           super_admin: true
         }
       });
+
+      // 4. Generate NEW tokens with ADMIN role
+      const accessToken = generateAccessToken({ id: updatedUser.id, roles: updatedUser.roles });
+      const refreshToken = generateRefreshToken({ id: updatedUser.id, roles: updatedUser.roles });
+
+      await tx.refreshToken.create({
+        data: {
+          token: refreshToken,
+          user_id: updatedUser.id
+        }
+      });
+
+      return { accessToken, refreshToken };
     });
 
-    return res.status(200).json({ success: true, message: "admin access granted successfully" });
+    // 5. Send tokens in cookies
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Admin access granted successfully. Session updated." 
+    });
   } catch (err: any) {
     logger.error(err);
     return next(err.statusCode ? err : createError(500, "Internal Server Error"));
@@ -176,11 +212,11 @@ export const addSuperAdmin=async(req:Request,res:Response,next:NextFunction)=>{
 };
 
 export const generateAccessKey = async (req: Request, res: Response, next: NextFunction) => {
-  const { access_key, userid, role } = req.body;
+  const { userid, role } = req.body;
   const admin_id = req.user?.id;
 
-  if (!access_key || !userid || !role) {
-    return next(createError(400, "Missing required fields (access_key, userid, role)"));
+  if (!userid || !role) {
+    return next(createError(400, "Missing required fields (userid, role)"));
   }
 
   try {
@@ -192,7 +228,7 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
       return next(createError(403, "Forbidden: Super Admin access required"));
     }
 
-    const hashedPassword = await bcrypt.hash(access_key, 10);
+const accessKey = crypto.randomUUID(); 
 
     if (role === 'MANAGER') {
       const isAccessCodeGenerated=await prisma.approved_Manager.findUnique({
@@ -205,7 +241,7 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
       }
       await prisma.approved_Manager.create({
         data: {
-          approval_code: hashedPassword,
+          approval_code: accessKey,
           admin_id: adminUser.id,
           user_id: userid,
           manager_slot: 1 // Default slots
@@ -222,7 +258,7 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
       }
       await prisma.approved_Admin.create({
         data: {
-          approval_code: hashedPassword,
+          approval_code: accessKey,
           superAdmin_id: adminUser.id,
           admin_id: userid
         }
@@ -233,7 +269,7 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
 
     return res.status(200).json({ success: true, 
       message: `${role} access code generated successfully`, 
-      key: access_key });
+      key: accessKey });
   } catch (err: any) {
     logger.error(err);
     return next(createError(500, "Internal Server Error"));
@@ -249,51 +285,92 @@ export const addAdmin = async (req: Request, res: Response, next: NextFunction) 
       return next(createError(401, "Authentication and access key required"));
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId, roles: Roles.USER, isVerified: true }
-    });
+    const result = await prisma.$transaction(async (tx) => {
+      // 1. Verify eligibility
+      const user = await tx.user.findUnique({
+        where: { id: userId, roles: Roles.USER, isVerified: true }
+      });
 
-    if (!user) {
-      return next(createError(401, "User not found or already promoted"));
-    }
-
-    const approval = await prisma.approved_Admin.findFirst({
-      where: {
-        admin_id: userId,
-        is_used: false
+      if (!user) {
+        throw createError(401, "User not found or already promoted");
       }
-    });
 
-    if (!approval) {
-      return next(createError(401, "No pending admin approval found for this user"));
-    }
+      // 2. Verify approval
+      const approval = await tx.approved_Admin.findFirst({
+        where: {
+          admin_id: userId,
+          is_used: false
+        }
+      });
 
-    const isMatch = await bcrypt.compare(access_key, approval.approval_code);
-    if (!isMatch) {
-      return next(createError(401, "Invalid admin access key"));
-    }
+      if (!approval) {
+        throw createError(401, "No pending admin approval found for this user");
+      }
 
-    await prisma.$transaction([
-      prisma.user.update({
+      const isMatch = await bcrypt.compare(access_key, approval.approval_code);
+      if (!isMatch) {
+        throw createError(401, "Invalid admin access key");
+      }
+
+      // 3. Clear existing tokens
+      await tx.refreshToken.deleteMany({
+        where: { user_id: userId }
+      });
+
+      // 4. Perform promotion
+      const updatedUser = await tx.user.update({
         where: { id: userId },
         data: { roles: Roles.ADMIN }
-      }),
-      prisma.admin.create({
+      });
+
+      await tx.admin.create({
         data: {
           user_id: userId,
           super_admin: false
         }
-      }),
-      prisma.approved_Admin.update({
+      });
+
+      await tx.approved_Admin.update({
         where: { id: approval.id },
         data: { is_used: true }
-      })
-    ]);
+      });
 
-    return res.status(200).json({ success: true, message: "Admin access granted successfully" });
+      // 5. Generate NEW tokens with ADMIN role
+      const accessToken = generateAccessToken({ id: updatedUser.id, roles: updatedUser.roles });
+      const refreshToken = generateRefreshToken({ id: updatedUser.id, roles: updatedUser.roles });
+
+      await tx.refreshToken.create({
+        data: {
+          token: refreshToken,
+          user_id: updatedUser.id
+        }
+      });
+
+      return { accessToken, refreshToken };
+    });
+
+    // 6. Set cookies
+    res.cookie("accessToken", result.accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", result.refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    return res.status(200).json({ 
+      success: true, 
+      message: "Admin access granted successfully. Session updated." 
+    });
   } catch (err: any) {
     logger.error(err);
-    return next(createError(500, "Internal Server Error"));
+    return next(err.statusCode ? err : createError(500, "Internal Server Error"));
   }
 };
 

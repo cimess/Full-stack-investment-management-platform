@@ -181,7 +181,7 @@ const stock=await tx.stockTable.findUnique({
 if(!stock){
   throw createError(404,"stock not found");
 }
- await tx.trade_request.create({
+    const trade = await tx.trade_request.create({
       data: {
         portfolio_id: portfolio.id,
         stock_id,
@@ -190,6 +190,21 @@ if(!stock){
         status: "PENDING"
       }
     });
+
+    const managerRecord = await tx.manager.findUnique({
+      where: { id: user.manager_id }
+    });
+    
+    if (managerRecord) {
+      await tx.notification.create({
+        data: {
+          user_id: managerRecord.manager_id,
+          title: "New Trade Request",
+          message: `${user.fullname} requested to BUY ${quantity} shares of ${stock.symbol}.`,
+          type: "TRADE"
+        }
+      });
+    }
 
 })
 
@@ -248,7 +263,7 @@ const stock=await tx.stockTable.findUnique({
 if(!stock){
   throw createError(404,"stock not found");
 }
- await tx.trade_request.create({
+    const trade = await tx.trade_request.create({
       data: {
         portfolio_id: portfolio.id,
         stock_id,
@@ -257,6 +272,21 @@ if(!stock){
         status: "PENDING"
       }
     });
+
+    const managerRecord = await tx.manager.findUnique({
+      where: { id: user.manager_id }
+    });
+
+    if (managerRecord) {
+      await tx.notification.create({
+        data: {
+          user_id: managerRecord.manager_id,
+          title: "New Trade Request",
+          message: `${user.fullname} requested to SELL ${quantity} shares of ${stock.symbol}.`,
+          type: "TRADE"
+        }
+      });
+    }
 
 })
 

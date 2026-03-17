@@ -1,23 +1,4 @@
-import axios from "axios"
-
-const api = axios.create({
-  baseURL: "/api",
-  withCredentials: true,
-  headers: {
-    "Content-Type": "application/json",
-  },
-})
-
-// Add a response interceptor for error handling
-api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized (optional: redirect to login)
-    }
-    return Promise.reject(error)
-  }
-)
+import api from "../lib/axios"
 
 export const registerUser = async (userData: any) => {
   const response = await api.post("/register", userData)
@@ -134,7 +115,22 @@ export const addAdmin = async (adminData: any) => {
   return response.data
 }
 
-export const generateAccessKey = async (data: { access_key: string, userid: string, role: 'MANAGER' | 'ADMIN' }) => {
+export const generateAccessKey = async (data: { userid: string, role: 'MANAGER' | 'ADMIN' }) => {
   const response = await api.post("/generate-access-key", data);
+  return response.data;
+}
+
+export const updateUserSettingsAPI = async (settingsData: any) => {
+  const response = await api.patch("/user/settings", settingsData);
+  return response.data;
+}
+
+export const getNotificationsAPI = async () => {
+  const response = await api.get("/user/notifications");
+  return response.data;
+}
+
+export const markNotificationsReadAPI = async () => {
+  const response = await api.patch("/user/notifications/read");
   return response.data;
 }

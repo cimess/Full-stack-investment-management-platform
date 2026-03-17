@@ -1,20 +1,23 @@
 import React, { useState } from 'react';
 import { Mail, Phone, Calendar, Award, MessageSquare, ExternalLink, ShieldCheck, UserPlus, UserMinus, Search, Info, Loader2 } from 'lucide-react';
-import { getUserDashboard, useAddManagerToClient, useRemoveManagerFromClient } from '../../../hooks/useQuery';
+import { getUserDashboard, useAddManagerToClient, useRemoveManagerFromClient, useGetMe } from '../../../hooks/useQuery';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 
 const ManagerView: React.FC = () => {
   const queryClient = useQueryClient();
-  const { data, isLoading } = getUserDashboard();
+  const { data, isLoading: isDashboardLoading } = getUserDashboard();
+  const { data: meData, isLoading: isMeLoading } = useGetMe();
   const { mutate: assignManager, isPending: isAssigning } = useAddManagerToClient();
   const { mutate: detachManager, isPending: isRemoving } = useRemoveManagerFromClient();
   
   const [managerId, setManagerId] = useState('');
 
-  const user = data?.data?.user;
-  const managerData = user?.client_manager;
+  // Source manager status from getMe — this works even without a portfolio
+  const meUser = meData?.data;
+  const managerData = meUser?.client_manager || data?.data?.user?.client_manager;
   const hasManager = !!managerData;
+  const isLoading = isMeLoading;
 
   const handleAssign = () => {
     if (!managerId.trim()) return;
@@ -22,7 +25,9 @@ const ManagerView: React.FC = () => {
     assignManager({ manager_id: managerId }, {
       onSuccess: () => {
         toast.success("Manager assigned successfully!");
-        queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+        setManagerId('');
+        queryClient.invalidateQueries({ queryKey: ["me"] });
+        queryClient.invalidateQueries({ queryKey: ["userDashboard"] });
       },
       onError: (err: any) => {
         toast.error(err?.response?.data?.message || "Failed to assign manager");
@@ -38,7 +43,8 @@ const ManagerView: React.FC = () => {
       detachManager({ manager_id: managerData.manager_id }, {
         onSuccess: () => {
           toast.success("Manager removed successfully.");
-          queryClient.invalidateQueries({ queryKey: ["dashboard"] });
+          queryClient.invalidateQueries({ queryKey: ["me"] });
+          queryClient.invalidateQueries({ queryKey: ["userDashboard"] });
         },
         onError: (err: any) => {
           toast.error(err?.response?.data?.message || "Failed to remove manager");
@@ -146,7 +152,7 @@ const ManagerView: React.FC = () => {
 
             <div className="relative pt-4">
               <div className="w-32 h-32 rounded-3xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center border-4 border-[#020617] shadow-2xl group transition-transform hover:scale-105">
-                <span className="text-white text-5xl font-black">S</span>
+                <span className="text-white text-5xl font-black">{managerData.user.fullname.charAt(0).toUpperCase()}</span>
               </div>
               <div className="absolute -bottom-2 -right-2 bg-emerald-500 rounded-full p-2 border-4 border-[#020617] text-white shadow-lg">
                 <ShieldCheck className="w-5 h-5" />
@@ -155,7 +161,7 @@ const ManagerView: React.FC = () => {
 
             <div className="relative">
               <h2 className="text-white font-black text-2xl tracking-tight">{managerData.user.fullname}</h2>
-              <p className="text-blue-400/80 text-[10px] font-bold uppercase tracking-[0.25em] mt-1">Senior Portfolio Manager</p>
+              <p className="text-blue-400/80 text-[10px] font-bold uppercase tracking-[0.25em] mt-1">{managerData.title || 'Senior Portfolio Manager'}</p>
             </div>
 
             <div className="flex gap-3 w-full">
@@ -173,11 +179,11 @@ const ManagerView: React.FC = () => {
              <div className="space-y-4">
                 <div className="flex items-center gap-4 text-slate-400 group cursor-pointer">
                    <div className="p-2.5 bg-white/5 rounded-xl border border-white/5 group-hover:border-blue-500/30 transition-colors"><Mail className="w-4 h-4 text-blue-400/70" /></div>
-                   <span className="text-xs font-medium group-hover:text-blue-300 transition-colors">sarah.m@novainvest.com</span>
+                   <span className="text-xs font-medium group-hover:text-blue-300 transition-colors">{managerData.contact_email || managerData.user.email}</span>
                 </div>
                 <div className="flex items-center gap-4 text-slate-400">
                    <div className="p-2.5 bg-white/5 rounded-xl border border-white/5"><Calendar className="w-4 h-4 text-emerald-400/70" /></div>
-                   <span className="text-xs font-medium">Available Mon-Fri, 9am-5pm EST</span>
+                   <span className="text-xs font-medium">{managerData.availability || 'Available Mon-Fri, 9am-5pm EST'}</span>
                 </div>
              </div>
           </div>
@@ -190,20 +196,20 @@ const ManagerView: React.FC = () => {
               <div className="absolute top-0 right-0 p-3 opacity-10"><Award className="w-12 h-12 text-blue-400" /></div>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Industry Tenure</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-white text-4xl font-black">12+</span>
+                <span className="text-white text-4xl font-black">{managerData.years_experience !== null ? managerData.years_experience : '12+'}</span>
                 <span className="text-slate-400 text-sm font-medium">Years</span>
               </div>
-              <p className="text-slate-500 text-[11px] leading-relaxed">Specializing in quantitative tech & emerging market disruption.</p>
+              <p className="text-slate-500 text-[11px] leading-relaxed line-clamp-2">Specializing in {managerData.specialization || 'quantitative tech & emerging market disruption'}.</p>
             </div>
 
             <div className="glass-panel p-8 rounded-[2rem] border border-white/5 space-y-3 relative overflow-hidden group">
               <div className="absolute top-0 right-0 p-3 opacity-10"><MessageSquare className="w-12 h-12 text-emerald-400" /></div>
               <p className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Success Rating</p>
               <div className="flex items-baseline gap-2">
-                <span className="text-emerald-400 text-4xl font-black">98%</span>
+                <span className="text-emerald-400 text-4xl font-black">{managerData.success_rate !== null ? managerData.success_rate : '98'}%</span>
                 <span className="text-slate-400 text-sm font-medium">Positive</span>
               </div>
-              <p className="text-slate-500 text-[11px] leading-relaxed">Top-tier satisfaction rating based on 150+ audited reviews.</p>
+              <p className="text-slate-500 text-[11px] leading-relaxed">Top-tier satisfaction rating based on audited client reviews.</p>
             </div>
           </div>
 
@@ -214,7 +220,7 @@ const ManagerView: React.FC = () => {
                  <h3 className="text-white font-black text-xl tracking-tight">Executive Summary</h3>
                </div>
                <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                 {managerData.user.fullname} is an award-winning portfolio manager with a decade of experience in quantitative analysis and growth-focused investment strategies. Leading the growth equity division and managing client assets with a focus on sustainable long-term returns.
+                 {managerData.bio || `${managerData.user.fullname} is an award-winning portfolio manager with a decade of experience in quantitative analysis and growth-focused investment strategies. Leading the growth equity division and managing client assets with a focus on sustainable long-term returns.`}
                </p>
             </div>
 

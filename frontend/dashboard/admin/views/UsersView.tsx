@@ -11,14 +11,14 @@ interface PromotionModalProps {
 }
 
 const PromotionModal: React.FC<PromotionModalProps> = ({ user, type, onClose, onSuccess }) => {
-  const [code, setCode] = useState('');
+  const [usedCode, setUsedCode] = useState(false);
   const [emailConfirm, setEmailConfirm] = useState(user.email);
   const { mutate: generateKey, isPending,data } = useGenerateAccessKey();
   console.log(data)
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!code || !emailConfirm) {
+    if (!emailConfirm) {
       toast.error("Please fill all fields");
       return;
     }
@@ -27,11 +27,16 @@ const PromotionModal: React.FC<PromotionModalProps> = ({ user, type, onClose, on
       return;
     }
 
-    generateKey({ access_key: code, userid: user.id, role: type.toUpperCase() as any }, {
+    generateKey({ userid: user.id, role: type.toUpperCase() as any }, {
       onSuccess: (data: any) => {
         onSuccess(data.key);
       },
       onError: (err: any) => {
+        if(err.status===409){
+            toast.error(err.response?.data?.message || `Access code for ${type} already exists`);
+          onSuccess(err.response?.data?.key);
+          setUsedCode(true)
+        return}
         toast.error(err.response?.data?.message || `Failed to generate ${type} code`);
       }
     });
@@ -51,6 +56,8 @@ const PromotionModal: React.FC<PromotionModalProps> = ({ user, type, onClose, on
             <X className="w-5 h-5" />
           </button>
         </div>
+        
+       {usedCode && <div className="p-6 space-y-4">the code is  {data?.key}</div>}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div className="space-y-2">
             <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">User Email Confirmation</label>
@@ -62,16 +69,8 @@ const PromotionModal: React.FC<PromotionModalProps> = ({ user, type, onClose, on
               className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-purple-500/50" 
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-2 ">
             <label className="text-slate-400 text-xs font-medium uppercase tracking-wider">Approval Code</label>
-            <input 
-              type="text" 
-              value={code}
-              onChange={e => setCode(e.target.value.toUpperCase())}
-              placeholder="ENTER SECURE CODE" 
-              className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm font-mono tracking-widest focus:outline-none focus:border-purple-500/50 uppercase" 
-            />
-            <p className="text-slate-500 text-[10px]">Provide this code to the user after confirmation.</p>
           </div>
           <button 
             type="submit"

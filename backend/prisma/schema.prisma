@@ -23,6 +23,12 @@ enum Status {
   FAILED
 }
 
+enum NotificationType {
+  TRADE
+  MESSAGE
+  SYSTEM
+}
+
 model User {
   id         String   @id @default(cuid())
   googleId   String?  @unique
@@ -40,6 +46,9 @@ model User {
   isVerified               Boolean   @default(false)
   verificationToken        String?
   verificationTokenExpires DateTime?
+
+  settings                 UserSettings?     @relation("userSettings")
+  notifications            Notification[]    @relation("user_notifications")
 
   portfolio        Portfolio[]       @relation("portfolio")
   refreshToken     RefreshToken[]    @relation("refreshToken")
@@ -140,10 +149,22 @@ model Manager {
   approval_code String @unique
 
   client_id    String?
-  manager_slot Int             @default(0)
-  createdAt    DateTime        @default(now())
-  updatedAt    DateTime        @updatedAt
-  approvedBy   Trade_request[] @relation("approvedBy")
+  manager_slot Int     @default(0)
+
+  // Profile fields — all optional, UI falls back to defaults if not set
+  bio              String?
+  title            String?
+  specialization   String?
+  years_experience Int?
+  success_rate     Int?
+  contact_email    String?
+  availability     String?
+  linkedin_url     String?
+  aum_managed      BigInt?
+
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  approvedBy Trade_request[] @relation("approvedBy")
 }
 
 model Admin {
@@ -181,4 +202,26 @@ model Approved_Admin {
   is_used       Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
+}
+
+model UserSettings {
+  id                 String   @id @default(cuid())
+  user               User     @relation("userSettings", fields: [user_id], references: [id], onDelete: Cascade)
+  user_id            String   @unique
+  tradeNotifications Boolean  @default(true)
+  emailNotifications Boolean  @default(true)
+  theme              String   @default("system")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Notification {
+  id        String           @id @default(cuid())
+  user      User             @relation("user_notifications", fields: [user_id], references: [id], onDelete: Cascade)
+  user_id   String
+  title     String
+  message   String
+  type      NotificationType @default(SYSTEM)
+  read      Boolean          @default(false)
+  createdAt DateTime         @default(now())
 }

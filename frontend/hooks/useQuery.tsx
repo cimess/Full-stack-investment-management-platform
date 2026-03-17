@@ -1,10 +1,12 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
+import api from "../lib/axios"
 import { 
   getClientAll, refreshToken, loginUser, registerUser, verifyEmail,
   logoutUser, getManagerAccess, addManagerToClient, restrictUser, restrictManager,
   handleRequest, buyStock, sellStock, removeManagerFromClient, getManagerAll,
   getAdminDashboard, getMarketQuotes, searchStock, 
-  postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin
+  postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
+  updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI
 } from "../services/queryServices"
 
 export const register = () => {
@@ -147,5 +149,33 @@ export const useRedeemAdmin = () => {
 export const useRedeemManager = () => {
   return useMutation({
     mutationFn: getManagerAccess
+  })
+}
+
+export const useUpdateManagerProfile = () => {
+  return useMutation({
+    mutationFn: async (data: any) => {
+      const response = await api.post("/api/manager/profile", data);
+      return response.data;
+    }
+  });
+};
+export const useUpdateUserSettings = () => {
+  return useMutation({
+    mutationFn: updateUserSettingsAPI
+  })
+}
+
+export const useGetNotifications = () => {
+  return useQuery({
+    queryKey: ["notifications"],
+    queryFn: getNotificationsAPI,
+    refetchInterval: 30000 // Poll every 30s
+  })
+}
+
+export const useMarkNotificationsRead = () => {
+  return useMutation({
+    mutationFn: markNotificationsReadAPI
   })
 }

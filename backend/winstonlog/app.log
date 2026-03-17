@@ -8093,3 +8093,467 @@ Unique constraint failed on the fields: (`email`) {
 2026-03-17 08:41:07 [error]: portfolio not found
 2026-03-17 08:41:11 [error]: portfolio not found
 2026-03-17 08:54:06 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:15 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:15 [error]: Error in startMarketWorker: p is not defined {
+  "stack": "ReferenceError: p is not defined\n    at <anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/server.ts:92:5)\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+}
+2026-03-17 10:59:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:28 [error]: Error in startMarketWorker: p is not defined {
+  "stack": "ReferenceError: p is not defined\n    at <anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/server.ts:92:5)\n    at ModuleJob.run (node:internal/modules/esm/module_job:343:25)\n    at async onImport.tracePromise.__proto__ (node:internal/modules/esm/loader:665:26)\n    at async asyncRunEntryPointWithESMLoader (node:internal/modules/run_main:117:5)"
+}
+2026-03-17 10:59:38 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:44 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:45 [info]: Worker: Starting background price refresh...
+2026-03-17 10:59:45 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 10:59:47 [info]: Worker: Successfully Updated DB.
+2026-03-17 10:59:55 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 10:59:56 [info]: Worker: Starting background price refresh...
+2026-03-17 10:59:56 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 10:59:59 [info]: Worker: Successfully Updated DB.
+2026-03-17 11:10:24 [info]: Initiating Google OAuth login...
+2026-03-17 11:10:28 [info]: Received Google OAuth callback...
+2026-03-17 11:10:29 [error]: portfolio not found
+2026-03-17 11:10:30 [error]: portfolio not found
+2026-03-17 11:10:32 [error]: portfolio not found
+2026-03-17 11:10:36 [error]: portfolio not found
+2026-03-17 11:10:52 [error]: portfolio not found
+2026-03-17 11:10:53 [error]: portfolio not found
+2026-03-17 11:10:55 [error]: portfolio not found
+2026-03-17 11:10:59 [error]: portfolio not found
+2026-03-17 11:11:02 [error]: portfolio not found
+2026-03-17 11:11:03 [error]: portfolio not found
+2026-03-17 11:11:05 [error]: portfolio not found
+2026-03-17 11:11:09 [error]: portfolio not found
+2026-03-17 11:15:59 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:16:00 [info]: Worker: Starting background price refresh...
+2026-03-17 11:16:00 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 11:16:02 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:16:05 [info]: Worker: Starting background price refresh...
+2026-03-17 11:16:05 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 11:16:05 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:16:06 [info]: Worker: Starting background price refresh...
+2026-03-17 11:16:06 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 11:16:08 [info]: Worker: Successfully Updated DB.
+2026-03-17 11:16:53 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:16:53 [info]: Worker: Starting background price refresh...
+2026-03-17 11:16:53 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-17 11:16:56 [info]: Worker: Successfully Updated DB.
+2026-03-17 11:16:59 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:17:57 [info]: null
+2026-03-17 11:18:28 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:18:30 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 11:18:35 [info]: null
+2026-03-17 11:18:35 [info]: cmmlrkujh00010yj26yb92pkp
+2026-03-17 11:26:49 [info]: Initiating Google OAuth login...
+2026-03-17 11:27:43 [info]: Received Google OAuth callback...
+2026-03-17 11:28:02 [info]: [object Object]
+2026-03-17 11:28:02 [info]: cmmgimukh00001xj2srstphi3
+2026-03-17 11:28:23 [info]: [object Object]
+2026-03-17 11:28:23 [info]: cmmgimukh00001xj2srstphi3
+2026-03-17 11:29:13 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 12:38:11 [info]: Initiating Google OAuth login...
+2026-03-17 12:38:15 [info]: Received Google OAuth callback...
+2026-03-17 12:38:17 [error]: portfolio not found
+2026-03-17 12:38:18 [error]: portfolio not found
+2026-03-17 12:38:20 [error]: portfolio not found
+2026-03-17 12:38:24 [error]: portfolio not found
+2026-03-17 12:42:55 [info]: Initiating Google OAuth login...
+2026-03-17 12:42:59 [info]: Received Google OAuth callback...
+2026-03-17 12:43:01 [error]: portfolio not found
+2026-03-17 12:43:02 [error]: portfolio not found
+2026-03-17 12:43:04 [error]: portfolio not found
+2026-03-17 12:43:08 [error]: portfolio not found
+2026-03-17 13:04:16 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:04:19 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:04:45 [info]: cmmlrkujh00010yj26yb92pkp
+2026-03-17 13:05:00 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:05:02 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:05:05 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:05:10 [info]: cmmlrkujh00010yj26yb92pkp
+2026-03-17 13:05:10 [info]: $2B$10$TNMLH2Y2I1EYI/US17TBBEVBUX4WGI0TO2IAIYZVZKNV3UO2HHEJM
+2026-03-17 13:05:11 [info]: cmmlrkujh00010yj26yb92pkp
+2026-03-17 13:05:11 [info]: $2B$10$TNMLH2Y2I1EYI/US17TBBEVBUX4WGI0TO2IAIYZVZKNV3UO2HHEJM
+2026-03-17 13:06:00 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:06:05 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:06:13 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:06:17 [info]: $2B$10$TNMLH2Y2I1EYI/US17TBBEVBUX4WGI0TO2IAIYZVZKNV3UO2HHEJM
+2026-03-17 13:06:17 [info]: [object Object]
+2026-03-17 13:06:17 [info]: $2B$10$TNMLH2Y2I1EYI/US17TBBEVBUX4WGI0TO2IAIYZVZKNV3UO2HHEJM
+2026-03-17 13:06:17 [info]: [object Object]
+2026-03-17 13:12:02 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:12:09 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:12:11 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:12:12 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:12:35 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:12:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 13:17:02 [error]: portfolio not found
+2026-03-17 13:17:03 [error]: portfolio not found
+2026-03-17 13:17:05 [error]: portfolio not found
+2026-03-17 13:17:09 [error]: portfolio not found
+2026-03-17 13:22:09 [info]: $2b$10$TnMLh2Y2I1EYi/us17tbBeVBuX4wgI0tO2IaIyzVZknv3uO2hHEJm
+2026-03-17 13:22:09 [info]: [object Object]
+2026-03-17 13:22:09 [info]: $2b$10$TnMLh2Y2I1EYi/us17tbBeVBuX4wgI0tO2IaIyzVZknv3uO2hHEJm
+2026-03-17 13:22:09 [info]: [object Object]
+2026-03-17 13:23:45 [info]: $2b$10$TnMLh2Y2I1EYi/us17tbBeVBuX4wgI0tO2IaIyzVZknv3uO2hHEJm
+2026-03-17 13:23:45 [info]: [object Object]
+2026-03-17 13:23:45 [info]: $2b$10$TnMLh2Y2I1EYi/us17tbBeVBuX4wgI0tO2IaIyzVZknv3uO2hHEJm
+2026-03-17 13:23:45 [info]: [object Object]
+2026-03-17 13:24:05 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-17 14:00:04 [info]: Initiating Google OAuth login...
+2026-03-17 14:00:08 [info]: Received Google OAuth callback...
+2026-03-17 14:00:10 [error]: portfolio not found
+2026-03-17 14:00:11 [error]: portfolio not found
+2026-03-17 14:00:13 [error]: portfolio not found
+2026-03-17 14:00:17 [error]: portfolio not found
+2026-03-17 14:00:29 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:00:29 [info]: [object Object]
+2026-03-17 14:00:29 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:00:29 [info]: [object Object]
+2026-03-17 14:00:31 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:00:31 [info]: [object Object]
+2026-03-17 14:00:31 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:00:31 [info]: [object Object]
+2026-03-17 14:01:09 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:02:08 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:02:13 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:02:41 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:02:46 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:03:14 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:03:14 [info]: [object Object]
+2026-03-17 14:05:01 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 14:12:16 [error]: portfolio not found
+2026-03-17 14:12:17 [error]: portfolio not found
+2026-03-17 14:12:19 [error]: portfolio not found
+2026-03-17 14:12:23 [error]: portfolio not found
+2026-03-17 14:12:34 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:12:34 [info]: null
+2026-03-17 14:12:37 [info]: 73cd9e59-c3ee-47bc-a9eb-524bcafd0799
+2026-03-17 14:12:37 [info]: null
+2026-03-17 14:14:32 [info]: Initiating Google OAuth login...
+2026-03-17 14:14:38 [info]: Received Google OAuth callback...
+2026-03-17 14:14:40 [error]: portfolio not found
+2026-03-17 14:14:41 [error]: portfolio not found
+2026-03-17 14:14:43 [error]: portfolio not found
+2026-03-17 14:14:48 [error]: portfolio not found
+2026-03-17 14:14:49 [error]: portfolio not found
+2026-03-17 14:14:51 [error]: portfolio not found
+2026-03-17 14:14:55 [error]: portfolio not found
+2026-03-17 14:15:13 [error]: portfolio not found
+2026-03-17 14:15:14 [error]: portfolio not found
+2026-03-17 14:15:16 [error]: portfolio not found
+2026-03-17 14:15:20 [error]: portfolio not found
+2026-03-17 14:31:53 [error]: portfolio not found
+2026-03-17 14:31:54 [error]: portfolio not found
+2026-03-17 14:31:56 [error]: portfolio not found
+2026-03-17 14:32:00 [error]: portfolio not found
+2026-03-17 14:32:01 [error]: portfolio not found
+2026-03-17 14:32:02 [error]: portfolio not found
+2026-03-17 14:32:04 [error]: portfolio not found
+2026-03-17 14:32:08 [error]: portfolio not found
+2026-03-17 14:32:08 [error]: portfolio not found
+2026-03-17 14:32:09 [error]: portfolio not found
+2026-03-17 14:32:11 [error]: portfolio not found
+2026-03-17 14:32:15 [error]: portfolio not found
+2026-03-17 14:36:16 [error]: portfolio not found
+2026-03-17 14:36:17 [error]: portfolio not found
+2026-03-17 14:36:19 [error]: portfolio not found
+2026-03-17 14:36:23 [error]: portfolio not found
+2026-03-17 14:36:28 [error]: portfolio not found
+2026-03-17 14:36:29 [error]: portfolio not found
+2026-03-17 14:36:31 [error]: portfolio not found
+2026-03-17 14:36:35 [error]: portfolio not found
+2026-03-17 14:38:38 [error]: portfolio not found
+2026-03-17 14:38:39 [error]: portfolio not found
+2026-03-17 14:38:41 [error]: portfolio not found
+2026-03-17 14:38:46 [error]: portfolio not found
+2026-03-17 14:38:51 [error]: portfolio not found
+2026-03-17 14:38:52 [error]: portfolio not found
+2026-03-17 14:38:54 [error]: portfolio not found
+2026-03-17 14:38:58 [error]: portfolio not found
+2026-03-17 14:39:42 [error]: portfolio not found
+2026-03-17 14:39:43 [error]: portfolio not found
+2026-03-17 14:39:45 [error]: portfolio not found
+2026-03-17 14:39:49 [error]: portfolio not found
+2026-03-17 14:39:54 [error]: portfolio not found
+2026-03-17 14:39:55 [error]: portfolio not found
+2026-03-17 14:39:57 [error]: portfolio not found
+2026-03-17 14:40:01 [error]: portfolio not found
+2026-03-17 14:40:53 [error]: portfolio not found
+2026-03-17 14:40:54 [error]: portfolio not found
+2026-03-17 14:40:56 [error]: portfolio not found
+2026-03-17 14:41:00 [error]: portfolio not found
+2026-03-17 14:41:02 [error]: portfolio not found
+2026-03-17 14:41:03 [error]: portfolio not found
+2026-03-17 14:41:05 [error]: portfolio not found
+2026-03-17 14:41:09 [error]: portfolio not found
+2026-03-17 14:41:24 [error]: portfolio not found
+2026-03-17 14:41:25 [error]: portfolio not found
+2026-03-17 14:41:27 [error]: portfolio not found
+2026-03-17 14:41:31 [error]: portfolio not found
+2026-03-17 14:42:10 [error]: portfolio not found
+2026-03-17 14:42:11 [error]: portfolio not found
+2026-03-17 14:42:13 [error]: portfolio not found
+2026-03-17 14:42:17 [error]: portfolio not found
+2026-03-17 14:43:02 [error]: portfolio not found
+2026-03-17 14:43:03 [error]: portfolio not found
+2026-03-17 14:43:05 [error]: portfolio not found
+2026-03-17 14:43:09 [error]: portfolio not found
+2026-03-17 14:43:36 [error]: portfolio not found
+2026-03-17 14:43:37 [error]: portfolio not found
+2026-03-17 14:43:39 [error]: portfolio not found
+2026-03-17 14:43:44 [error]: portfolio not found
+2026-03-17 14:44:09 [error]: portfolio not found
+2026-03-17 14:44:10 [error]: portfolio not found
+2026-03-17 14:44:12 [error]: portfolio not found
+2026-03-17 14:44:16 [error]: portfolio not found
+2026-03-17 14:44:18 [error]: portfolio not found
+2026-03-17 14:44:19 [error]: portfolio not found
+2026-03-17 14:44:21 [error]: portfolio not found
+2026-03-17 14:44:25 [error]: portfolio not found
+2026-03-17 14:46:24 [error]: portfolio not found
+2026-03-17 14:46:25 [error]: portfolio not found
+2026-03-17 14:46:27 [error]: portfolio not found
+2026-03-17 14:46:31 [error]: portfolio not found
+2026-03-17 14:47:06 [error]: portfolio not found
+2026-03-17 14:47:07 [error]: portfolio not found
+2026-03-17 14:47:09 [error]: portfolio not found
+2026-03-17 14:47:13 [error]: portfolio not found
+2026-03-17 14:47:27 [error]: portfolio not found
+2026-03-17 14:47:28 [error]: portfolio not found
+2026-03-17 14:47:30 [error]: portfolio not found
+2026-03-17 14:47:34 [error]: portfolio not found
+2026-03-17 14:47:57 [error]: portfolio not found
+2026-03-17 14:47:58 [error]: portfolio not found
+2026-03-17 14:48:00 [error]: portfolio not found
+2026-03-17 14:48:04 [error]: portfolio not found
+2026-03-17 14:48:17 [error]: portfolio not found
+2026-03-17 14:48:18 [error]: portfolio not found
+2026-03-17 14:48:20 [error]: portfolio not found
+2026-03-17 14:48:24 [error]: portfolio not found
+2026-03-17 14:48:54 [error]: portfolio not found
+2026-03-17 14:48:55 [error]: portfolio not found
+2026-03-17 14:48:57 [error]: portfolio not found
+2026-03-17 14:49:01 [error]: portfolio not found
+2026-03-17 14:49:16 [error]: portfolio not found
+2026-03-17 14:49:17 [error]: portfolio not found
+2026-03-17 14:49:19 [error]: portfolio not found
+2026-03-17 14:49:23 [error]: portfolio not found
+2026-03-17 14:49:26 [error]: portfolio not found
+2026-03-17 14:49:27 [error]: portfolio not found
+2026-03-17 14:49:29 [error]: portfolio not found
+2026-03-17 14:49:33 [error]: portfolio not found
+2026-03-17 14:49:54 [error]: portfolio not found
+2026-03-17 14:49:56 [error]: portfolio not found
+2026-03-17 14:49:58 [error]: portfolio not found
+2026-03-17 14:50:02 [error]: portfolio not found
+2026-03-17 14:50:09 [error]: portfolio not found
+2026-03-17 14:50:10 [error]: portfolio not found
+2026-03-17 14:50:12 [error]: portfolio not found
+2026-03-17 14:50:16 [error]: portfolio not found
+2026-03-17 14:50:47 [error]: portfolio not found
+2026-03-17 14:50:49 [error]: portfolio not found
+2026-03-17 14:50:51 [error]: portfolio not found
+2026-03-17 14:50:55 [error]: portfolio not found
+2026-03-17 14:50:57 [error]: portfolio not found
+2026-03-17 14:50:58 [error]: portfolio not found
+2026-03-17 14:51:00 [error]: portfolio not found
+2026-03-17 14:51:04 [error]: portfolio not found
+2026-03-17 14:51:22 [error]: portfolio not found
+2026-03-17 14:51:23 [error]: portfolio not found
+2026-03-17 14:51:25 [error]: portfolio not found
+2026-03-17 14:51:29 [error]: portfolio not found
+2026-03-17 14:51:49 [error]: portfolio not found
+2026-03-17 14:51:50 [error]: portfolio not found
+2026-03-17 14:51:52 [error]: portfolio not found
+2026-03-17 14:51:56 [error]: portfolio not found
+2026-03-17 14:52:29 [error]: portfolio not found
+2026-03-17 14:52:30 [error]: portfolio not found
+2026-03-17 14:52:32 [error]: portfolio not found
+2026-03-17 14:52:36 [error]: portfolio not found
+2026-03-17 14:52:41 [error]: portfolio not found
+2026-03-17 14:52:42 [error]: portfolio not found
+2026-03-17 14:52:44 [error]: portfolio not found
+2026-03-17 14:52:48 [error]: portfolio not found
+2026-03-17 14:53:13 [error]: portfolio not found
+2026-03-17 14:53:14 [error]: portfolio not found
+2026-03-17 14:53:16 [error]: portfolio not found
+2026-03-17 14:53:20 [error]: portfolio not found
+2026-03-17 14:53:20 [error]: portfolio not found
+2026-03-17 14:53:21 [error]: portfolio not found
+2026-03-17 14:53:23 [error]: portfolio not found
+2026-03-17 14:53:27 [error]: portfolio not found
+2026-03-17 14:53:41 [error]: portfolio not found
+2026-03-17 14:53:42 [error]: portfolio not found
+2026-03-17 14:53:44 [error]: portfolio not found
+2026-03-17 14:53:48 [error]: portfolio not found
+2026-03-17 14:54:01 [error]: portfolio not found
+2026-03-17 14:54:03 [error]: portfolio not found
+2026-03-17 14:54:05 [error]: portfolio not found
+2026-03-17 14:54:09 [error]: portfolio not found
+2026-03-17 14:54:17 [error]: portfolio not found
+2026-03-17 14:54:18 [error]: portfolio not found
+2026-03-17 14:54:20 [error]: portfolio not found
+2026-03-17 14:54:24 [error]: portfolio not found
+2026-03-17 14:56:01 [error]: portfolio not found
+2026-03-17 14:56:02 [error]: portfolio not found
+2026-03-17 14:56:04 [error]: portfolio not found
+2026-03-17 14:56:08 [error]: portfolio not found
+2026-03-17 14:57:42 [info]: Initiating Google OAuth login...
+2026-03-17 14:57:46 [info]: Received Google OAuth callback...
+2026-03-17 14:57:48 [error]: portfolio not found
+2026-03-17 14:57:49 [error]: portfolio not found
+2026-03-17 14:57:51 [error]: portfolio not found
+2026-03-17 14:57:55 [error]: portfolio not found
+2026-03-17 14:57:59 [error]: portfolio not found
+2026-03-17 14:58:00 [error]: portfolio not found
+2026-03-17 14:58:02 [error]: portfolio not found
+2026-03-17 14:58:06 [error]: portfolio not found
+2026-03-17 14:58:27 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 14:58:27 [info]: [object Object]
+2026-03-17 14:58:28 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "Manager",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"Manager_manager_id_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "manager_id"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-17 14:58:28 [error]: [500 Error] InternalServerError: Internal Server Error
+    at getManagerAccess (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/manager_Access.ts:88:17)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+2026-03-17 15:00:46 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-17 15:01:03 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:01:03 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:01:09 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:01:09 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:01:17 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:01:17 [info]: d34c52c0-a6e4-40b3-a31b-efadcdcb5569
+2026-03-17 15:07:20 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:07:40 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:15:49 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:35:40 [error]: portfolio not found
+2026-03-17 15:35:41 [error]: portfolio not found
+2026-03-17 15:35:43 [error]: portfolio not found
+2026-03-17 15:35:47 [error]: portfolio not found
+2026-03-17 15:36:11 [info]: Initiating Google OAuth login...
+2026-03-17 15:36:15 [info]: Received Google OAuth callback...
+2026-03-17 15:36:17 [error]: portfolio not found
+2026-03-17 15:36:18 [error]: portfolio not found
+2026-03-17 15:36:20 [error]: portfolio not found
+2026-03-17 15:36:30 [error]: Invalid or already used manager approval code
+2026-03-17 15:36:34 [error]: Invalid or already used manager approval code
+2026-03-17 15:38:16 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:38:19 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:38:22 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:38:39 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:38:58 [error]: Invalid manager approval code
+2026-03-17 15:39:02 [error]: Invalid manager approval code
+2026-03-17 15:39:44 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-17 15:39:57 [error]: portfolio not found
+2026-03-17 15:39:58 [error]: portfolio not found
+2026-03-17 15:40:00 [error]: portfolio not found
+2026-03-17 15:40:01 [error]: portfolio not found
+2026-03-17 15:40:31 [info]: Initiating Google OAuth login...
+2026-03-17 15:40:35 [info]: Received Google OAuth callback...
+2026-03-17 15:40:37 [error]: portfolio not found
+2026-03-17 15:40:38 [error]: portfolio not found
+2026-03-17 15:40:40 [error]: portfolio not found
+2026-03-17 15:46:45 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 15:53:43 [info]: Initiating Google OAuth login...
+2026-03-17 15:53:49 [info]: Received Google OAuth callback...
+2026-03-17 15:53:51 [error]: portfolio not found
+2026-03-17 15:53:52 [error]: portfolio not found
+2026-03-17 15:53:54 [error]: portfolio not found
+2026-03-17 15:53:58 [error]: portfolio not found
+2026-03-17 15:54:02 [error]: portfolio not found
+2026-03-17 15:54:03 [error]: portfolio not found
+2026-03-17 15:54:05 [error]: portfolio not found
+2026-03-17 15:54:09 [error]: portfolio not found
+2026-03-17 15:54:24 [error]: manager already assigned to client
+2026-03-17 15:54:24 [error]: manager already assigned to client
+2026-03-17 15:54:33 [error]: portfolio not found
+2026-03-17 15:54:34 [error]: portfolio not found
+2026-03-17 15:54:36 [error]: portfolio not found
+2026-03-17 15:54:40 [error]: portfolio not found
+2026-03-17 15:54:46 [error]: manager already assigned to client
+2026-03-17 15:54:46 [error]: manager already assigned to client
+2026-03-17 15:54:49 [error]: portfolio not found
+2026-03-17 15:54:50 [error]: portfolio not found
+2026-03-17 15:54:52 [error]: portfolio not found
+2026-03-17 15:54:56 [error]: portfolio not found
+2026-03-17 15:55:03 [error]: manager already assigned to client
+2026-03-17 15:55:03 [error]: manager already assigned to client
+2026-03-17 15:55:10 [error]: manager already assigned to client
+2026-03-17 15:55:10 [error]: manager already assigned to client
+2026-03-17 15:55:14 [error]: portfolio not found
+2026-03-17 15:55:17 [info]: Initiating Google OAuth login...
+2026-03-17 15:55:21 [info]: Received Google OAuth callback...
+2026-03-17 16:03:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:12:13 [info]: Initiating Google OAuth login...
+2026-03-17 16:12:18 [info]: Received Google OAuth callback...
+2026-03-17 16:12:20 [error]: portfolio not found
+2026-03-17 16:12:21 [error]: portfolio not found
+2026-03-17 16:12:23 [error]: portfolio not found
+2026-03-17 16:12:27 [error]: portfolio not found
+2026-03-17 16:12:34 [error]: Manager has no available slots
+2026-03-17 16:12:34 [error]: Manager has no available slots
+2026-03-17 16:13:19 [error]: portfolio not found
+2026-03-17 16:13:20 [error]: portfolio not found
+2026-03-17 16:13:22 [error]: portfolio not found
+2026-03-17 16:13:26 [error]: portfolio not found
+2026-03-17 16:13:31 [error]: portfolio not found
+2026-03-17 16:13:32 [error]: portfolio not found
+2026-03-17 16:13:34 [error]: portfolio not found
+2026-03-17 16:13:38 [error]: portfolio not found
+2026-03-17 16:13:44 [error]: portfolio not found
+2026-03-17 16:13:45 [error]: portfolio not found
+2026-03-17 16:13:47 [error]: portfolio not found
+2026-03-17 16:13:52 [error]: portfolio not found
+2026-03-17 16:14:01 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-17 16:14:17 [error]: portfolio not found
+2026-03-17 16:14:18 [error]: portfolio not found
+2026-03-17 16:14:20 [error]: portfolio not found
+2026-03-17 16:14:24 [error]: portfolio not found
+2026-03-17 16:15:11 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-17 16:15:32 [error]: portfolio not found
+2026-03-17 16:15:33 [error]: portfolio not found
+2026-03-17 16:15:35 [error]: portfolio not found
+2026-03-17 16:15:39 [error]: portfolio not found
+2026-03-17 16:19:10 [error]: portfolio not found
+2026-03-17 16:19:11 [error]: portfolio not found
+2026-03-17 16:19:13 [error]: portfolio not found
+2026-03-17 16:19:17 [error]: portfolio not found
+2026-03-17 16:34:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:34:36 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:35:30 [error]: portfolio not found
+2026-03-17 16:35:31 [error]: portfolio not found
+2026-03-17 16:35:33 [error]: portfolio not found
+2026-03-17 16:35:37 [error]: portfolio not found
+2026-03-17 16:36:56 [error]: portfolio not found
+2026-03-17 16:36:57 [error]: portfolio not found
+2026-03-17 16:36:59 [error]: portfolio not found
+2026-03-17 16:37:03 [error]: portfolio not found
+2026-03-17 16:39:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:41:10 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:45:12 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:45:20 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:48:09 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:48:22 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:53:59 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:54:38 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:55:03 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 16:55:07 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-17 17:18:57 [info]: SIGTERM received: Starting graceful shutdown...
