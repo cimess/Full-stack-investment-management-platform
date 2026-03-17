@@ -1,6 +1,6 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
-import { useGetDashboard, useGetMarketQuotes, userBuyStock, userSellStock } from "../../../hooks/useQuery";
+import { getUserDashboard, useGetMarketQuotes, useBuyStock, useSellStock } from "../../../hooks/useQuery";
 
 const TradeModal: React.FC<{
   isOpen: boolean;
@@ -93,14 +93,14 @@ const TradeModal: React.FC<{
 };
 
 const PortfolioView: React.FC = () => {
-  const { data, isLoading, isError, refetch } = useGetDashboard();
+  const { data, isLoading, isError, refetch } = getUserDashboard();
   const { data: marketData } = useGetMarketQuotes();
   
   const [tradeType, setTradeType] = React.useState<'BUY'|'SELL'|null>(null);
   const [isTradeModalOpen, setIsTradeModalOpen] = React.useState(false);
 
-  const buyMutation = userBuyStock();
-  const sellMutation = userSellStock();
+  const buyMutation = useBuyStock();
+  const sellMutation = useSellStock();
 
   if (isLoading) {
     return (

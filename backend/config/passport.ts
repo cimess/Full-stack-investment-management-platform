@@ -1,6 +1,6 @@
 import passport from "passport";
-import { Strategy as GoogleStrategy,  } from "passport-google-oauth20";
-import type{Profile} from "passport-google-oauth20"
+import { Strategy as GoogleStrategy, } from "passport-google-oauth20";
+import type { Profile } from "passport-google-oauth20"
 import { prisma } from "../lib/prisma.js";
 import dotenv from "dotenv";
 import logger from "../winstonlog/logger.js";
@@ -12,7 +12,9 @@ export default passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID!,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-      callbackURL: "/api/auth/google/callback",
+      callbackURL: process.env.NODE_ENV === "production"
+        ? "https://novalinvest.onrender.com/api/auth/google/callback"
+        : "http://localhost:4000/api/auth/google/callback",
       passReqToCallback: true
     },
     async (
@@ -24,85 +26,92 @@ export default passport.use(
     ) => {
       try {
         const email = profile.emails?.[0]?.value;
-        if(!profile.id) throw new Error("Invalid Google profileID");
+        if (!profile.id) throw new Error("Invalid Google profileID");
         if (!email) throw new Error("Email not found in Google profile");
 
         const loggedInUser = req.user?.id;
-        if(loggedInUser){
-          try{
+        if (loggedInUser) {
+          try {
 
-            const user=await prisma.user.findUnique({where:{id:loggedInUser}})
+            const user = await prisma.user.findUnique({ where: { id: loggedInUser } })
 
-            
-            if(user?.email !== email){
+
+            if (user?.email !== email) {
               logger.warn(`Logged in user email (${user?.email}) does not match Google profile email (${email}). Possible account mismatch or security issue.`)
               return done(new Error("Logged in user email does not match Google profile email."), undefined);
             }
-            const updatedUser=await prisma.user.update({
-              where:{id:loggedInUser},
-              data:{
-                googleId:profile.id,
-                isVerified:true
+            const updatedUser = await prisma.user.update({
+              where: { id: loggedInUser },
+              data: {
+                googleId: profile.id,
+                isVerified: true
               }
             })
             logger.info(`Linked Google account (${email}) to existing user ID ${loggedInUser}.`)
             return done(null, updatedUser);
-          }catch(err){
+          } catch (err) {
             logger.error("Error fetching logged in user during Google OAuth: ", err);
             return done(err, undefined);
           }
-          
+
         }
 
         // Find user by googleId (using findUnique for efficiency)
-        
+
         const userByGoogle = await prisma.user.findUnique({
           where: {
-              googleId: profile.id           
+            googleId: profile.id
           }
         });
         const userByEmail = await prisma.user.findUnique({
-            where: {
-              email: email
-            }
-          });
-        if(!userByGoogle){
+          where: {
+            email: email
+          }
+        });
+        if (!userByGoogle) {
           // If not found by googleId, try finding by email to link accounts
-         
-          if(userByEmail ){
+
+          if (userByEmail) {
             // Link Google account to existing user
             await prisma.user.update({
               where: { id: userByEmail.id },
               data: {
                 googleId: profile.id,
-                isVerified:true
+                isVerified: true
               }
             });
             logger.info(`Linked Google account (${email}) to existing user ID ${userByEmail.id} based on email match.`);
             return done(null, userByEmail);
           }
         }
-      const username=profile?.displayName?.split(' ')[0]||profile.displayName
+        const username =
+            profile.displayName?.split(" ")[0] ||
+          profile.emails?.[0]?.value?.split("@")[0] ||
+          "user";
 
-        if (!userByGoogle&& !userByEmail) {
+        if (userByGoogle) {
+          return done(null, userByGoogle);
+        }
+
+        if (!userByEmail) {
           // Optionally check email to avoid duplicates
-         const  user = await prisma.user.create({
+          const user = await prisma.user.create({
             data: {
-             email,
+              email,
               fullname: profile.displayName,
               googleId: profile.id,
               username,
-               isVerified: true,
-        verificationToken: null,
-        verificationTokenExpires: null
+              isVerified: true,
+              verificationToken: null,
+              verificationTokenExpires: null
             },
           });
-           logger.info('Google OAuth successfull for user:    ',user)
+          logger.info('Google OAuth successful for user: ', user);
 
-        // Done passes user to next middleware
-        return done(null, user);
+          // Done passes user to next middleware
+          return done(null, user);
         }
-       
+
       } catch (err) {
         return done(err, undefined);
       }

@@ -1,82 +1,11 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
-import {
+import { useMutation, useQuery } from "@tanstack/react-query"
+import { 
   getClientAll, refreshToken, loginUser, registerUser, verifyEmail,
   logoutUser, getManagerAccess, addManagerToClient, restrictUser, restrictManager,
   handleRequest, buyStock, sellStock, removeManagerFromClient, getManagerAll,
-  getAdminDashboard, addAdmin, getMarketQuotes, searchStock, managerAccessKey,
-  postMarketQuotes, getMe, fetchStockDetailsAPI,googleAuth
+  getAdminDashboard, getMarketQuotes, searchStock, 
+  postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin
 } from "../services/queryServices"
-import { use } from "chai"
-
-
-
-
-// refresh token
-export const useRefreshToken = () => {
-  return useMutation({
-    mutationFn: refreshToken
-  })
-}
-// google auth
-export  const useGoogleAuth = (p0: { enabled: boolean })=>{
-  return useQuery(
-    {
-      queryKey: ["googleAuth"],
-      queryFn: googleAuth,
-      
-    }
-  )
-}
-// role check for navigation
-export const useGetMe = () => {
-  return useQuery({
-    queryKey: ["me"],
-    queryFn: getMe,
-    staleTime: 5 * 60 * 1000,
-    retry: false
-  })
-}
-// all get for client
-export const useGetDashboard = () => {
-  return useQuery({
-    queryKey: ["dashboard"],
-    queryFn: getClientAll,
-    staleTime: 5 * 60 * 1000,
-    retry: 1
-  })
-}
-// all get for manager
-export const useGetManagerDashboard = () => {
-  return useQuery({
-    queryKey: ["managerDashboard"],
-    queryFn: getManagerAll,
-    staleTime: 5 * 60 * 1000,
-    retry: 1
-  })
-}
-
-// all get for admin
-export const useGetAdminDashboard = () => {
-  return useQuery({
-    queryKey: ["adminDashboard"],
-    queryFn: getAdminDashboard,
-    staleTime: 5 * 60 * 1000,
-    retry: 1
-  })
-}
-
-// all post by users
-
-export const login = () => {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: loginUser,
-    onSuccess: () => {
-      // Invalidate and refetch 'me' so ProtectedRoute sees the logged-in user immediately
-      void queryClient.invalidateQueries({ queryKey: ["me"] });
-    }
-  })
-}
 
 export const register = () => {
   return useMutation({
@@ -84,60 +13,58 @@ export const register = () => {
   })
 }
 
+export const login = () => {
+  return useMutation({
+    mutationFn: loginUser
+  })
+}
+
 export const verifyUserEmail = () => {
   return useMutation({
-    mutationFn: verifyEmail
+    mutationFn: (token: string) => verifyEmail(token)
+  })
+}
+
+export const useGetMe = () => {
+  return useQuery({
+    queryKey: ["me"],
+    queryFn: getMe
+  })
+}
+
+export const useRefreshToken = () => {
+  return useMutation({
+    mutationFn: refreshToken
   })
 }
 
 export const logout = () => {
-  const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: logoutUser,
-    onSuccess: () => {
-      // Clear cached user so ProtectedRoute redirects to login immediately
-      queryClient.removeQueries({ queryKey: ["me"] });
-    }
+    mutationFn: logoutUser
   })
 }
 
-// client post
-export const addManager = () => {
+export const useAddManagerToClient = () => {
   return useMutation({
     mutationFn: addManagerToClient
   })
 }
 
-export const removeManager = () => {
+export const useRemoveManagerFromClient = () => {
   return useMutation({
     mutationFn: removeManagerFromClient
   })
 }
 
-export const userBuyStock = () => {
+export const useBuyStock = () => {
   return useMutation({
     mutationFn: buyStock
   })
 }
 
-export const userSellStock = () => {
+export const useSellStock = () => {
   return useMutation({
-    mutationFn: sellStock
-  })
-}
-// user get dashboardd
-
-export const getUserDashboard =() => {
-  return useQuery({
-    queryKey: ["userDashboard"],
-    queryFn: getClientAll
-  })
-}
-
-// manager post
-export const requestManagerAccess = () => {
-  return useMutation({
-    mutationFn: getManagerAccess
+    mutationFn: (data: any) => sellStock(data)
   })
 }
 
@@ -147,7 +74,19 @@ export const handleUserRequest = () => {
   })
 }
 
+export const useGetManagerDashboard = () => {
+  return useQuery({
+    queryKey: ["managerDashboard"],
+    queryFn: getManagerAll
+  })
+}
 
+export const useGetAdminDashboard = () => {
+  return useQuery({
+    queryKey: ["adminDashboard"],
+    queryFn: getAdminDashboard
+  })
+}
 
 export const adminRestrictUser = () => {
   return useMutation({
@@ -161,13 +100,13 @@ export const adminRestrictManager = () => {
   })
 }
 
-export const adminAddAdmin = () => {
-  return useMutation({
-    mutationFn: addAdmin
+export const getUserDashboard = () => {
+  return useQuery({
+    queryKey: ["userDashboard"],
+    queryFn: getClientAll
   })
 }
 
-// Market hooks
 export const useGetMarketQuotes = () => {
   return useQuery({
     queryKey: ["marketQuotes"],
@@ -177,22 +116,36 @@ export const useGetMarketQuotes = () => {
 
 export const useSearchStock = () => {
   return useMutation({
-    mutationFn: searchStock
-  })
-}
-export const usePostMarketQuotes = () => {
-  return useMutation({
-    mutationFn: postMarketQuotes
-  })
-}
-export const useFetchStockDetails = () => {
-  return useMutation({
-    mutationFn: fetchStockDetailsAPI
+    mutationFn: (query: string) => searchStock(query)
   })
 }
 
-export const useManagerAccessKey = () => {
+export const usePostMarketQuotes = () => {
   return useMutation({
-    mutationFn: managerAccessKey
+    mutationFn: (symbols: string[]) => postMarketQuotes(symbols)
+  })
+}
+
+export const useFetchStockDetails = () => {
+  return useMutation({
+    mutationFn: (symbol: string) => fetchStockDetailsAPI(symbol)
+  })
+}
+
+export const useGenerateAccessKey = () => {
+  return useMutation({
+    mutationFn: generateAccessKey
+  })
+}
+
+export const useRedeemAdmin = () => {
+  return useMutation({
+    mutationFn: addAdmin
+  })
+}
+
+export const useRedeemManager = () => {
+  return useMutation({
+    mutationFn: getManagerAccess
   })
 }

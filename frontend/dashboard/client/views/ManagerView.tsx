@@ -1,14 +1,14 @@
 import React, { useState } from 'react';
 import { Mail, Phone, Calendar, Award, MessageSquare, ExternalLink, ShieldCheck, UserPlus, UserMinus, Search, Info, Loader2 } from 'lucide-react';
-import { useGetDashboard, addManager, removeManager } from '../../../hooks/useQuery';
+import { getUserDashboard, useAddManagerToClient, useRemoveManagerFromClient } from '../../../hooks/useQuery';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 
 const ManagerView: React.FC = () => {
   const queryClient = useQueryClient();
-  const { data, isLoading } = useGetDashboard();
-  const { mutate: assignManager, isPending: isAssigning } = addManager();
-  const { mutate: detachManager, isPending: isRemoving } = removeManager();
+  const { data, isLoading } = getUserDashboard();
+  const { mutate: assignManager, isPending: isAssigning } = useAddManagerToClient();
+  const { mutate: detachManager, isPending: isRemoving } = useRemoveManagerFromClient();
   
   const [managerId, setManagerId] = useState('');
 

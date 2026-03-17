@@ -63,62 +63,75 @@ export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=
 export const getAdminDashboard=async(req:Request,res:Response,next:NextFunction)=>{
 
 
-  try{
-   const [users,managers,restrictedUser,restrictedManagers,transactions,tradeRequests,portfolios,stocks,admin,approvedManagers]=await Promise.all([
-    prisma.user.findMany({
-      where:{
-        roles:Roles.USER
-      },
-      select:{id:true,fullname:true,email:true,manager_id:true,createdAt:true,updatedAt:true}
-    }),
-    prisma.user.findMany({
-      where:{
-        roles:Roles.MANAGER
-      },
-      select:{id:true,fullname:true,email:true,createdAt:true,updatedAt:true}
-    }),
-    prisma.user.findMany({
-      where:{
-        roles:Roles.USER,
-        restricted:true
-      },
-      select:{id:true,fullname:true,email:true,manager_id:true,createdAt:true,updatedAt:true}
-    }),
-    prisma.user.findMany({
-      where:{
-        roles:Roles.MANAGER,
-        restricted:true
-      },
-      select:{id:true,fullname:true,email:true,createdAt:true,updatedAt:true}
-    }),
-    prisma.transaction.findMany({
-      take:30,
-      orderBy:{createdAt:"desc"}
-    }),
-    prisma.trade_request.findMany({
-      take:30,
-      orderBy:{createdAt:"desc"}
-    }),
-    prisma.portfolio.findMany({
-      take:30,
-      orderBy:{user_id:"desc"}
-    }),
-    prisma.stockTable.findMany({
-      take:30,
-      orderBy:{createdAt:"desc"}
-    }),
-    prisma.admin.findMany({
-      select:{id:true,user_id:true,super_admin:true,createdAt:true,updatedAt:true}
-    }),
-    prisma.approved_Manager.findMany({
-      select:{id:true,approval_code:true,manager_slot:true,admin_id:true,user_id:true,createdAt:true,updatedAt:true}
-    })
-   ])
-   return res.status(200).json({success:true,message:"users fetched successfully",data:{users,managers,restrictedUser,restrictedManagers,transactions,tradeRequests,portfolios,stocks,admin,approvedManagers}})
-  }catch(err:any){
-    logger.error(err);
-    return next(createError(500,"Internal Server Error"));
+  try {
+    const results = await Promise.allSettled([
+      prisma.user.findMany({
+        where: { roles: Roles.USER },
+        select: { id: true, fullname: true, email: true, manager_id: true, restricted: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.user.findMany({
+        where: { roles: Roles.MANAGER },
+        select: { id: true, fullname: true, email: true, restricted: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.user.findMany({
+        where: { roles: Roles.USER, restricted: true },
+        select: { id: true, fullname: true, email: true, manager_id: true, restricted: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.user.findMany({
+        where: { roles: Roles.MANAGER, restricted: true },
+        select: { id: true, fullname: true, email: true, restricted: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.transaction.findMany({
+        take: 30,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.trade_request.findMany({
+        take: 30,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.portfolio.findMany({
+        take: 30,
+        orderBy: { user_id: "desc" }
+      }),
+      prisma.stockTable.findMany({
+        take: 30,
+        orderBy: { createdAt: "desc" }
+      }),
+      prisma.admin.findMany({
+        select: { id: true, user_id: true, super_admin: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.approved_Manager.findMany({
+        select: { id: true, approval_code: true, manager_slot: true, admin_id: true, user_id: true, createdAt: true, updatedAt: true }
+      })
+    ]);
+
+    const data: any = {};
+    const keys = [
+      "users", "managers", "restrictedUser", "restrictedManagers", "transactions",
+      "tradeRequests", "portfolios", "stocks", "admin", "approvedManagers"
+    ];
+
+    results.forEach((result, index) => {
+      const key = keys[index];
+      if(!key)return  logger.error(`Error fetching ${key} for admin dashboard:`);
+      if (result.status === "fulfilled") {
+        data[key] = result.value;
+      } else {
+        logger.error(`Error fetching ${key} for admin dashboard:`, result.reason);
+        data[key] = []; // Fallback to empty array on failure
+      }
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: "Admin dashboard data fetched",
+      data
+    });
+  } catch (err: any) {
+    logger.error("Unexpected error in getAdminDashboard:", err);
+    return next(createError(500, "Internal Server Error"));
   }
+
 
 }
 
@@ -162,70 +175,127 @@ export const addSuperAdmin=async(req:Request,res:Response,next:NextFunction)=>{
   }
 };
 
-export const addAdmin=async(req:Request,res:Response,next:NextFunction)=>{
+export const generateAccessKey = async (req: Request, res: Response, next: NextFunction) => {
+  const { access_key, userid, role } = req.body;
+  const admin_id = req.user?.id;
 
-  try{
+  if (!access_key || !userid || !role) {
+    return next(createError(400, "Missing required fields (access_key, userid, role)"));
+  }
 
-    if (!req.user) {
-  return next(createError(401, "User not authenticated"));
-}
-const {access_key}=req.body;
-    const {id,roles}=req.user;
+  try {
+    const adminUser = await prisma.admin.findUnique({
+      where: { user_id: admin_id! }
+    });
 
-    if(roles===Roles.ADMIN){
-      return next(createError(401,"already have admin access"));
-    }
-    await prisma.$transaction(async(tx)=>{
-      if(id&&access_key){
-
-        const accesscode=await tx.approved_Admin.findFirst({
-          where:{
-            approval_code:access_key,
-            is_used:false
-          }
-        })
-        if(!accesscode){
-          return next(createError(401,"invalid admin access key"));
-        }
-
-       const super_admin=await tx.admin.findFirst({
-        where:{
-          user_id:id,
-          super_admin:true
-        }
-       })
-       if(!super_admin){
-        return next(createError(401,"invalid super admin access"));
-       }
-    const add_admin=await tx.user.update({
-      where:{
-        id:id
-      },
-      data:{
-        roles:Roles.ADMIN,
-
-      }
-    })
-    if(!add_admin){
-      return next(createError(500,"Internal Server Error"));
+    if (!adminUser || !adminUser.super_admin) {
+      return next(createError(403, "Forbidden: Super Admin access required"));
     }
 
-    if(add_admin){
-      await tx.admin.create({
-        data:{
-          user_id:id,
-          super_admin:false
+    const hashedPassword = await bcrypt.hash(access_key, 10);
+
+    if (role === 'MANAGER') {
+      const isAccessCodeGenerated=await prisma.approved_Manager.findUnique({
+        where:{user_id:userid,
+          is_used:false
         }
       })
+      if(isAccessCodeGenerated){
+        return res.status(409).json({ success: false, message: "Access code already generated",key:isAccessCodeGenerated.approval_code });
+      }
+      await prisma.approved_Manager.create({
+        data: {
+          approval_code: hashedPassword,
+          admin_id: adminUser.id,
+          user_id: userid,
+          manager_slot: 1 // Default slots
+        }
+      });
+    } else if (role === 'ADMIN') {
+      const isAccessCodeGenerated=await prisma.approved_Admin.findUnique({
+        where:{admin_id:userid,
+          is_used:false
+        }
+      })
+      if(isAccessCodeGenerated){
+        return res.status(409).json({ success: false, message: "Access code already generated",key:isAccessCodeGenerated.approval_code });
+      }
+      await prisma.approved_Admin.create({
+        data: {
+          approval_code: hashedPassword,
+          superAdmin_id: adminUser.id,
+          admin_id: userid
+        }
+      });
+    } else {
+      return next(createError(400, "Invalid role for promotion"));
     }
-  }
-  })
-    return res.status(200).json({success:true,message:"admin access granted successfully"})
-  }catch(err:any){
+
+    return res.status(200).json({ success: true, 
+      message: `${role} access code generated successfully`, 
+      key: access_key });
+  } catch (err: any) {
     logger.error(err);
-    return next(createError(500,"Internal Server Error"));
+    return next(createError(500, "Internal Server Error"));
   }
-}
+};
+
+export const addAdmin = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    const { access_key } = req.body;
+
+    if (!userId || !access_key) {
+      return next(createError(401, "Authentication and access key required"));
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: userId, roles: Roles.USER, isVerified: true }
+    });
+
+    if (!user) {
+      return next(createError(401, "User not found or already promoted"));
+    }
+
+    const approval = await prisma.approved_Admin.findFirst({
+      where: {
+        admin_id: userId,
+        is_used: false
+      }
+    });
+
+    if (!approval) {
+      return next(createError(401, "No pending admin approval found for this user"));
+    }
+
+    const isMatch = await bcrypt.compare(access_key, approval.approval_code);
+    if (!isMatch) {
+      return next(createError(401, "Invalid admin access key"));
+    }
+
+    await prisma.$transaction([
+      prisma.user.update({
+        where: { id: userId },
+        data: { roles: Roles.ADMIN }
+      }),
+      prisma.admin.create({
+        data: {
+          user_id: userId,
+          super_admin: false
+        }
+      }),
+      prisma.approved_Admin.update({
+        where: { id: approval.id },
+        data: { is_used: true }
+      })
+    ]);
+
+    return res.status(200).json({ success: true, message: "Admin access granted successfully" });
+  } catch (err: any) {
+    logger.error(err);
+    return next(createError(500, "Internal Server Error"));
+  }
+};
 
 export const restrictUser=async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -243,18 +313,14 @@ export const restrictUser=async(req:Request,res:Response,next:NextFunction)=>{
       return next(createError(401,"invalid super admin access"));
     }
 
-    const restrict=await prisma.user.update({
-      where:{
-        id:user_id
-      },
-      data:{
-        restricted:true
-      }
-    })
-    if(!restrict){
-      return next(createError(500,"Internal Server Error"));
+    const restrict = await prisma.user.update({
+      where: { id: user_id },
+      data: { restricted: !user.restricted }
+    });
+    if (!restrict) {
+      return next(createError(500, "Internal Server Error"));
     }
-    return res.status(200).json({success:true,message:"user restricted successfully"})
+    return res.status(200).json({ success: true, message: `User ${restrict.restricted ? 'restricted' : 'unrestricted'} successfully` });
   }catch(err:any){
     logger.error(err);
     return next(createError(500,"Internal Server Error"));
@@ -281,18 +347,14 @@ export const restrictManager=async(req:Request,res:Response,next:NextFunction)=>
       return next(createError(401,"invalid credentail or access"));
     }
 
-    const restrict=await prisma.user.update({
-      where:{
-        id:user_id
-      },
-      data:{
-        restricted:true
-      }
-    })
-    if(!restrict){
-      return next(createError(500,"Internal Server Error"));
+    const restrict = await prisma.user.update({
+      where: { id: user_id },
+      data: { restricted: !user.user.restricted }
+    });
+    if (!restrict) {
+      return next(createError(500, "Internal Server Error"));
     }
-    return res.status(200).json({success:true,message:"manager restricted successfully"})
+    return res.status(200).json({ success: true, message: `Manager ${restrict.restricted ? 'restricted' : 'unrestricted'} successfully` });
   }catch(err:any){
     logger.error(err);
     return next(createError(500,"Internal Server Error"));

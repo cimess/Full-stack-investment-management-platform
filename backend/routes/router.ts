@@ -1,15 +1,16 @@
 import { Router } from "express";
 import { registerUser, loginUser, refreshToken, logoutUser, 
   // verifyEmail ,
-  getMe,googleAuth} from "../controller/authentication.js";
+  getMe } from "../controller/authentication.js";
+import { googleAuth } from "../controller/authentication.js";
+import logger from "../winstonlog/logger.js";
 import { verifyToken } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll } from "../controller/manager_Access.js";
-import { restrictManager, restrictUser, addAdmin, getAdminDashboard, managerAccessKey, remoteShutdown} from "../controller/admin_access.js";
+import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails } from "../controller/market_data.js";
-import { addSuperAdmin } from "../controller/admin_access.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
 
@@ -21,16 +22,34 @@ const authLimiter = rateLimit({
 
 const router = Router();
 
-// googgle auth routes
-router.get(
-  "/auth/google",
-  passport.authenticate("google", {
-    scope: ["profile", "email"] // what info you want from Google
-  })
-);
+// Google Auth Routes
+router.get("/auth/google", (req, res, next) => {
+  logger.info("Initiating Google OAuth login...");
+  next();
+}, passport.authenticate("google", { scope: ["profile", "email"] }));
 
-router.get(  "/auth/google/callback",
-  passport.authenticate("google", { session: false, failureRedirect: "/login" }),googleAuth);
+router.get(
+  "/auth/google/callback",
+  (req, res, next) => {
+    logger.info("Received Google OAuth callback...");
+    next();
+  },
+  (req, res, next) => {
+    passport.authenticate("google", { session: false }, (err: any, user: any, info: any) => {
+      const frontendUrl = process.env.NODE_ENV === "production" 
+        ? process.env.FRONTEND_URL 
+        : "http://localhost:5173";
+
+      if (err || !user) {
+        logger.error("Google OAuth Error: ", err || info);
+        return res.redirect(`${frontendUrl}/login?error=oauth_failed`);
+      }
+      req.user = user;
+      next();
+    })(req, res, next);
+  },
+  googleAuth
+);
 
 // --- Health Check ---
 router.get("/health", (req, res) => res.status(200).json({ success: true, message: "Server is healthy" }));
@@ -44,9 +63,12 @@ router.post("/market/stock-details", verifyToken, postStockDetails);
 // --- Authentication Routes ---
 router.post("/register", registerUser);
 // router.post("/verify/email", verifyEmail);
-router.post("/login", loginUser);
+process.env.NODE_ENV === "production" ? router.post("/login", authLimiter,loginUser) : router.post("/login", loginUser);
 router.post("/refresh", refreshToken);
 router.post("/logout", verifyToken, logoutUser);
+router.post("/generate-access-key", verifyToken, generateAccessKey);
+router.post("/manager-access-key", verifyToken, generateAccessKey);
+router.post("/admin-access-key", verifyToken, generateAccessKey);
 router.post("/get/manager/access", verifyToken, authorise([Roles.USER]), getManagerAccess);
 router.get("/get/me", verifyToken, getMe);
 
@@ -68,7 +90,7 @@ router.post("/restrict/user", verifyToken, authorise([Roles.ADMIN]), restrictUse
 router.post("/restrict/manager", verifyToken, authorise([Roles.ADMIN]), restrictManager);
 router.post("/add-super-admin", verifyToken, addSuperAdmin);
 router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN]), addAdmin)
-router.post("/manager/approval/key", verifyToken, authorise([Roles.ADMIN]), managerAccessKey)
+router.post("/manager/approval/key", verifyToken, authorise([Roles.ADMIN]), generateAccessKey)
 router.post("/admin/emergency-shutdown", verifyToken, authorise([Roles.ADMIN]), remoteShutdown);
 
 

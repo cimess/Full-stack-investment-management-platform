@@ -1,7 +1,7 @@
 import {useState, useEffect} from 'react'
 import Header from './Header';
 import Footer from './Footer';
-import {login,register,useGoogleAuth } from '../hooks/useQuery';
+import {login,register } from '../hooks/useQuery';
 import { toast ,Zoom} from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import {isEmail,isPassword,isName} from '../hooks/validator';
@@ -32,6 +32,25 @@ export default function Login({loginUi}:{loginUi:boolean}){
 
 const [showPassword,setShowPassword]=useState<boolean>(false);
 const queryClient=useQueryClient();
+
+useEffect(() => {
+  const params = new URLSearchParams(window.location.search);
+  const error = params.get('error');
+  if (error === 'oauth_failed') {
+    toast.error("Google authentication failed. Please try again or use another method.", {
+      position: "top-center",
+      autoClose: 5000,
+      hideProgressBar: true,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      theme: "colored",
+      transition: Zoom,
+    });
+    // Remove the error param from URL
+    window.history.replaceState({}, document.title, window.location.pathname);
+  }
+}, []);
 
 const { startRedirect, showLoader, message: redirectMessage, success: redirectSuccess } = useLoadingRedirect({
   initialMessage: "Login successful!",
@@ -247,7 +266,7 @@ const passwordFeedback = () => {
           <button
             type="button"
             className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-gray-700 shadow border border-gray-200 hover:bg-gray-100"
-            onClick={() => (window.location.href = "http://localhost:4000/api/auth/google")}
+            onClick={() => (window.location.href = "/api/auth/google")}
           >
             <SiGoogle />
             <span>Continue with Google</span>

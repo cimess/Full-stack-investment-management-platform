@@ -36,10 +36,13 @@ const AdminDashboard: React.FC = () => {
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
 
+
+
+
   return (
     <div className="flex h-screen bg-[#020617] overflow-hidden">
       <DashboardSidebar 
-        role="admin" 
+        role={"admin"} 
         userName={firstName || "Admin"} 
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}

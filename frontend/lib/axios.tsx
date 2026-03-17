@@ -3,7 +3,7 @@ import axios from "axios";
 const api=axios.create({
   baseURL: import.meta.env.NODE_ENV === "production" ? import.meta.env.VITE_API_URL : "/api",
   withCredentials:true,
-  timeout:30000,
+  timeout:60000,
   headers:{
     "Content-Type":"application/json"
   }
@@ -13,7 +13,7 @@ api.interceptors.response.use(
   (response)=>response,
   async(error)=>{
     const originalRequest=error.config;
-    const isAuthRoute = originalRequest.url?.includes("/login") || originalRequest.url?.includes("/refresh");
+    const isAuthRoute = originalRequest.url?.includes("/login") || originalRequest.url?.includes("/refresh")||originalRequest.url.includes("/dashboard/*");
     if(error.response?.status===401 && !originalRequest._retry && !isAuthRoute){
       originalRequest._retry=true;
       try {

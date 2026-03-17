@@ -1,19 +1,46 @@
-import api from "../lib/axios";
+import axios from "axios"
 
-// authentication services
+const api = axios.create({
+  baseURL: "/api",
+  withCredentials: true,
+  headers: {
+    "Content-Type": "application/json",
+  },
+})
 
-export const getMe = async () => {
-  const response = await api.get("/get/me")
-  return response.data
-}
+// Add a response interceptor for error handling
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      // Handle unauthorized (optional: redirect to login)
+    }
+    return Promise.reject(error)
+  }
+)
 
 export const registerUser = async (userData: any) => {
   const response = await api.post("/register", userData)
   return response.data
 }
 
-export const loginUser = async (userData: any) => {
-  const response = await api.post("/login", userData)
+export const loginUser = async (loginData: any) => {
+  const response = await api.post("/login", loginData)
+  return response.data
+}
+
+export const verifyEmail = async (token: string) => {
+  const response = await api.get(`/verify/email?token=${token}`)
+  return response.data
+}
+
+export const getMe = async () => {
+  const response = await api.get("/get/me")
+  return response.data
+}
+
+export const refreshToken = async () => {
+  const response = await api.post("/refresh")
   return response.data
 }
 
@@ -21,47 +48,29 @@ export const logoutUser = async () => {
   const response = await api.post("/logout")
   return response.data
 }
-export const googleAuth = async () => {
-  const response = await api.get("/auth/google")
+
+export const getManagerAccess = async (accessData: any) => {
+  const response = await api.post("/get/manager/access", accessData)
   return response.data
 }
 
-
-export const verifyEmail = async ({ email, otp }: {
-  email: string,
-  otp: string
-}) => {
-  const response = await api.post("/verify/email", { email, otp })
+export const addManagerToClient = async (data: any) => {
+  const response = await api.post("/client/add/manager", data)
   return response.data
 }
 
-
-
-
-export const refreshToken = async () => {
-  const response = await api.post("/refresh")
+export const removeManagerFromClient = async (data: any) => {
+  const response = await api.post("/client/remove/manager", data)
   return response.data
 }
 
-// user services
-
-export const addManagerToClient = async (managerData: any) => {
-  const response = await api.post("/client/add/manager", managerData)
+export const buyStock = async (tradeData: any) => {
+  const response = await api.post("/client/buy/stock", tradeData)
   return response.data
 }
 
-export const removeManagerFromClient = async (managerData: any) => {
-  const response = await api.post("/client/remove/manager", managerData)
-  return response.data
-}
-
-export const buyStock = async (stockData: any) => {
-  const response = await api.post("/client/buy/stock", stockData)
-  return response.data
-}
-
-export const sellStock = async (stockData: any) => {
-  const response = await api.post("/client/sell/stock", stockData)
+export const sellStock = async (tradeData: any) => {
+  const response = await api.post("/client/sell/stock", tradeData)
   return response.data
 }
 
@@ -70,58 +79,54 @@ export const getClientAll = async () => {
   return response.data
 }
 
-// manager services
-
 export const handleRequest = async (requestData: any) => {
   const response = await api.post("/manager/handle/request", requestData)
   return response.data
 }
 
-export const getManagerAccess = async (managerData: any) => {
-  const response = await api.post("/get/manager/access", managerData)
-  return response.data
-}
 export const getManagerAll = async () => {
   const response = await api.get("/manager/dashboard")
   return response.data
 }
 
-// market services
+export const getAdminDashboard = async () => {
+  const response = await api.get("/admin/dashboard")
+  return response.data
+}
+
+export const restrictUser = async (restrictData: any) => {
+  const response = await api.post("/restrict/user", restrictData)
+  return response.data
+}
+
+export const restrictManager = async (restrictData: any) => {
+  const response = await api.post("/restrict/manager", restrictData)
+  return response.data
+}
 
 export const getMarketQuotes = async () => {
   const response = await api.get("/market/quotes")
   return response.data
 }
 
-export const searchStock = async (searchData: any) => {
-  const response = await api.post("/market/search", searchData)
-  return response.data
-}
-export const postMarketQuotes = async (marketData: any) => {
-  const response = await api.post("/market/quotes", marketData)
-  return response.data
-}
-export const fetchStockDetailsAPI = async (stockData: { symbol: string }) => {
-  const response = await api.post("/market/stock-details", stockData)
+export const searchStock = async (query: string) => {
+  const response = await api.post("/market/search", { query })
   return response.data
 }
 
-
-//  admin services
-
-export const restrictUser = async (userData: any) => {
-  const response = await api.post("/restrict/user", userData);
+export const postMarketQuotes = async (symbols: string[]) => {
+  const response = await api.post("/market/quotes", { symbols })
   return response.data
 }
 
-export const restrictManager = async (managerData: any) => {
-  const response = await api.post("/restrict/manager", managerData);
+export const fetchStockDetailsAPI = async (symbol: string) => {
+  const response = await api.post("/market/stock-details", { symbol })
   return response.data
 }
 
-export const getAdminDashboard = async () => {
-  const response = await api.get("/admin/dashboard");
-  return response.data
+export const addSuperAdmin = async (data: any) => {
+  const response = await api.post("/add-super-admin", data);
+  return response.data;
 }
 
 export const addAdmin = async (adminData: any) => {
@@ -129,7 +134,7 @@ export const addAdmin = async (adminData: any) => {
   return response.data
 }
 
-export const managerAccessKey = async (accessData: any) => {
-  const response = await api.post("/manager/approval/key", accessData)
-  return response.data
+export const generateAccessKey = async (data: { access_key: string, userid: string, role: 'MANAGER' | 'ADMIN' }) => {
+  const response = await api.post("/generate-access-key", data);
+  return response.data;
 }

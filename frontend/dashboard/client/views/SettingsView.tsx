@@ -1,19 +1,51 @@
 import React from 'react';
-import { Shield, Bell, ChevronRight } from 'lucide-react';
+import { Shield, Bell, ChevronRight, UserPlus, Loader2 } from 'lucide-react';
 import Switch from '../../../components/switchButton/switch';
+import { useRedeemAdmin, useRedeemManager } from '../../../hooks/useQuery';
+import { toast } from 'react-toastify';
 
 
 const SettingsView: React.FC = () => {
   const [marketbutton, setmarketbutton] = React.useState(false);
   const [tradebutton, settradebutton] = React.useState(false);
+  const [promoCode, setPromoCode] = React.useState('');
+  const [isRedeeming, setIsRedeeming] = React.useState(false);
 
-  const handleMarketButtonState = () => {
-    setmarketbutton(!marketbutton);
-  }
+  const { mutate: redeemAdmin } = useRedeemAdmin();
+  const { mutate: redeemManager } = useRedeemManager();
 
-  const handleTradeButtonState = () => {
-    settradebutton(!tradebutton);
-  }
+  const handleRedeem = () => {
+    if (!promoCode.trim()) {
+      toast.error("Please enter a promotion code");
+      return;
+    }
+    setIsRedeeming(true);
+    
+    // Attempt manager redemption first, then admin as fallback or vice versa
+    // In a real app, you'd check the code type first or have a unified endpoint
+    // For now, we'll try Manager then Admin
+    redeemManager({ access_key: promoCode }, {
+      onSuccess: () => {
+        toast.success("Successfully promoted to Manager! Please log in again.");
+        setIsRedeeming(false);
+        setPromoCode('');
+      },
+      onError: () => {
+        // Try Admin
+        redeemAdmin({ access_key: promoCode }, {
+          onSuccess: () => {
+            toast.success("Successfully promoted to Admin! Please log in again.");
+            setIsRedeeming(false);
+            setPromoCode('');
+          },
+          onError: (err: any) => {
+            toast.error(err.response?.data?.message || "Invalid or expired promotion code");
+            setIsRedeeming(false);
+          }
+        });
+      }
+    });
+  };
 
 
   return (
@@ -82,12 +114,45 @@ const SettingsView: React.FC = () => {
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-slate-300 text-sm">Trade Confirmations</span>
-                <button onClick={handleTradeButtonState} className="w-8 h-4 bg-white/10 rounded-full relative"><Switch state={tradebutton} /></button>
+                <button onClick={() => settradebutton(!tradebutton)} className="w-8 h-4 bg-white/10 rounded-full relative">
+                  <Switch state={tradebutton} />
+                </button>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-slate-300 text-sm">Market Alerts</span>
-                <button onClick={handleMarketButtonState} className="w-8 h-4 bg-white/10 rounded-full relative"><Switch state={marketbutton} /></button>
+                <button onClick={() => setmarketbutton(!marketbutton)} className="w-8 h-4 bg-white/10 rounded-full relative">
+                  <Switch state={marketbutton} />
+                </button>
               </div>
+            </div>
+          </div>
+
+          {/* Promotion Code Redemption */}
+          <div className="md:col-span-2 glass-panel p-6 rounded-2xl border border-white/5 space-y-4 bg-gradient-to-br from-purple-500/5 to-blue-500/5">
+            <div className="flex items-center gap-3 text-white mb-2">
+              <div className="w-8 h-8 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                <UserPlus className="w-4 h-4 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="font-bold text-sm">Redeem Promotion Code</h3>
+                <p className="text-slate-500 text-xs text font-normal">Enter the code provided by an admin to upgrade your account role</p>
+              </div>
+            </div>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input 
+                type="text" 
+                value={promoCode}
+                onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
+                placeholder="PROMO-CODE-123" 
+                className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-purple-500/50 uppercase font-mono tracking-wider" 
+              />
+              <button 
+                onClick={handleRedeem}
+                disabled={isRedeeming}
+                className="px-6 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold rounded-xl border border-white/10 hover:from-purple-500 hover:to-indigo-500 transition-all flex items-center justify-center gap-2"
+              >
+                {isRedeeming ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "Redeem Code"}
+              </button>
             </div>
           </div>
         </div>

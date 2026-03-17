@@ -63,9 +63,13 @@ export const googleAuth=async (req: Request, res:Response) => {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
-    const { id, roles, username, fullname ,email,manager_id:managerId} = user
+
+    const { id, roles, username, fullname, email, manager_id: managerId } = user;
+    const frontendUrl = process.env.NODE_ENV === "production" 
+      ? process.env.FRONTEND_URL 
+      : "http://localhost:5173";
     // After successful OAuth, set cookies and redirect to frontend dashboard
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    return res.redirect(`${frontendUrl}/dashboard`);
 
   }
 
@@ -160,8 +164,11 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
  
+    const frontendUrl = process.env.NODE_ENV === "production" 
+      ? process.env.FRONTEND_URL 
+      : "http://localhost:5173";
     // After successful OAuth, set cookies and redirect to frontend dashboard
-    return res.redirect(`${process.env.FRONTEND_URL}/dashboard`);
+    return res.redirect(`${frontendUrl}/dashboard`);
 
   } catch (err: any) {
     logger.error(err);

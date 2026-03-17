@@ -12,6 +12,14 @@ import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 dotenv.config();
 
+
+if (!BigInt.prototype.hasOwnProperty('toJSON')) {
+  (BigInt.prototype as any).toJSON = function () {
+    return this.toString();
+  };
+}
+
+
 const app = express();
 export { app };
 
@@ -20,12 +28,22 @@ app.use(express.json({ limit: "5mb" }));
 // In production, requests arrive via Netlify reverse proxy (/api/* → this server)
 // so the origin will be the Netlify domain. FRONTEND_URL must be set on Render.
 app.use(cors({
-  origin: process.env.FRONTEND_URL || "http://localhost:5173",
+  origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:5173",
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"],
   credentials: true,
 }));
-app.use(helmet());
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      ...helmet.contentSecurityPolicy.getDefaultDirectives(),
+      "script-src": ["'self'", "https://accounts.google.com", "https://apis.google.com"],
+      "frame-src": ["'self'", "https://accounts.google.com"],
+      "connect-src": ["'self'", "https://accounts.google.com", "https://play.google.com"],
+      "img-src": ["'self'", "data:", "https://lh3.googleusercontent.com"], // For Google profile pics
+    },
+  },
+}));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
   max: process.env.NODE_ENV === "production" ? 100 : 10000,

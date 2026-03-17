@@ -4,6 +4,7 @@ import logger from "../winstonlog/logger.js";
 import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import type { AuthRequest } from "../middlewear/auth.js";
+import bcrypt from "bcrypt";
 
 export const getManagerAccess=async(req:Request,res:Response,next:NextFunction)=>{
 
@@ -34,19 +35,21 @@ if(!user){
 if(user?.restricted){
   return next(createError(401,"user is currently restricted"));
 }
-const manager_accessKey=await prisma.approved_Manager.findUnique({
-  where:{
-    approval_code:access_key,
-    is_used:false,
-    user_id:userId,
-    manager_slot:{
-      gt:0
+    const manager_accessKey = await prisma.approved_Manager.findUnique({
+      where: {
+        user_id: userId,
+        is_used: false,
+      }
+    })
+
+    if (!manager_accessKey || manager_accessKey.manager_slot <= 0) {
+      return next(createError(401, "No pending manager approval found for this user"));
     }
-  }
-})
-if(!manager_accessKey){
-  return next(createError(401,"invalid approval code"));
-}
+
+    const isMatch = await bcrypt.compare(access_key, manager_accessKey.approval_code);
+    if (!isMatch) {
+      return next(createError(401, "Invalid manager approval code"));
+    }
 
 const manager=await prisma.user.update({
   where:{
@@ -69,10 +72,10 @@ const add_manager=await prisma.manager.create({
 if(!add_manager){
   return next(createError(500,"Internal Server Error"));
 }
-const update_accessKey=await prisma.approved_Manager.update({
-  where:{
-    approval_code:access_key
-  },
+    const update_accessKey = await prisma.approved_Manager.update({
+      where: {
+        id: manager_accessKey.id
+      },
   data:{
     is_used:true
   }
@@ -235,6 +238,8 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
         id: true,
         fullname: true,
         email: true,
+        restricted: true,
+        createdAt: true,
         // Include their portfolio and nest the investments & history inside it
         portfolio: {
           select: {

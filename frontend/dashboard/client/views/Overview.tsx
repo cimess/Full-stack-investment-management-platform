@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Briefcase, Loader2 } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
-import { useGetDashboard } from "../../../hooks/useQuery";
+import { getUserDashboard } from "../../../hooks/useQuery";
 import { useQueryClient } from '@tanstack/react-query';
 import { toast,Zoom } from 'react-toastify';
 import { use } from 'chai';
@@ -24,7 +24,7 @@ type User = {
 
 
 const ClientOverview: React.FC = () => {
-  const { data, isLoading, isError } = useGetDashboard();
+  const { data, isLoading, isError } = getUserDashboard();
 
     const queryClient = useQueryClient();
   const me = queryClient.getQueryData<{data:User}>(["me"]);

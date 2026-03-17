@@ -1,9 +1,9 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Clock, Loader2 } from 'lucide-react';
-import { useGetDashboard } from "../../../hooks/useQuery";
+import { getUserDashboard } from "../../../hooks/useQuery";
 
 const TransactionsView: React.FC = () => {
-  const { data, isLoading, isError } = useGetDashboard();
+  const { data, isLoading, isError } = getUserDashboard();
 
   if (isLoading) {
     return (
