@@ -6,6 +6,11 @@ const { Pool } = pg;
 
 const connectionString = process.env.DATABASE_URL;
 
+if (!connectionString) {
+  console.error('❌ DATABASE_URL is not defined in .env');
+  process.exit(1);
+}
+
 console.log('Testing connection to:', connectionString.replace(/:[^:@]+@/, ':****@'));
 
 const pool = new Pool({
@@ -22,8 +27,8 @@ async function testConnection() {
     const res = await client.query('SELECT NOW()');
     console.log('Database time:', res.rows[0].now);
     client.release();
-  } catch (err) {
-    console.error('❌ Failed to connect to Aiven:', err.message);
+  } catch (err: any) {
+    console.error('❌ Failed to connect to Aiven:', err.message || err);
   } finally {
     await pool.end();
   }

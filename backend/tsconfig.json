@@ -44,5 +44,5 @@
    "**/*.ts",     // all your TS files
     "type/**/*.d.ts"   // ✅ include your types folder
   ],
-  "exclude": ["node_modules", "dist", "prisma/generated", "tests", "vitest.config.ts", "**/*.test.ts"]
+  "exclude": ["node_modules", "dist", "prisma/generated", "tests", "vitest.config.ts", "**/*.test.ts", "test-db.ts"]
 }
