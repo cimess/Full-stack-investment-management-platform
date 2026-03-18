@@ -1,12 +1,13 @@
 import { useMutation, useQuery } from "@tanstack/react-query"
 import api from "../lib/axios"
-import { 
+import {
   getClientAll, refreshToken, loginUser, registerUser, verifyEmail,
   logoutUser, getManagerAccess, addManagerToClient, restrictUser, restrictManager,
   handleRequest, buyStock, sellStock, removeManagerFromClient, getManagerAll,
-  getAdminDashboard, getMarketQuotes, searchStock, 
+  getAdminDashboard, getMarketQuotes, searchStock,
   postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
-  updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI
+  updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
+  updateUserProfileAPI, getPublicManagerProfileAPI
 } from "../services/queryServices"
 
 export const register = () => {
@@ -177,5 +178,19 @@ export const useGetNotifications = () => {
 export const useMarkNotificationsRead = () => {
   return useMutation({
     mutationFn: markNotificationsReadAPI
+  })
+}
+
+export const useUpdateUserProfile = () => {
+  return useMutation({
+    mutationFn: updateUserProfileAPI
+  })
+}
+
+export const useGetPublicManagerProfile = (managerId: string) => {
+  return useQuery({
+    queryKey: ["managerPublicProfile", managerId],
+    queryFn: () => getPublicManagerProfileAPI(managerId),
+    enabled: !!managerId && managerId.length > 5 // Only fetch if ID looks somewhat valid
   })
 }

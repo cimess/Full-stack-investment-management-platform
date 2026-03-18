@@ -20,16 +20,19 @@ export const getManagerAccess = async (req: Request, res: Response, next: NextFu
     const result = await prisma.$transaction(async (tx) => {
       // 1. Check user eligibility
       const user = await tx.user.findUnique({
-        where: { id: userId, roles: Roles.USER, isVerified: true }
+        where: { id: userId, roles: Roles.USER}
       });
+      if(!user?.isVerified){
+        throw createError(401,"User not verified");
+      }
 
       if (!user) {
-        throw createError(401, "User not eligible for promotion or already promoted");
+        throw createError(401, "User already promoted or not found");
       }
       if (user.restricted) {
         throw createError(401, "User is currently restricted");
       }
-
+logger.info(access_key)
       // 2. Verify approval code
       const manager_accessKey = await tx.approved_Manager.findUnique({
         where: {
@@ -38,7 +41,7 @@ export const getManagerAccess = async (req: Request, res: Response, next: NextFu
           approval_code: access_key
         }
       });
-
+logger.info(manager_accessKey)
       if (!manager_accessKey) {
         throw createError(409, "Invalid manager approval code");
       }
@@ -381,5 +384,47 @@ export const updateManagerProfile = async (req: Request, res: Response, next: Ne
     res.status(200).json({ success: true, message: "Profile updated successfully", data: serializedManager });
   } catch (error) {
     next(error);
+  }
+};
+
+export const getPublicManagerProfile = async (req: Request, res: Response, next: NextFunction) => {
+  const managerId = req.params.managerId as string;
+
+  if (!managerId) {
+    return next(createError(400, "Manager ID is required"));
+  }
+
+  try {
+    const manager = await prisma.manager.findUnique({
+      where: { manager_id: managerId },
+      include: {
+        user: {
+          select: {
+            fullname: true,
+            email: true
+          }
+        }
+      }
+    }) as any;
+
+    if (!manager) {
+      return next(createError(404, "Manager not found"));
+    }
+
+    // Return only necessary public info
+    const publicProfile = {
+      id: manager.id,
+      manager_id: manager.manager_id,
+      fullname: manager.user?.fullname || "Unknown",
+      title: manager.title,
+      specialization: manager.specialization,
+      years_experience: manager.years_experience,
+      availability: manager.availability
+    };
+
+    res.status(200).json({ success: true, data: publicProfile });
+  } catch (err: any) {
+    logger.error("Error fetching public manager profile:", err);
+    next(createError(500, "Internal Server Error"));
   }
 };

@@ -39,11 +39,11 @@ if(req.user?.roles!==Roles.USER){
       if(user?.manager_id){
         throw createError(401,"manager already assigned to client");
       }
-        const manager = await tx.manager.findUnique({ where: { manager_id } });
+        const manager = await tx.manager.findUnique({ where: { id:manager_id} });
       if (!manager || manager.manager_slot <= 0) throw createError(401, "Manager has no available slots");
     const add_manager=await tx.manager.update({
       where:{
-        manager_id:manager_id
+        id:manager_id
       },
       data:{
         managed_by:{
@@ -101,23 +101,39 @@ if(req.user?.roles!==Roles.USER){
      if(!user?.isVerified){
       throw createError(401,"user is currently not verified");
     }
+    logger.info(user.manager_id)
+    logger.info(manager_id)
       if(user?.manager_id!==manager_id){
         throw createError(401,"manager not assigned to client");
       }
 
-    const remove_manager=await tx.manager.update({
+try {
+  const remove_manager = await tx.manager.update({
+    where: { id: manager_id },
+    data: {
+      managed_by: { disconnect: { id: client_id } },
+      manager_slot: { increment: 1 }
+    }
+  });
+  
+} catch (error: any) {
+  // P2025 is the official Prisma code for "Record to update not found"
+  if (error.code === 'P2025') {
+    throw createError(404, "Manager record not found or already removed");
+  }
+  // If it's something else, re-throw it to be caught by the outer catch
+  throw error; 
+}
+
+    const update_user=await tx.user.update({
       where:{
-        manager_id:manager_id
+        id:client_id
       },
       data:{
-        managed_by:{
-          disconnect:{
-            id:client_id
-          }
-        }
+        manager_id:null
       }
     })
-    if(!remove_manager){
+    if(!update_user){
       throw createError(500,"Internal Server Error");
     }
 

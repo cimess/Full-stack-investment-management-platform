@@ -9,7 +9,7 @@ const ManagerView: React.FC = () => {
   const { data, isLoading: isDashboardLoading } = getUserDashboard();
   const { data: meData, isLoading: isMeLoading } = useGetMe();
   const { mutate: assignManager, isPending: isAssigning } = useAddManagerToClient();
-  const { mutate: detachManager, isPending: isRemoving } = useRemoveManagerFromClient();
+  const { mutate: detachManager, isPending: isRemoving} = useRemoveManagerFromClient();
   
   const [managerId, setManagerId] = useState('');
 
@@ -24,10 +24,11 @@ const ManagerView: React.FC = () => {
     
     assignManager({ manager_id: managerId }, {
       onSuccess: () => {
-        toast.success("Manager assigned successfully!");
+        
         setManagerId('');
         queryClient.invalidateQueries({ queryKey: ["me"] });
         queryClient.invalidateQueries({ queryKey: ["userDashboard"] });
+        toast.success("Manager assigned successfully!");
       },
       onError: (err: any) => {
         toast.error(err?.response?.data?.message || "Failed to assign manager");
@@ -36,11 +37,11 @@ const ManagerView: React.FC = () => {
   };
 
   const handleRemove = () => {
-    if (!managerData?.manager_id) return;
+    if (!managerData?.id) return;
     
     const confirmed = window.confirm("Are you sure you want to remove your manager? You will lose access to specialized portfolio guidance.");
     if (confirmed) {
-      detachManager({ manager_id: managerData.manager_id }, {
+      detachManager({ manager_id: managerData.id }, {
         onSuccess: () => {
           toast.success("Manager removed successfully.");
           queryClient.invalidateQueries({ queryKey: ["me"] });

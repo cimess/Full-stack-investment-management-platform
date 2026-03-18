@@ -8557,3 +8557,621 @@ Unique constraint failed on the fields: (`email`) {
 2026-03-17 16:55:03 [info]: SIGTERM received: Starting graceful shutdown...
 2026-03-17 16:55:07 [info]: SIGTERM received: Starting graceful shutdown...
 2026-03-17 17:18:57 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 06:56:22 [info]: Initiating Google OAuth login...
+2026-03-18 06:56:56 [info]: Received Google OAuth callback...
+2026-03-18 06:56:57 [info]: Google OAuth successful for user:  {
+  "id": "cmmvmpkfr0000fwj2m3a0q3w3",
+  "googleId": "104022619954643707682",
+  "email": "cimessthemanofvalor@gmail.com",
+  "username": "Aimuan",
+  "password": null,
+  "fullname": "Aimuan ThankGod",
+  "roles": "USER",
+  "createdAt": "2026-03-18T05:56:57.399Z",
+  "updatedAt": "2026-03-18T05:56:57.399Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": true,
+  "verificationToken": null,
+  "verificationTokenExpires": null
+}
+2026-03-18 06:56:57 [error]: portfolio not found
+2026-03-18 06:56:59 [error]: portfolio not found
+2026-03-18 06:57:01 [error]: portfolio not found
+2026-03-18 06:57:05 [error]: portfolio not found
+2026-03-18 06:59:18 [error]: portfolio not found
+2026-03-18 06:59:19 [error]: portfolio not found
+2026-03-18 06:59:21 [error]: portfolio not found
+2026-03-18 06:59:25 [error]: portfolio not found
+2026-03-18 07:08:26 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 07:29:35 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 07:29:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 07:30:11 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 07:50:16 [error]: portfolio not found
+2026-03-18 07:50:17 [error]: portfolio not found
+2026-03-18 07:50:19 [error]: portfolio not found
+2026-03-18 07:50:23 [error]: portfolio not found
+2026-03-18 07:50:36 [error]: portfolio not found
+2026-03-18 07:50:36 [info]: [Market] DB is empty, seeding from Yahoo Finance...
+2026-03-18 07:50:36 [info]: Fetching 10 stocks from Yahoo Finance (batch)...
+2026-03-18 07:50:37 [error]: portfolio not found
+2026-03-18 07:50:39 [info]: [Market] DB seeded successfully.
+2026-03-18 07:50:39 [error]: portfolio not found
+2026-03-18 07:50:43 [error]: portfolio not found
+2026-03-18 08:09:43 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:17:16 [error]: portfolio not found
+2026-03-18 08:17:17 [error]: portfolio not found
+2026-03-18 08:17:20 [error]: portfolio not found
+2026-03-18 08:17:21 [error]: portfolio not found
+2026-03-18 08:31:58 [info]: Initiating Google OAuth login...
+2026-03-18 08:33:22 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "User",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"User_email_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "email"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-18 08:37:21 [error]: User not eligible for promotion or already promoted
+2026-03-18 08:38:14 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:38:24 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:38:26 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:38:38 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:38:42 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:38:50 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:00 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:15 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:32 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:36 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:41 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:44 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 08:40:55 [error]: User not verified
+2026-03-18 08:41:32 [info]: Initiating Google OAuth login...
+2026-03-18 08:41:37 [info]: Received Google OAuth callback...
+2026-03-18 08:41:37 [info]: Linked Google account (cmhousing.com.ng@gmail.com) to existing user ID cmmvq5bwk0006qdj21clbukdh based on email match.
+2026-03-18 08:41:38 [error]: portfolio not found
+2026-03-18 08:41:39 [error]: portfolio not found
+2026-03-18 08:41:41 [error]: portfolio not found
+2026-03-18 08:41:45 [error]: portfolio not found
+2026-03-18 08:41:57 [error]: portfolio not found
+2026-03-18 08:41:59 [info]: Initiating Google OAuth login...
+2026-03-18 08:42:04 [info]: Received Google OAuth callback...
+2026-03-18 08:42:21 [info]: Initiating Google OAuth login...
+2026-03-18 08:42:26 [info]: Received Google OAuth callback...
+2026-03-18 08:42:27 [info]: Google OAuth successful for user:  {
+  "id": "cmmvqh8sv0004ywj2pjb5ag6u",
+  "googleId": "117842514898221945757",
+  "email": "cimessdev@gmail.com",
+  "username": "ThankGod",
+  "password": null,
+  "fullname": "ThankGod Aimuan",
+  "roles": "USER",
+  "createdAt": "2026-03-18T07:42:27.535Z",
+  "updatedAt": "2026-03-18T07:42:27.535Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": true,
+  "verificationToken": null,
+  "verificationTokenExpires": null
+}
+2026-03-18 08:42:28 [error]: portfolio not found
+2026-03-18 08:42:29 [error]: portfolio not found
+2026-03-18 08:42:31 [error]: portfolio not found
+2026-03-18 08:42:35 [error]: portfolio not found
+2026-03-18 08:42:39 [error]: portfolio not found
+2026-03-18 08:42:40 [error]: portfolio not found
+2026-03-18 08:42:42 [error]: portfolio not found
+2026-03-18 08:42:46 [error]: portfolio not found
+2026-03-18 08:42:54 [error]: assign a manager first before requesting for stock
+2026-03-18 08:43:02 [error]: portfolio not found
+2026-03-18 08:43:03 [error]: portfolio not found
+2026-03-18 08:43:05 [error]: portfolio not found
+2026-03-18 08:43:09 [error]: portfolio not found
+2026-03-18 08:43:16 [error]: assign a manager first before requesting for stock
+2026-03-18 08:48:43 [error]: portfolio not found
+2026-03-18 08:48:44 [error]: portfolio not found
+2026-03-18 08:48:46 [error]: portfolio not found
+2026-03-18 08:48:50 [error]: portfolio not found
+2026-03-18 08:48:56 [error]: portfolio not found
+2026-03-18 08:48:57 [error]: portfolio not found
+2026-03-18 08:48:59 [error]: portfolio not found
+2026-03-18 08:49:03 [error]: portfolio not found
+2026-03-18 08:49:06 [error]: portfolio not found
+2026-03-18 08:49:07 [error]: portfolio not found
+2026-03-18 08:49:09 [error]: portfolio not found
+2026-03-18 08:49:13 [error]: portfolio not found
+2026-03-18 08:49:20 [error]: assign a manager first before requesting for stock
+2026-03-18 08:50:14 [info]: Initiating Google OAuth login...
+2026-03-18 08:50:19 [info]: Received Google OAuth callback...
+2026-03-18 08:50:19 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 08:50:25 [info]: Initiating Google OAuth login...
+2026-03-18 08:50:30 [info]: Received Google OAuth callback...
+2026-03-18 08:50:30 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 08:50:50 [info]: Initiating Google OAuth login...
+2026-03-18 08:50:54 [info]: Received Google OAuth callback...
+2026-03-18 08:50:54 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 08:50:57 [info]: Initiating Google OAuth login...
+2026-03-18 08:51:01 [info]: Received Google OAuth callback...
+2026-03-18 08:51:01 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 08:52:11 [info]: Initiating Google OAuth login...
+2026-03-18 08:52:17 [info]: Received Google OAuth callback...
+2026-03-18 08:52:17 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 08:59:48 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-18 09:00:09 [info]: Initiating Google OAuth login...
+2026-03-18 09:00:14 [info]: Received Google OAuth callback...
+2026-03-18 09:00:15 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:03:22 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "User",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"User_email_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "email"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-18 09:03:30 [info]: Initiating Google OAuth login...
+2026-03-18 09:03:39 [info]: Received Google OAuth callback...
+2026-03-18 09:03:39 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:07:49 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-18 09:08:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:08:28 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:10:17 [info]: Initiating Google OAuth login...
+2026-03-18 09:10:31 [info]: Received Google OAuth callback...
+2026-03-18 09:10:31 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:10:34 [info]: Initiating Google OAuth login...
+2026-03-18 09:10:37 [info]: Received Google OAuth callback...
+2026-03-18 09:10:37 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:12:26 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:12:36 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:12:47 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:12:49 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:13:10 [info]: Initiating Google OAuth login...
+2026-03-18 09:13:31 [info]: Received Google OAuth callback...
+2026-03-18 09:13:31 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:14:51 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:16:56 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:16:58 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:17:08 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:17:14 [info]: Initiating Google OAuth login...
+2026-03-18 09:17:18 [info]: Received Google OAuth callback...
+2026-03-18 09:17:19 [error]: Failed to obtain access token {
+  "name": "InternalOAuthError",
+  "oauthError": {
+    "code": "ETIMEDOUT"
+  },
+  "stack": "InternalOAuthError: Failed to obtain access token\n    at OAuth2Strategy._createOAuthError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:423:17)\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/passport-oauth2/lib/strategy.js:177:45\n    at /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:196:18\n    at ClientRequest.<anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/oauth/lib/oauth2.js:166:7)\n    at ClientRequest.emit (node:events:519:28)\n    at emitErrorEvent (node:_http_client:108:11)\n    at TLSSocket.socketErrorListener (node:_http_client:575:5)\n    at TLSSocket.emit (node:events:519:28)\n    at emitErrorNT (node:internal/streams/destroy:170:8)\n    at emitErrorCloseNT (node:internal/streams/destroy:129:3)"
+}
+2026-03-18 09:31:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:33:35 [info]: Initiating Google OAuth login...
+2026-03-18 09:33:40 [info]: Received Google OAuth callback...
+2026-03-18 09:33:43 [error]: portfolio not found
+2026-03-18 09:33:44 [error]: portfolio not found
+2026-03-18 09:33:46 [error]: portfolio not found
+2026-03-18 09:33:50 [error]: portfolio not found
+2026-03-18 09:41:02 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:41:10 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 09:44:42 [error]: portfolio not found
+2026-03-18 09:44:45 [info]: Initiating Google OAuth login...
+2026-03-18 09:45:04 [info]: Initiating Google OAuth login...
+2026-03-18 09:45:28 [info]: Initiating Google OAuth login...
+2026-03-18 10:14:31 [info]: Initiating Google OAuth login...
+2026-03-18 10:14:37 [info]: Received Google OAuth callback...
+2026-03-18 10:14:39 [error]: portfolio not found
+2026-03-18 10:14:40 [error]: portfolio not found
+2026-03-18 10:14:42 [error]: portfolio not found
+2026-03-18 10:15:40 [error]: portfolio not found
+2026-03-18 10:17:45 [info]: Initiating Google OAuth login...
+2026-03-18 10:17:49 [info]: Received Google OAuth callback...
+2026-03-18 10:17:50 [info]: Google OAuth successful for user:  {
+  "id": "cmmvtvwmz0002ehj2eauddgnq",
+  "googleId": "117842514898221945757",
+  "email": "cimessdev@gmail.com",
+  "username": "ThankGod",
+  "password": null,
+  "fullname": "ThankGod Aimuan",
+  "roles": "USER",
+  "createdAt": "2026-03-18T09:17:50.459Z",
+  "updatedAt": "2026-03-18T09:17:50.459Z",
+  "manager_id": null,
+  "restricted": false,
+  "isVerified": true,
+  "verificationToken": null,
+  "verificationTokenExpires": null
+}
+2026-03-18 10:19:03 [error]: portfolio not found
+2026-03-18 10:19:04 [error]: portfolio not found
+2026-03-18 10:19:06 [error]: portfolio not found
+2026-03-18 10:19:10 [error]: portfolio not found
+2026-03-18 10:19:38 [info]: Initiating Google OAuth login...
+2026-03-18 10:19:44 [info]: Received Google OAuth callback...
+2026-03-18 10:21:17 [info]: Initiating Google OAuth login...
+2026-03-18 10:21:21 [info]: Received Google OAuth callback...
+2026-03-18 10:21:23 [error]: portfolio not found
+2026-03-18 10:21:24 [error]: portfolio not found
+2026-03-18 10:21:26 [error]: portfolio not found
+2026-03-18 10:21:30 [error]: portfolio not found
+2026-03-18 10:21:33 [error]: portfolio not found
+2026-03-18 10:21:34 [error]: portfolio not found
+2026-03-18 10:21:36 [error]: portfolio not found
+2026-03-18 10:21:37 [error]: Manager has no available slots
+2026-03-18 10:21:37 [error]: Manager has no available slots
+2026-03-18 10:21:40 [error]: portfolio not found
+2026-03-18 10:22:50 [error]: portfolio not found
+2026-03-18 10:23:51 [info]: Initiating Google OAuth login...
+2026-03-18 10:23:56 [info]: Received Google OAuth callback...
+2026-03-18 10:23:58 [error]: portfolio not found
+2026-03-18 10:23:59 [error]: portfolio not found
+2026-03-18 10:24:01 [error]: portfolio not found
+2026-03-18 10:24:05 [error]: portfolio not found
+2026-03-18 10:24:07 [error]: portfolio not found
+2026-03-18 10:24:08 [error]: portfolio not found
+2026-03-18 10:24:10 [error]: portfolio not found
+2026-03-18 10:24:24 [error]: Invalid manager approval code
+2026-03-18 10:24:35 [error]: Invalid manager approval code
+2026-03-18 10:24:36 [error]: Invalid manager approval code
+2026-03-18 10:26:40 [info]: Initiating Google OAuth login...
+2026-03-18 10:26:45 [info]: Received Google OAuth callback...
+2026-03-18 10:26:46 [error]: portfolio not found
+2026-03-18 10:26:47 [error]: portfolio not found
+2026-03-18 10:26:49 [error]: portfolio not found
+2026-03-18 10:26:53 [error]: portfolio not found
+2026-03-18 10:27:03 [error]: Invalid manager approval code
+2026-03-18 10:27:04 [error]: Invalid manager approval code
+2026-03-18 10:27:51 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:27:55 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:27:58 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:01 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:06 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:08 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:15 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:20 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:28:25 [info]: B389C336-B632-4ACB-85E7-9B263742001F
+2026-03-18 10:28:25 [info]: null
+2026-03-18 10:28:25 [error]: Invalid manager approval code
+2026-03-18 10:30:26 [info]: b389c336-b632-4acb-85e7-9b263742001f
+2026-03-18 10:30:26 [info]: [object Object]
+2026-03-18 10:30:54 [info]: Initiating Google OAuth login...
+2026-03-18 10:30:58 [info]: Received Google OAuth callback...
+2026-03-18 10:31:00 [error]: portfolio not found
+2026-03-18 10:31:01 [error]: portfolio not found
+2026-03-18 10:31:03 [error]: portfolio not found
+2026-03-18 10:31:07 [error]: portfolio not found
+2026-03-18 10:31:10 [error]: portfolio not found
+2026-03-18 10:31:11 [error]: portfolio not found
+2026-03-18 10:31:13 [error]: portfolio not found
+2026-03-18 10:31:17 [error]: portfolio not found
+2026-03-18 10:31:49 [error]: manager not assigned to client
+2026-03-18 10:31:49 [error]: manager not assigned to client
+2026-03-18 10:31:55 [error]: portfolio not found
+2026-03-18 10:31:56 [error]: portfolio not found
+2026-03-18 10:31:58 [error]: portfolio not found
+2026-03-18 10:32:01 [error]: manager not assigned to client
+2026-03-18 10:32:01 [error]: manager not assigned to client
+2026-03-18 10:32:02 [error]: portfolio not found
+2026-03-18 10:33:22 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:33:29 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 10:33:41 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 10:33:41 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 10:33:41 [error]: manager not assigned to client
+2026-03-18 10:33:41 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 10:33:41 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 10:33:41 [error]: manager not assigned to client
+2026-03-18 11:03:58 [info]: Initiating Google OAuth login...
+2026-03-18 11:04:05 [info]: Received Google OAuth callback...
+2026-03-18 11:04:30 [info]: Initiating Google OAuth login...
+2026-03-18 11:04:34 [info]: Received Google OAuth callback...
+2026-03-18 11:04:35 [error]: portfolio not found
+2026-03-18 11:04:36 [error]: portfolio not found
+2026-03-18 11:04:38 [error]: portfolio not found
+2026-03-18 11:04:43 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:04:43 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:04:43 [error]: manager not assigned to client
+2026-03-18 11:04:43 [error]: portfolio not found
+2026-03-18 11:04:43 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:04:43 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:04:43 [error]: manager not assigned to client
+2026-03-18 11:05:31 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:05:34 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:05:49 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:06:11 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:06:11 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:06:11 [error]: manager not assigned to client
+2026-03-18 11:06:12 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:06:12 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:06:12 [error]: manager not assigned to client
+2026-03-18 11:07:11 [error]: portfolio not found
+2026-03-18 11:07:13 [error]: portfolio not found
+2026-03-18 11:07:15 [error]: portfolio not found
+2026-03-18 11:07:19 [error]: portfolio not found
+2026-03-18 11:07:23 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:07:23 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:07:23 [error]: manager not assigned to client
+2026-03-18 11:07:23 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:07:23 [info]: cmmvq5bwk0006qdj21clbukdh
+2026-03-18 11:07:23 [error]: manager not assigned to client
+2026-03-18 11:10:22 [error]: portfolio not found
+2026-03-18 11:10:31 [error]: portfolio not found
+2026-03-18 11:10:33 [error]: portfolio not found
+2026-03-18 11:10:36 [error]: portfolio not found
+2026-03-18 11:10:37 [error]: portfolio not found
+2026-03-18 11:10:39 [error]: portfolio not found
+2026-03-18 11:10:43 [error]: portfolio not found
+2026-03-18 11:18:35 [info]: SIGINT received: Starting graceful shutdown...
+2026-03-18 11:18:57 [error]: portfolio not found
+2026-03-18 11:18:58 [error]: portfolio not found
+2026-03-18 11:19:00 [error]: portfolio not found
+2026-03-18 11:19:04 [error]: portfolio not found
+2026-03-18 11:21:26 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:22:05 [error]: portfolio not found
+2026-03-18 11:22:06 [error]: portfolio not found
+2026-03-18 11:22:08 [error]: portfolio not found
+2026-03-18 11:22:12 [error]: portfolio not found
+2026-03-18 11:23:21 [error]: portfolio not found
+2026-03-18 11:23:22 [error]: portfolio not found
+2026-03-18 11:23:24 [error]: portfolio not found
+2026-03-18 11:23:28 [error]: portfolio not found
+2026-03-18 11:23:34 [error]: portfolio not found
+2026-03-18 11:23:35 [error]: portfolio not found
+2026-03-18 11:23:37 [error]: portfolio not found
+2026-03-18 11:23:41 [error]: portfolio not found
+2026-03-18 11:24:15 [error]: portfolio not found
+2026-03-18 11:24:16 [error]: portfolio not found
+2026-03-18 11:24:18 [error]: portfolio not found
+2026-03-18 11:24:22 [error]: portfolio not found
+2026-03-18 11:24:58 [error]: portfolio not found
+2026-03-18 11:24:59 [error]: portfolio not found
+2026-03-18 11:25:01 [error]: portfolio not found
+2026-03-18 11:25:05 [error]: portfolio not found
+2026-03-18 11:28:21 [info]: Initiating Google OAuth login...
+2026-03-18 11:28:25 [info]: Received Google OAuth callback...
+2026-03-18 11:28:27 [error]: portfolio not found
+2026-03-18 11:28:28 [error]: portfolio not found
+2026-03-18 11:28:30 [error]: portfolio not found
+2026-03-18 11:28:34 [error]: portfolio not found
+2026-03-18 11:29:44 [error]: portfolio not found
+2026-03-18 11:29:45 [error]: portfolio not found
+2026-03-18 11:29:47 [error]: portfolio not found
+2026-03-18 11:29:51 [error]: portfolio not found
+2026-03-18 11:29:52 [error]: portfolio not found
+2026-03-18 11:29:53 [error]: portfolio not found
+2026-03-18 11:29:55 [error]: portfolio not found
+2026-03-18 11:29:59 [error]: portfolio not found
+2026-03-18 11:30:17 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:30:17 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:30:17 [error]: undefined {
+  "code": "P2025",
+  "meta": {
+    "modelName": "Manager",
+    "operation": "an update"
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-18 11:30:17 [error]: [500 Error] PrismaClientKnownRequestError: 
+Invalid `tx.manager.update()` invocation in
+/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:110:43
+
+  107     throw createError(401,"manager not assigned to client");
+  108   }
+  109 
+→ 110 const remove_manager=await tx.manager.update(
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+    at zr.handleRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)
+    at zr.handleAndLogRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)
+    at zr.request (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:808:24)
+    at async <anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:110:26)
+    at async Proxy._transactionWithCallback (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:697:18)
+    at async remove_manager_to_client (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:88:5)
+2026-03-18 11:32:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:32:53 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:32:53 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:32:53 [error]: undefined {
+  "code": "P2025",
+  "meta": {
+    "modelName": "Manager",
+    "operation": "an update"
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-18 11:32:53 [error]: [500 Error] PrismaClientKnownRequestError: 
+Invalid `tx.manager.update()` invocation in
+/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:110:43
+
+  107     throw createError(401,"manager not assigned to client");
+  108   }
+  109 
+→ 110 const remove_manager=await tx.manager.update(
+An operation failed because it depends on one or more records that were required but not found. No record was found for an update.
+    at zr.handleRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)
+    at zr.handleAndLogRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)
+    at zr.request (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)
+    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)
+    at async a (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:808:24)
+    at async <anonymous> (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:110:26)
+    at async Proxy._transactionWithCallback (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:697:18)
+    at async remove_manager_to_client (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/client_access.ts:88:5)
+2026-03-18 11:37:41 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:37:43 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:38:19 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:38:37 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:38:42 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:01 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:24 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:33 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:43 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:45 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:49 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:52 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:40:54 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:41:25 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:41:41 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:41:57 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:41:57 [info]: cmmvuc46k0000kdj2xm34cgz4
+2026-03-18 11:41:57 [error]: portfolio not found
+2026-03-18 11:41:58 [error]: portfolio not found
+2026-03-18 11:42:00 [error]: portfolio not found
+2026-03-18 11:42:04 [error]: portfolio not found
+2026-03-18 11:42:05 [error]: portfolio not found
+2026-03-18 11:42:07 [error]: portfolio not found
+2026-03-18 11:42:11 [error]: portfolio not found
+2026-03-18 11:42:29 [error]: portfolio not found
+2026-03-18 11:42:30 [error]: portfolio not found
+2026-03-18 11:42:33 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:42:33 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:42:33 [error]: portfolio not found
+2026-03-18 11:42:37 [error]: portfolio not found
+2026-03-18 11:42:54 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:42:54 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:42:54 [error]: portfolio not found
+2026-03-18 11:42:55 [error]: portfolio not found
+2026-03-18 11:42:57 [error]: portfolio not found
+2026-03-18 11:43:01 [error]: portfolio not found
+2026-03-18 11:44:10 [error]: portfolio not found
+2026-03-18 11:44:11 [error]: portfolio not found
+2026-03-18 11:44:13 [error]: portfolio not found
+2026-03-18 11:44:17 [error]: portfolio not found
+2026-03-18 11:44:22 [error]: portfolio not found
+2026-03-18 11:44:23 [error]: portfolio not found
+2026-03-18 11:44:25 [error]: portfolio not found
+2026-03-18 11:44:29 [error]: portfolio not found
+2026-03-18 11:44:50 [error]: portfolio not found
+2026-03-18 11:44:51 [error]: portfolio not found
+2026-03-18 11:44:53 [error]: portfolio not found
+2026-03-18 11:44:57 [error]: portfolio not found
+2026-03-18 11:45:01 [error]: portfolio not found
+2026-03-18 11:45:02 [error]: portfolio not found
+2026-03-18 11:45:04 [error]: portfolio not found
+2026-03-18 11:45:08 [error]: portfolio not found
+2026-03-18 11:45:51 [error]: portfolio not found
+2026-03-18 11:45:52 [error]: portfolio not found
+2026-03-18 11:45:54 [error]: portfolio not found
+2026-03-18 11:45:58 [error]: portfolio not found
+2026-03-18 11:46:25 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:46:25 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:46:25 [error]: portfolio not found
+2026-03-18 11:46:26 [error]: portfolio not found
+2026-03-18 11:46:28 [error]: portfolio not found
+2026-03-18 11:46:32 [error]: portfolio not found
+2026-03-18 11:46:35 [error]: portfolio not found
+2026-03-18 11:46:36 [error]: portfolio not found
+2026-03-18 11:46:38 [error]: portfolio not found
+2026-03-18 11:46:42 [error]: portfolio not found
+2026-03-18 11:50:33 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:50:36 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:50:47 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:52:13 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:52:15 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:52:55 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:55:27 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:55:41 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:55:43 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:55:53 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:56:21 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-18 11:56:43 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:56:43 [info]: cmmvtvwmz0002ehj2eauddgnq
+2026-03-18 11:56:43 [error]: portfolio not found
+2026-03-18 11:56:44 [error]: portfolio not found
+2026-03-18 11:56:46 [error]: portfolio not found
+2026-03-18 11:56:50 [error]: portfolio not found
+2026-03-18 11:57:29 [error]: portfolio not found
+2026-03-18 11:57:31 [info]: Initiating Google OAuth login...
+2026-03-18 11:57:36 [info]: Received Google OAuth callback...
+2026-03-18 11:57:48 [info]: Initiating Google OAuth login...
+2026-03-18 11:57:55 [info]: Received Google OAuth callback...
+2026-03-18 11:57:57 [error]: portfolio not found
+2026-03-18 11:57:58 [error]: portfolio not found
+2026-03-18 11:58:00 [error]: portfolio not found
+2026-03-18 11:58:04 [error]: portfolio not found
+2026-03-18 11:58:07 [error]: portfolio not found
+2026-03-18 11:58:08 [error]: portfolio not found
+2026-03-18 11:58:10 [error]: portfolio not found
+2026-03-18 11:58:14 [error]: portfolio not found

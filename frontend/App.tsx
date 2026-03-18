@@ -3,6 +3,7 @@ import LandingPage from './pages/LandingPage';
 import LoginPage from './pages/LoginPage';
 import SignUp from './pages/SignUp';
 import VerifyEmailPage from './pages/VerifyEmailPage';
+import CompleteRegistration from './pages/CompleteRegistration';
 import ClientDashboard from './dashboard/client/ClientDashboard';
 import ManagerDashboard from './dashboard/manager/ManagerDashboard';
 import AdminDashboard from './dashboard/admin/AdminDashboard';
@@ -23,6 +24,7 @@ const App = () => {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/verify" element={<VerifyEmailPage />} />
+        <Route path="/complete-registration" element={<CompleteRegistration />} />
 
         {/* Client Dashboard */}
 

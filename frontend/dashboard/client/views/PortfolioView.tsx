@@ -1,6 +1,7 @@
 import React from 'react';
 import { TrendingUp, TrendingDown, Loader2 } from 'lucide-react';
 import { getUserDashboard, useGetMarketQuotes, useBuyStock, useSellStock } from "../../../hooks/useQuery";
+import { toast } from 'react-toastify';
 
 const TradeModal: React.FC<{
   isOpen: boolean;
@@ -282,10 +283,10 @@ const PortfolioView: React.FC = () => {
               onSuccess: () => {
                 setIsTradeModalOpen(false);
                 refetch(); // Refresh dashboard to see pending request
-                alert("Trade request sent successfully!");
+                toast.success("Trade request sent successfully!");
               },
               onError: (err: any) => {
-                alert(err?.response?.data?.message || "Trade request failed. Make sure you have a manager assigned.");
+                toast.error(err?.response?.data?.message || "Trade request failed. Make sure you have a manager assigned.");
               }
             });
           }}

@@ -13,7 +13,9 @@ const notifIcons: Record<string, React.ReactNode> = {
 };
 
 const formatTime = (dateString: string) => {
+  if (!dateString) return 'recently';
   const date = new Date(dateString);
+  if (isNaN(date.getTime())) return 'recently';
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
   
@@ -39,8 +41,8 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
   const { data: notificationsResponse } = useGetNotifications();
   const { mutate: markNotificationsRead } = useMarkNotificationsRead();
 
-  const notifications = (notificationsResponse as any)?.data || [];
-  const unread = (notificationsResponse as any)?.unreadCount || 0;
+  const notifications = (notificationsResponse as any)?.data?.notifications || [];
+  const unread = (notificationsResponse as any)?.data?.unreadCount || 0;
 
   const handleReadMsg = (id: string) => {
     // If it's already a bulk mark-as-read API, run it for all when clicked anywhere unread
@@ -115,7 +117,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
                     No notifications yet.
                   </div>
                 ) : (
-                  notifications.map((n: any) => (
+                  notifications?.map((n: any) => (
                     <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
                     onClick={() => handleReadMsg(n.id)}
                     >

@@ -8,10 +8,11 @@ import { verifyToken } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
-import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, } from "../controller/manager_Access.js";
+import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
+import { updateProfile } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
@@ -76,6 +77,7 @@ router.get("/get/me", verifyToken, getMe);
 
 // --- Settings & Notifications ---
 router.patch("/user/settings", verifyToken, updateUserSettings);
+router.patch("/user/profile", verifyToken, updateProfile);
 router.get("/user/notifications", verifyToken, getNotifications);
 router.patch("/user/notifications/read", verifyToken, markNotificationsRead);
 
@@ -90,6 +92,7 @@ router.get("/client/dashboard", verifyToken, authorise([Roles.USER]), getClientA
 router.post("/manager/handle/request", verifyToken, authorise([Roles.MANAGER]), handleRequest);
 router.get("/manager/dashboard", verifyToken, authorise([Roles.MANAGER]), getManagerAll);
 router.post("/manager/profile", verifyToken, authorise([Roles.MANAGER]), updateManagerProfile);
+router.get("/manager/public-profile/:managerId", verifyToken, getPublicManagerProfile);
 
 // --- Admin Routes ---
 // User/Manager Management

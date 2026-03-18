@@ -134,3 +134,13 @@ export const markNotificationsReadAPI = async () => {
   const response = await api.patch("/user/notifications/read");
   return response.data;
 }
+
+export const updateUserProfileAPI = async (profileData: any) => {
+  const response = await api.patch("/user/profile", profileData);
+  return response.data;
+}
+
+export const getPublicManagerProfileAPI = async (managerId: string) => {
+  const response = await api.get(`/manager/public-profile/${managerId}`);
+  return response.data;
+}

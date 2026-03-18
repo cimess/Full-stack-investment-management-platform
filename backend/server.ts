@@ -21,6 +21,7 @@ if (!BigInt.prototype.hasOwnProperty('toJSON')) {
 
 
 const app = express();
+app.set("trust proxy", 1);
 export { app };
 
 app.use(cookieParser());

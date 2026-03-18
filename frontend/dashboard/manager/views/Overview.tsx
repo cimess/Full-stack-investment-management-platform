@@ -45,7 +45,8 @@ const ManagerOverview: React.FC = () => {
   const [copied, setCopied] = React.useState(false);
 
   const meData: any = queryClient.getQueryData(["me"]);
-  const userId = meData?.data?.id;
+  const userId = meData?.data?.manager.id;
+
 
   const handleCopyId = () => {
     if (userId) {
