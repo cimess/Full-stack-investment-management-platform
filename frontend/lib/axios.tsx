@@ -9,25 +9,60 @@ const api = axios.create({
   }
 })
 
+let isRefreshing = false;
+let failedQueue: any[] = [];
+
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
     const isAuthRoute = originalRequest.url?.includes("/login") || originalRequest.url?.includes("/refresh");
+
     if (error.response?.status === 401 && !originalRequest._retry && !isAuthRoute) {
-      originalRequest._retry = true;
-      try {
-        await api.post("/refresh");
-        return api(originalRequest);
-      } catch (refreshError) {
-
-        window.location.replace("/login?message=session_expired");
-        return Promise.reject(refreshError);
-
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then(() => {
+            return api(originalRequest);
+          })
+          .catch(err => {
+            return Promise.reject(err);
+          });
       }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      return new Promise((resolve, reject) => {
+        api.post("/refresh")
+          .then(() => {
+            processQueue(null);
+            resolve(api(originalRequest));
+          })
+          .catch((err) => {
+            processQueue(err);
+            window.location.replace("/login?message=session_expired");
+            reject(err);
+          })
+          .finally(() => {
+            isRefreshing = false;
+          });
+      });
     }
     return Promise.reject(error);
   }
-)
+);
 
 export default api

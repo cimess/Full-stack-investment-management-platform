@@ -3,22 +3,6 @@ import { Users, Briefcase, DollarSign, AlertTriangle, TrendingUp, Loader2 } from
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
 
-const platformVolumeData = [
-  { month: 'Sep', volume: 1200000 },
-  { month: 'Oct', volume: 1450000 },
-  { month: 'Nov', volume: 1310000 },
-  { month: 'Dec', volume: 1780000 },
-  { month: 'Jan', volume: 1640000 },
-  { month: 'Feb', volume: 2100000 },
-];
-
-const transactionsByTypeData = [
-  { type: 'Buy', count: 342 },
-  { type: 'Sell', count: 218 },
-  { type: 'Pending', count: 47 },
-  { type: 'Rejected', count: 23 },
-];
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -40,6 +24,57 @@ import { useGetAdminDashboard } from '../../../hooks/useQuery';
 const Overview: React.FC = () => {
   const { data: adminData, isLoading } = useGetAdminDashboard();
 
+  const {
+    users = [],
+    managers = [],
+    restrictedUser = [],
+    restrictedManagers = [],
+    transactions = [],
+    tradeRequests = [],
+  } = adminData?.data || {};
+
+  // Calculate dynamic stats
+  const totalVolume = React.useMemo(() => 
+    transactions.reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0)
+  , [transactions]);
+
+  const registeredUsersCount = users.length + managers.length;
+  const activeManagersCount = managers.length;
+  const restrictedCount = restrictedUser.length + restrictedManagers.length;
+
+  // Generate dynamic platform volume trend (last 6 months)
+  const platformVolumeData = React.useMemo(() => {
+    if (!adminData?.data) return [];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const now = new Date();
+    const result = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthLabel = months[targetDate.getMonth()];
+      
+      const volumeAtMonth = transactions
+        .filter((tx: any) => {
+          const txDate = new Date(tx.createdAt);
+          return txDate.getMonth() === targetDate.getMonth() && txDate.getFullYear() === targetDate.getFullYear();
+        })
+        .reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0);
+
+      result.push({ month: monthLabel, volume: volumeAtMonth });
+    }
+    return result;
+  }, [transactions, adminData?.data]);
+
+  // Generate real trade status breakdown
+  const tradeStatusData = React.useMemo(() => {
+    if (!adminData?.data) return [];
+    return [
+      { status: 'Success', count: tradeRequests.filter((r: any) => r.status === 'SUCCESS').length },
+      { status: 'Rejected', count: tradeRequests.filter((r: any) => r.status === 'REJECTED').length },
+      { status: 'Pending', count: tradeRequests.filter((r: any) => r.status === 'PENDING').length },
+    ];
+  }, [tradeRequests, adminData?.data]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -47,20 +82,6 @@ const Overview: React.FC = () => {
       </div>
     );
   }
-
-  const {
-    users = [],
-    managers = [],
-    restrictedUser = [],
-    restrictedManagers = [],
-    transactions = [],
-  } = adminData?.data || {};
-
-  // Calculate total volume from last 30 transactions
-  const totalVolume = transactions.reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0);
-  const registeredUsersCount = users.length + managers.length;
-  const activeManagersCount = managers.length;
-  const restrictedCount = restrictedUser.length + restrictedManagers.length;
 
   return (
     <div className="space-y-6">
@@ -71,7 +92,7 @@ const Overview: React.FC = () => {
           value={`$${(totalVolume / 1000).toFixed(1)}k`}
           icon={<DollarSign className="w-5 h-5 text-emerald-400" />}
           iconBg="bg-emerald-500/10"
-          subtitle="Last 30 transactions"
+          subtitle="Recent transaction total"
         />
         <StatCard
           title="Registered Users"
@@ -97,7 +118,7 @@ const Overview: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
         <div className="xl:col-span-2 glass-panel rounded-2xl p-6 border border-white/5">
           <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
-          <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform (mock trend)</p>
+          <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform</p>
           <ResponsiveContainer width="100%" height={250}>
             <AreaChart data={platformVolumeData}>
               <defs>
@@ -106,9 +127,9 @@ const Overview: React.FC = () => {
                   <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" />
+              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
               <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000000).toFixed(1)}M`} />
+              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
               <Tooltip content={<CustomTooltip />} />
               <Area type="monotone" dataKey="volume" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#volGrad)" />
             </AreaChart>
@@ -116,17 +137,14 @@ const Overview: React.FC = () => {
         </div>
 
         <div className="glass-panel rounded-2xl p-6 border border-white/5">
-          <h2 className="text-white font-bold text-lg mb-1">Transaction Types</h2>
-          <p className="text-slate-500 text-sm mb-5">Last 30 transactions breakdown</p>
+          <h2 className="text-white font-bold text-lg mb-1">Trade Status</h2>
+          <p className="text-slate-500 text-sm mb-5">Current request breakdown</p>
           <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={[
-              { type: 'Buy', count: transactions.filter((tx: any) => tx.type === 'BUY').length },
-              { type: 'Sell', count: transactions.filter((tx: any) => tx.type === 'SELL').length },
-            ]} layout="vertical">
-              <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis type="category" dataKey="type" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} width={60} />
+            <BarChart data={tradeStatusData} layout="vertical">
+              <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} hide />
+              <YAxis type="category" dataKey="status" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
               <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#10b981" radius={[0, 4, 4, 0]} name="Count" />
+              <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="Count" />
             </BarChart>
           </ResponsiveContainer>
         </div>

@@ -1,23 +1,35 @@
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import LandingPage from './pages/LandingPage';
-import LoginPage from './pages/LoginPage';
-import SignUp from './pages/SignUp';
-import VerifyEmailPage from './pages/VerifyEmailPage';
-import CompleteRegistration from './pages/CompleteRegistration';
-import ClientDashboard from './dashboard/client/ClientDashboard';
-import ManagerDashboard from './dashboard/manager/ManagerDashboard';
-import AdminDashboard from './dashboard/admin/AdminDashboard';
-import ProtectedRoute from './components/protectedRoute';
-
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+
+// 1. Critical component that needs to load immediately
+import ProtectedRoute from './components/protectedRoute';
+
+// 2. Lazy loaded page components (This triggers Vite code-splitting)
+const LandingPage = lazy(() => import('./pages/LandingPage'));
+const LoginPage = lazy(() => import('./pages/LoginPage'));
+const SignUp = lazy(() => import('./pages/SignUp'));
+const VerifyEmailPage = lazy(() => import('./pages/VerifyEmailPage'));
+const CompleteRegistration = lazy(() => import('./pages/CompleteRegistration'));
+const ClientDashboard = lazy(() => import('./dashboard/client/ClientDashboard'));
+const ManagerDashboard = lazy(() => import('./dashboard/manager/ManagerDashboard'));
+const AdminDashboard = lazy(() => import('./dashboard/admin/AdminDashboard'));
+
+// 3. A simple loading fallback to show while the chunk is downloading
+const PageLoader = () => (
+  <div className="flex items-center justify-center min-h-screen">
+    <div className="animate-spin h-10 w-10 border-4 border-blue-600 rounded-full border-t-transparent"></div>
+  </div>
+);
+
 
 const App = () => {
   return (
     <>
       <ToastContainer />
       <Router>
-
+     <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Public Routes */}
         <Route path="/" element={<LandingPage />} />
@@ -70,6 +82,7 @@ const App = () => {
       </ProtectedRoute>
         } />
       </Routes>
+      </Suspense>
     </Router>
     </>
   );

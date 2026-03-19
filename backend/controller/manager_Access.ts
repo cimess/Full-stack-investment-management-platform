@@ -128,11 +128,19 @@ if (!managerId){
   return next(createError(401,"unauthorized"));
 }
 
-  if(!requestId||status||response||price){
-    return next(createError(401,"provide all required credentials(requestId,status,response,price)"));
+  if (status === "APPROVED" || status === "SUCCESS") {
+    if (!requestId || !response || price === undefined) {
+      return next(createError(400, "Provide all required fields: requestId, response, and price"));
+    }
+  } else if (status === "REJECTED") {
+    if (!requestId || !response) {
+      return next(createError(400, "Provide all required fields: requestId and response"));
+    }
+  } else {
+    return next(createError(400, "Invalid status. Use APPROVED or REJECTED."));
   }
 
-  try{
+  try {
 
 await prisma.$transaction(async(tx)=>{
 const request=await tx.trade_request.findUnique({
@@ -144,24 +152,53 @@ const request=await tx.trade_request.findUnique({
     stock: true
   }
 })
-if(!request){
-  return next(createError(401,"invalid request id"));
-}
-const client=await tx.user.findUnique({
-  where:{id:request.portfolio.user_id}
-})
-if(client?.manager_id!==managerId){
-  throw createError(401,"unauthorized to manage this client");
-}
+console.log(request,"request")
+      if (!request) {
+        throw createError(401, "invalid request id");
+      }
+      const client = await tx.user.findUnique({
+        where: { id: request.portfolio.user_id }
+      })
 
-const existing_investment=await tx.investment.findUnique({
-  where:{
-   portfolio_id_stock_id:{
-    portfolio_id:request.portfolio_id,
-    stock_id:request.stock_id
-   }
-  }
-})
+      // Get manager record to check against client.manager_id
+      const manager = await tx.manager.findUnique({
+        where: { manager_id: managerId }
+      })
+
+      if (!manager || client?.manager_id !== manager.id) {
+        throw createError(401, "unauthorized to manage this client");
+      }
+
+      if (status === "REJECTED") {
+        await tx.trade_request.update({
+          where: { id: requestId },
+          data: { status: "REJECTED", response }
+        });
+        await tx.notification.create({
+          data: {
+            user_id: client?.id || '',
+            title: "Trade Request Rejected",
+            message: response,
+            type: "TRADE"
+          }
+        });
+        return; // Success, exit transaction
+      }
+
+      const numericPrice = Number(price);
+      if (isNaN(numericPrice)) {
+        throw createError(400, "Invalid execution price");
+      }
+
+      const existing_investment = await tx.investment.findUnique({
+        where: {
+          portfolio_id_stock_id: {
+            portfolio_id: request.portfolio_id,
+            stock_id: request.stock_id
+          }
+        }
+      });
+console.log(existing_investment,"existing investment")
 
 if(request.type==='BUY'){
 if(existing_investment){
@@ -173,89 +210,74 @@ if(existing_investment){
             const newAvgPrice = (oldQty * oldAvgPrice + newQty * newPrice) / (oldQty + newQty);
 
             await tx.investment.update({
-              where:{
-                id:existing_investment.id
-              },
-              data:{
-                quantity:oldQty+newQty,
-                avgPrice:newAvgPrice
+              where: { id: existing_investment.id },
+              data: {
+                quantity: oldQty + newQty,
+                avgPrice: newAvgPrice
               }
-            })
-}else{
-  await tx.investment.create({
-    data:{
-      portfolio_id:request.portfolio_id,
-      stock_id:request.stock_id,
-      quantity:request.quantity,
-      avgPrice:price
-    }
-  })
-}
-}else if(request.type==='SELL'){
+            });
+          } else {
+            await tx.investment.create({
+              data: {
+                portfolio_id: request.portfolio_id,
+                stock_id: request.stock_id,
+                quantity: request.quantity,
+                avgPrice: numericPrice
+              }
+            });
+          }
+        } else if (request.type === 'SELL') {
+          if (!existing_investment || existing_investment.quantity < request.quantity) {
+            throw createError(400, "Insufficient stock quantity to sell");
+          }
 
-  if(!existing_investment|| existing_investment.quantity<request.quantity){
-    throw createError(400,"insufficient stock quantity to sell");
-  }
+          const remaining_stock = existing_investment.quantity - request.quantity;
 
-const remaining_stock=existing_investment.quantity-request.quantity;
+          if (remaining_stock <= 0) {
+            await tx.investment.delete({
+              where: { id: existing_investment.id }
+            });
+          } else {
+            await tx.investment.update({
+              where: { id: existing_investment.id },
+              data: { quantity: remaining_stock }
+            });
+          }
+        }
 
-if(remaining_stock<=0){
-  await tx.investment.delete({
-    where:{
-      id:existing_investment.id
-    }
-  })
-}else{
-  await tx.investment.update({
-    where:{
-      id:existing_investment.id
-    },
-    data:{
-      quantity:remaining_stock
-    }
-  })
-}
+        await tx.transaction.create({
+          data: {
+            portfolio_id: request.portfolio_id,
+            stock_id: request.stock_id,
+            quantity: request.quantity,
+            price: numericPrice,
+            type: request.type
+          }
+        });
 
-}
+        await tx.trade_request.update({
+          where: { id: requestId },
+          data: { 
+            status: "SUCCESS", 
+            response,
+            approved_by: manager.id 
+          }
+        });
 
-await tx.transaction.create({
-  data:{
-    portfolio_id:request.portfolio_id,
-    stock_id:request.stock_id,
-    quantity:request.quantity,
-    price:price,
-    type:request.type
-  }
-})
+        await tx.notification.create({
+          data: {
+            user_id: client.id,
+            title: "Trade Request Executed",
+            message: `Your ${request.type} request for ${request.quantity} shares of ${request.stock.symbol} was successful.`,
+            type: "TRADE"
+          }
+        });
+      });
 
-const update_request=await tx.trade_request.update({
-  where:{
-    id:requestId
-  },
-  data:{
-    status:status,
-    response:response
-  }
-})
-
-if (client && update_request) {
-  await tx.notification.create({
-    data: {
-      user_id: client.id,
-      title: "Trade Request Update",
-      message: `Your trade request to ${request.type} ${request.quantity} shares of ${request.stock.symbol} was ${status.toLowerCase()}.`,
-      type: "TRADE"
-    }
-  });
-}
-
-if(!update_request){
-  throw createError(500,"Internal Server Error");
-}
-
-})
-
-res.status(200).json({success:true,message:"request handled successfully"})
+      return res.status(200).json({ 
+        success: true, 
+        message: status === "REJECTED" ? "Request rejected successfully" : "Trade executed successfully" 
+      });
   }catch(err:any){
     logger.error(err);
     return next(createError(500,"Internal Server Error"));
@@ -266,15 +288,24 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
   const managerId = req.user?.id;
 
   if (!managerId) {
-    return next(createError(401, "unauthorized"));
+    return next(createError(401, 'Unauthorized'));
   }
 
   try {
-    // Fetch all users (clients) managed by this specific manager
-    const clients = await prisma.user.findMany({
+    // Step 0: Fetch the actual Manager record to get its ID
+    const manager = await prisma.manager.findUnique({
+      where: { manager_id: managerId }
+    });
+
+    if (!manager) {
+      return next(createError(404, 'Manager profile not found'));
+    }
+
+    // Step 1: fetch all clients (basic info) assigned to THIS manager record
+    const clientsRaw = await prisma.user.findMany({
       where: {
-        manager_id: managerId, // <-- CRITICAL SECURITY CHECK: Only my clients
-        roles: Roles.USER
+        manager_id: manager.id,
+        roles: Roles.USER,
       },
       select: {
         id: true,
@@ -282,50 +313,69 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
         email: true,
         restricted: true,
         createdAt: true,
-        // Include their portfolio and nest the investments & history inside it
-        portfolio: {
-          select: {
-            id: true,
-            investment: {
-              select: {
-                quantity: true,
-                avgPrice: true,
-                stock: { select: { symbol: true, company: true, price: true } }
-              }
-            },
-            trade_request: {
-              orderBy: { createdAt: 'desc' },
-              select: {
-                id: true,
-                type: true,
-                status: true,
-                quantity: true,
-                createdAt: true,
-                stock: { select: { symbol: true } }
-              }
-            },
-            transaction: {
-              orderBy: { createdAt: 'desc' },
-              select: {
-                type: true,
-                quantity: true,
-                price: true,
-                createdAt: true,
-                stock: { select: { symbol: true } }
-              }
-            }
-          }
-        }
-      }
+      },
     });
 
-    res.status(200).json({
+    // Step 2: fetch nested portfolios per client safely
+    const clients = await Promise.all(
+      clientsRaw.map(async (client) => {
+        const result: any = { ...client, portfolio: null, errors: [] };
+
+        try {
+          const portfolio = await prisma.portfolio.findMany({
+            where: { user_id: client.id },
+            select: {
+              id: true,
+              investment: {
+                select: {
+                  quantity: true,
+                  avgPrice: true,
+                  stock: { select: { symbol: true, company: true, price: true } },
+                },
+              },
+              trade_request: {
+                orderBy: { createdAt: 'desc' },
+                select: {
+                  id: true,
+                  type: true,
+                  status: true,
+                  quantity: true,
+                  createdAt: true,
+                  stock: { select: { symbol: true ,price:true} },
+                },
+              },
+              transaction: {
+                orderBy: { createdAt: 'desc' },
+                select: {
+                  type: true,
+                  quantity: true,
+                  price: true,
+                  createdAt: true,
+                  stock: { select: { symbol: true } },
+                },
+              },
+            },
+          });
+          // Ensure portfolio is returned as an object (the first one) or null, 
+          // NOT an array, to match frontend expectations
+          result.portfolio = portfolio[0] || null;
+        } catch (err: any) {
+          logger.error(`Failed fetching portfolio for client ${client.id}:`, err);
+          result.errors.push(`Portfolio fetch failed: ${err.message}`);
+        }
+
+        return result;
+      })
+    );
+
+    return res.status(200).json({
       success: true,
-      data: clients
+      data: clients,
+      message: 'success',
     });
   } catch (err: any) {
-    logger.error(err);
-    return next(createError(500, "Internal Server Error"));
+    logger.error('Failed fetching clients:', err);
+    return next(createError(500, 'Internal Server Error'));
   }
 };
 

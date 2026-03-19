@@ -155,7 +155,7 @@ const SettingsView: React.FC = () => {
             <h3 className="text-white font-bold text-xs uppercase tracking-widest opacity-60">Profile Overview</h3>
             <span className="text-[10px] bg-blue-500/10 text-blue-400 px-2 py-0.5 rounded-full font-bold uppercase border border-blue-500/20">Active Account</span>
           </div>
-          <div className="p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-8">
+          <div className="p-4 sm:p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8">
             <div className="relative group">
               <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-emerald-500 to-blue-600 flex 
               items-center justify-center text-4xl font-black text-white shadow-[0_20px_40px_-15px_rgba(16,185,129,0.3)] 
@@ -209,7 +209,7 @@ const SettingsView: React.FC = () => {
         {/* Security & Preferences grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Security */}
-          <div className="glass-panel p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors">
             <div className="flex items-center gap-3 text-white mb-2">
               <div className="p-2 rounded-xl bg-blue-500/10">
                 <Shield className="w-5 h-5 text-blue-400" />
@@ -239,7 +239,7 @@ const SettingsView: React.FC = () => {
           </div>
 
           {/* Preferences */}
-          <div className="glass-panel p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors">
+          <div className="glass-panel p-4 sm:p-6 rounded-3xl border border-white/5 space-y-4 hover:border-white/10 transition-colors">
             <div className="flex items-center gap-3 text-white mb-2">
               <div className="p-2 rounded-xl bg-amber-500/10">
                 <Bell className="w-5 h-5 text-amber-400" />
@@ -269,7 +269,7 @@ const SettingsView: React.FC = () => {
           </div>
 
           {/* Manager Management Section */}
-          <div className="md:col-span-2 glass-panel p-8 rounded-3xl border border-white/5 space-y-6 bg-gradient-to-br 
+          <div className="md:col-span-2 glass-panel p-4 sm:p-8 rounded-3xl border border-white/5 space-y-6 bg-gradient-to-br 
           from-emerald-500/5 via-transparent to-blue-500/5 relative overflow-hidden group">
             <div className="flex items-center gap-4 text-white">
               <div className="w-12 h-12 rounded-2xl bg-emerald-500/10 flex items-center 
@@ -361,7 +361,7 @@ const SettingsView: React.FC = () => {
           </div>
 
           {/* Promotion Code Redemption */}
-          <div className="md:col-span-2 glass-panel p-8 rounded-3xl border border-white/5 
+          <div className="md:col-span-2 glass-panel p-4 sm:p-8 rounded-3xl border border-white/5 
           space-y-6 bg-gradient-to-br from-purple-500/10 to-transparent">
              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                <div className="flex items-center gap-3 text-white">

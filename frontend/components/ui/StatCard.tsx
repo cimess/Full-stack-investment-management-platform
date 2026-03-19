@@ -21,14 +21,14 @@ const StatCard: React.FC<StatCardProps> = ({
   subtitle,
 }) => {
   return (
-    <div className="glass-panel rounded-2xl p-6 hover:border-white/10 transition-all duration-300 group hover:shadow-lg hover:shadow-emerald-500/5">
+    <div className="glass-panel rounded-2xl p-4 sm:p-6 hover:border-white/10 transition-all duration-300 group hover:shadow-lg hover:shadow-emerald-500/5">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-slate-400 text-sm font-medium mb-1">{title}</p>
-          <p className="text-2xl font-bold text-white mb-1">{value}</p>
-          {subtitle && <p className="text-slate-500 text-xs">{subtitle}</p>}
+          <p className="text-slate-400 text-xs sm:text-sm font-medium mb-1">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white mb-1">{value}</p>
+          {subtitle && <p className="text-slate-500 text-[10px] sm:text-xs">{subtitle}</p>}
         </div>
-        <div className={`w-12 h-12 rounded-xl ${iconBg} flex items-center justify-center group-hover:scale-110 transition-transform`}>
+        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${iconBg} flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 ml-3`}>
           {icon}
         </div>
       </div>

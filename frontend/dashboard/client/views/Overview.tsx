@@ -7,15 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast,Zoom } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 
-const chartData = [
-  { name: 'Mon', value: 38400 },
-  { name: 'Tue', value: 39100 },
-  { name: 'Wed', value: 38800 },
-  { name: 'Thu', value: 40200 },
-  { name: 'Fri', value: 41500 },
-  { name: 'Sat', value: 41200 },
-  { name: 'Sun', value: 42300 },
-];
+
 type User = {
   id: string;
   name: string;
@@ -65,6 +57,49 @@ const ClientOverview: React.FC = () => {
   }
 ,[checkVerification,data,isError])
 
+  const { investments = [], transactions = [], user = null } = data?.data || {};
+
+  // Calculate dynamic stats
+  const portfolioValue = React.useMemo(() => 
+    investments.reduce((acc: number, inv: any) => acc + (inv.quantity * Number(inv.stock.price)), 0)
+  , [investments]);
+
+  const totalProfit = React.useMemo(() => 
+    investments.reduce((acc: number, inv: any) => acc + (inv.quantity * (Number(inv.stock.price) - Number(inv.avgPrice))), 0)
+  , [investments]);
+
+  const activePositions = investments.length;
+  const initialInvestment = portfolioValue - totalProfit;
+  const percentageChange = initialInvestment > 0 ? (totalProfit / initialInvestment) * 100 : 0;
+
+  // Generate real chart data for the last 7 days
+  const chartData = React.useMemo(() => {
+    if (!data?.data) return [];
+    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const result = [];
+    const now = new Date();
+    
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(now.getDate() - i);
+      const dayName = days[d.getDay()];
+      const dayEnd = new Date(d.setHours(23, 59, 59, 999));
+
+      const netChangeSinceThen = transactions
+        .filter((tx: any) => new Date(tx.createdAt) > dayEnd)
+        .reduce((acc: number, tx: any) => {
+          const amount = Number(tx.quantity) * Number(tx.price);
+          return tx.type === 'BUY' ? acc + amount : acc - amount;
+        }, 0);
+
+      result.push({
+        name: dayName,
+        value: Math.max(0, portfolioValue - netChangeSinceThen)
+      });
+    }
+    return result;
+  }, [portfolioValue, transactions, data?.data]);
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center p-12">
@@ -104,16 +139,6 @@ const ClientOverview: React.FC = () => {
     );
   }
   }
-
-  const { investments = [], user } = data.data;
-
-  // Calculate dynamic stats
-  const portfolioValue = investments.reduce((acc: number, inv: any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
-  const totalProfit = investments.reduce((acc: number, inv: any) => acc + (inv.quantity * (Number(inv.stock.price) - Number(inv.avgPrice))), 0);
-  const activePositions = investments.length;
-
-  const initialInvestment = portfolioValue - totalProfit;
-  const percentageChange = initialInvestment > 0 ? (totalProfit / initialInvestment) * 100 : 0;
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -155,7 +180,7 @@ const ClientOverview: React.FC = () => {
               <p className="text-slate-500 text-xs lg:text-sm">Growth over the last 7 days</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={300}>
+          <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 220 : 300}>
             <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">

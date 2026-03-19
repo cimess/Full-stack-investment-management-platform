@@ -1,12 +1,6 @@
 import React, { useState } from 'react';
 import { CheckCircle, XCircle, TrendingUp, ArrowLeftRight, Clock } from 'lucide-react';
-
-const pendingRequests = [
-  { id: 1, client: 'Alex Johnson', type: 'buy', symbol: 'NVDA', qty: 5, price: 673.20, total: 3366.00, submitted: '2h ago', status: 'pending' },
-  { id: 2, client: 'James Wilson', type: 'sell', symbol: 'AAPL', qty: 8, price: 182.30, total: 1458.40, submitted: '4h ago', status: 'pending' },
-  { id: 3, client: 'Priya Sharma', type: 'buy', symbol: 'TSLA', qty: 10, price: 221.40, total: 2214.00, submitted: '1d ago', status: 'pending' },
-];
-
+import ExecutionModal from '../../../components/ui/ExecutionModal';
 import { useGetManagerDashboard, handleUserRequest } from '../../../hooks/useQuery';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
@@ -15,6 +9,11 @@ const RequestsView: React.FC = () => {
   const { data: managerData, isLoading, refetch } = useGetManagerDashboard();
   const { mutate: handleTradeAction } = handleUserRequest();
   const [processingId, setProcessingId] = useState<string | null>(null);
+  
+  // Modal states
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [actionType, setActionType] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
 
   if (isLoading) {
     return (
@@ -26,6 +25,7 @@ const RequestsView: React.FC = () => {
 
   const clients = managerData?.data || [];
   
+  
   // Extract pending requests from all clients
   const pendingRequests = clients.flatMap((client: any) => 
     (client.portfolio?.trade_request || [])
@@ -36,21 +36,41 @@ const RequestsView: React.FC = () => {
         total: req.quantity * (req.stock?.price || 0)
       }))
   ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+console.log(pendingRequests)
+  const handleActionClick = (request: any, type: 'APPROVED' | 'REJECTED') => {
+    setSelectedRequest(request);
+    setActionType(type);
+    setIsModalOpen(true);
+  };
 
-  const handleAction = (requestId: string, status: 'APPROVED' | 'REJECTED') => {
-    setProcessingId(requestId);
+  const handleConfirmExecution = (data: { price: number; response: string }) => {
+    if (!selectedRequest) return;
+    
+    if(actionType==="APPROVED"){
+      if(!data.price||!data.response){
+        toast.error("Please insert price and response in input field");
+        return;
+      }
+    }else{
+      if(!data.response){
+        toast.error("Please insert response in input field");
+        return;
+      }
+    }
+    setProcessingId(selectedRequest.id);
     handleTradeAction(
       { 
-        requestId, 
-        status, 
-        response: status === 'APPROVED' ? 'Trade approved by manager' : 'Trade rejected by manager',
-        price: 0 // In a real app, this might come from a prompt or market price
+        requestId: selectedRequest.id, 
+        status: actionType, 
+        response: data.response,
+        price: data.price
       },
       {
         onSuccess: () => {
-          toast.success(`Trade ${status.toLowerCase()} successfully`);
+          toast.success(`Trade ${actionType.toLowerCase()} successfully`);
           refetch();
           setProcessingId(null);
+          setIsModalOpen(false);
         },
         onError: (err: any) => {
           toast.error(err.response?.data?.message || "Failed to process request");
@@ -70,12 +90,12 @@ const RequestsView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-white font-bold text-2xl">Trade Requests</h2>
           <p className="text-slate-500 text-sm">Review and execute orders from your active clients</p>
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl">
+        <div className="flex items-center gap-2 px-4 py-2 bg-amber-500/10 border border-amber-500/20 rounded-xl self-start sm:self-center">
            <Clock className="w-4 h-4 text-amber-500" />
            <span className="text-amber-500 text-sm font-bold">{pendingRequests.length} Pending Approval</span>
         </div>
@@ -104,9 +124,9 @@ const RequestsView: React.FC = () => {
                   <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-slate-400 text-sm">
                     <span className="flex items-center gap-1.5"><strong className="text-slate-200">{req.quantity}</strong> {req.stock?.symbol}</span>
                     <span className="w-1 h-1 rounded-full bg-slate-700 md:block hidden" />
-                    <span>Price: <strong className="text-slate-200">${(req.stock?.price || 0).toFixed(2)}</strong></span>
+                    <span>Price: <strong className="text-slate-200">${(req.stock?.price || 0)}</strong></span>
                     <span className="w-1 h-1 rounded-full bg-slate-700 md:block hidden" />
-                    <span>Total: <strong className="text-white font-bold">${req.total.toLocaleString()}</strong></span>
+                    <span>Total: <strong className="text-white font-bold">${req.total}</strong></span>
                   </div>
                   <p className="text-slate-600 text-xs mt-2 font-medium">Requested {getTimeAgo(req.createdAt)}</p>
                 </div>
@@ -114,17 +134,17 @@ const RequestsView: React.FC = () => {
                 <div className="flex items-center gap-2 flex-shrink-0">
                   <button
                     disabled={processingId === req.id}
-                    onClick={() => handleAction(req.id, 'REJECTED')}
+                    onClick={() => handleActionClick(req, 'REJECTED')}
                     className="flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 text-slate-400 border border-white/10 text-sm font-bold hover:bg-red-500/10 hover:text-red-400 hover:border-red-500/30 transition-all disabled:opacity-50"
                   >
                     <XCircle className="w-4 h-4" /> Reject
                   </button>
                   <button
                     disabled={processingId === req.id}
-                    onClick={() => handleAction(req.id, 'APPROVED')}
+                    onClick={() => handleActionClick(req, 'APPROVED')}
                     className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-emerald-500 text-white text-sm font-black hover:bg-emerald-600 shadow-lg shadow-emerald-500/20 transition-all disabled:opacity-50"
                   >
-                    {processingId === req.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
+                    {processingId === req.id && !isModalOpen ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle className="w-4 h-4" />}
                     Approve
                   </button>
                 </div>
@@ -133,8 +153,18 @@ const RequestsView: React.FC = () => {
           )}
         </div>
       </div>
+
+      <ExecutionModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmExecution}
+        request={selectedRequest}
+        status={actionType}
+        isProcessing={processingId === selectedRequest?.id}
+      />
     </div>
   );
 };
 
 export default RequestsView;
+

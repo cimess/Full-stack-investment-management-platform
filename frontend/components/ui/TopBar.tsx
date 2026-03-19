@@ -18,7 +18,7 @@ const formatTime = (dateString: string) => {
   if (isNaN(date.getTime())) return 'recently';
   const now = new Date();
   const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-  
+
   if (diffInSeconds < 60) return `${diffInSeconds}s ago`;
   if (diffInSeconds < 3600) return `${Math.floor(diffInSeconds / 60)}m ago`;
   if (diffInSeconds < 86400) return `${Math.floor(diffInSeconds / 3600)}h ago`;
@@ -33,10 +33,10 @@ interface TopBarProps {
   handleLogout?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar ,handleLogout}) => {
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout }) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
-  
+
   const queryClient = useQueryClient();
   const { data: notificationsResponse } = useGetNotifications();
   const { mutate: markNotificationsRead } = useMarkNotificationsRead();
@@ -63,7 +63,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
     <header className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-sm sticky top-0 z-20">
       <div className="flex items-center gap-4">
         {/* Mobile Menu Toggle */}
-        <button 
+        <button
           onClick={onToggleSidebar}
           className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 lg:hidden"
         >
@@ -106,7 +106,9 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 top-full mt-2 w-80 glass-panel rounded-2xl shadow-2xl border border-white/8 overflow-hidden z-50">
+            <div className="absolute right-0 translate-x-[10%] top-full mt-2 w-72 
+            sm:w-80 max-w-[calc(100vw-1rem)] glass-panel rounded-2xl 
+            shadow-2xl border overflow-hidden z-50 backdrop-blur-lg">
               <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
                 <span className="text-white font-semibold text-sm">Notifications</span>
                 <span onClick={markAllRead} className="text-emerald-400 text-xs font-medium cursor-pointer hover:text-emerald-300">Mark all read</span>
@@ -119,7 +121,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
                 ) : (
                   notifications?.map((n: any) => (
                     <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
-                    onClick={() => handleReadMsg(n.id)}
+                      onClick={() => handleReadMsg(n.id)}
                     >
                       <div className="flex-shrink-0 mt-0.5">{notifIcons[n.type] || notifIcons.info}</div>
                       <div className="flex-1 min-w-0">

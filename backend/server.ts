@@ -1,6 +1,7 @@
+import dotenv from "dotenv";
+dotenv.config();
 import logger from "./winstonlog/logger.js";
 import express from "express";
-import dotenv from "dotenv";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -10,7 +11,6 @@ import router from "./routes/router.js";
 import { startMarketWorker } from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
-dotenv.config();
 
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {

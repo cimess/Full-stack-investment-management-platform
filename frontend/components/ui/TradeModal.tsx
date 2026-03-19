@@ -48,7 +48,7 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, mode, stock })
         </div>
 
         {/* Body */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-3 sm:space-y-4">
           {stock && (
             <div className="flex items-center justify-between p-4 bg-white/3 rounded-xl border border-white/5">
               <div>
@@ -97,7 +97,7 @@ const TradeModal: React.FC<TradeModalProps> = ({ isOpen, onClose, mode, stock })
           <button
             type="submit"
             disabled={submitted}
-            className={`w-full py-3 rounded-xl font-bold text-white transition-all ${
+            className={`w-full py-2.5 sm:py-3 rounded-xl font-bold text-white text-sm sm:text-base transition-all ${
               submitted
                 ? 'bg-slate-700 cursor-not-allowed'
                 : isBuy

@@ -26,7 +26,7 @@ const TradeModal: React.FC<{
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
-      <div className="glass-panel w-full max-w-md rounded-2xl border border-white/10 p-6 space-y-6 animate-in fade-in zoom-in duration-300">
+      <div className="glass-panel w-full max-w-md rounded-2xl border border-white/10 p-4 sm:p-6 space-y-4 sm:space-y-6 animate-in fade-in zoom-in duration-300">
         <div className="flex items-center justify-between">
           <h3 className="text-xl font-bold text-white">
             {type === 'BUY' ? 'Buy Stock' : 'Sell Stock'}
@@ -75,7 +75,7 @@ const TradeModal: React.FC<{
           <button 
             disabled={!selectedStockId || quantity < 1 || isPending}
             onClick={() => onConfirm(selectedStockId, quantity)}
-            className={`flex-1 px-4 py-3 rounded-xl font-bold text-white transition-all ${
+            className={`flex-1 px-4 py-2.5 sm:py-3 rounded-xl font-bold text-white text-sm sm:text-base transition-all ${
               type === 'BUY' 
                 ? 'bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
                 : 'bg-red-500 hover:bg-red-600 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
@@ -142,7 +142,7 @@ const PortfolioView: React.FC = () => {
         {/* END OF TRIGGER BUTTONS */}
       </div>
 
-      <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
+      <div className={` rounded-2xl overflow-hidden ${holdings.length === 0 ? 'glass-panel' : ''}`}>
         {holdings.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-12 lg:p-24 text-center space-y-6">
             <div className="w-16 h-16 rounded-2xl bg-slate-800/50 border border-white/5 flex items-center justify-center">
@@ -164,7 +164,7 @@ const PortfolioView: React.FC = () => {
         ) : (
           <>
             {/* Mobile Card View */}
-            <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden">
+            <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden glass-panel">
               {holdings.map((h: any) => {
                 if (!h.stock) return null;
                 const currentPrice = Number(h.stock.price || 0);
@@ -174,7 +174,7 @@ const PortfolioView: React.FC = () => {
                 const isUp = pnl >= 0;
 
                 return (
-                  <div key={h.id} className="p-4 space-y-4">
+                  <div key={h.id} className="p-4 space-y-4 border-b border-white/10 rounded-xl mb-3 ">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-500/20 to-blue-500/20 border border-white/5 flex items-center justify-center">
@@ -213,7 +213,7 @@ const PortfolioView: React.FC = () => {
             </div>
 
             {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
+            <div className="hidden md:block overflow-x-auto glass-panel">
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-white/5 bg-white/2">
@@ -225,7 +225,7 @@ const PortfolioView: React.FC = () => {
                     <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">P&L</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/3">
+                <tbody className="divide-y divide-white/10 ">
                   {holdings.map((h: any) => {
                     if (!h.stock) return null;
                     const currentPrice = Number(h.stock.price || 0);

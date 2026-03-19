@@ -16,6 +16,7 @@ import { updateProfile } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
+import { getAIInsightsController } from "../controller/aiController.js";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -53,7 +54,7 @@ router.get(
   },
   googleAuth
 );
-
+router.post("/ai", getAIInsightsController);
 // --- Health Check ---
 router.get("/health", (req, res) => res.status(200).json({ success: true, message: "Server is healthy" }));
 

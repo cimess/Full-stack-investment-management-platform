@@ -144,3 +144,8 @@ export const getPublicManagerProfileAPI = async (managerId: string) => {
   const response = await api.get(`/manager/public-profile/${managerId}`);
   return response.data;
 }
+
+export const getAIInsights = async (query: string): Promise<string> => {
+  const response = await api.post("/ai", { query });
+  return response.data.data as string;
+}

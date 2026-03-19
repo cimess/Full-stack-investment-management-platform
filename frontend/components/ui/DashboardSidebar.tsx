@@ -110,8 +110,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-[#020617] border-r border-white/5 transition-all duration-300 transform 
-        ${mobileOpen ? 'translate-x-0' : '-translate-x-full'} 
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-[#020617] border-r border-white/5 transition-all duration-300 transform
+        ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}
         lg:relative lg:translate-x-0 ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
       >
       {/* Logo */}

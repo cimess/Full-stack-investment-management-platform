@@ -20,7 +20,7 @@ enum TransactionType {
 enum Status {
   SUCCESS
   PENDING
-  FAILED
+  REJECTED
 }
 
 enum NotificationType {

@@ -225,9 +225,9 @@ const passwordFeedback = () => {
     <>
 
     {showLoader && <Loader message={redirectMessage} />}
-    {!showLoader && <><Header/><div className="min-h-screen flex items-center justify-center ">
+    {!showLoader && <><Header/><div className="min-h-screen overflow-y-auto flex items-center justify-center py-6">
       <div
-        className={`relative w-[90%] lg:w-[60%]  mt-[18vh] rounded-2xl p-10 pt-16 backdrop-blur-xl
+        className={`relative w-[95%] sm:w-[85%] md:w-[70%] lg:w-[55%] my-4 mt-[10vh] sm:mt-[14vh] rounded-2xl p-4 sm:p-8 pt-12 sm:pt-16 backdrop-blur-xl
         bg-white/5 border border-white/10 shadow-2xl transition-transform
         hover:-translate-y-1 ${shake ? "animate-shake" : ""}`}
       >
@@ -283,7 +283,7 @@ const passwordFeedback = () => {
               type="text"
               placeholder="First Name"
               className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value);}}
               onFocus={() => setMessage("Enter your first name")}
@@ -297,7 +297,7 @@ const passwordFeedback = () => {
               type="text"
               placeholder="Last Name"
               className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value)}}
               onFocus={() => setMessage('Enter your last name')}
@@ -312,7 +312,7 @@ const passwordFeedback = () => {
               type="text"
               placeholder="Username"
               className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onFocus={() => setMessage("Enter your username")}
@@ -325,7 +325,7 @@ const passwordFeedback = () => {
               type="email"
               placeholder="Email"
               className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setMessage("Enter your email")}
@@ -339,7 +339,7 @@ const passwordFeedback = () => {
               type={showPassword? "text": "password"}
               placeholder="Password"
               className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-12 py-4 outline-none focus:ring-2 focus:ring-cyan-400"
+              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
               value={password}
               onChange={(e) => { setPassword(e.target.value);setMessage(passwordFeedback())}}
               onFocus={()=>{setMessage("Enter your password")}}
@@ -366,8 +366,8 @@ const passwordFeedback = () => {
           {/* Button */}
           <button
             disabled={loginPending||loginSuccess||registerPending||registerSuccess}
-            className={`w-full h-13 py-4 rounded-xl font-medium tracking-wide
-            transition-all shadow-lg
+            className={`w-full py-2.5 sm:py-3 rounded-xl font-medium tracking-wide
+            transition-all shadow-lg text-sm sm:text-base
             ${
               success
                 ? "bg-gradient-to-r from-green-400 to-emerald-600"

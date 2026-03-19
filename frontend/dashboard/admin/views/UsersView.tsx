@@ -137,17 +137,17 @@ const UsersView: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h2 className="text-white font-bold text-2xl">User Management</h2>
           <p className="text-slate-500 text-sm">Monitor and manage all platform users</p>
         </div>
-        <div className="flex gap-1 p-1 bg-white/3 rounded-lg border border-white/5">
+        <div className="flex gap-1 p-1 bg-white/3 rounded-lg border border-white/5 self-start sm:self-center">
           {(['all', 'active', 'restricted'] as const).map(f => (
             <button
               key={f}
               onClick={() => setUserFilter(f)}
-              className={`px-4 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${userFilter === f ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
+              className={`flex-1 sm:flex-none px-4 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${userFilter === f ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
             >
               {f}
             </button>

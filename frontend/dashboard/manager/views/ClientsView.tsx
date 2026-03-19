@@ -43,7 +43,7 @@ const ClientsView: React.FC = () => {
           <p className="text-slate-500 text-sm">Monitor and manage your portfolio clients</p>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
             <input
@@ -51,7 +51,7 @@ const ClientsView: React.FC = () => {
               placeholder="Search clients..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 w-64"
+              className="bg-white/5 border border-white/10 rounded-xl pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 w-full sm:w-56"
             />
           </div>
           <div className="flex gap-1 p-1 bg-white/3 rounded-lg border border-white/5">
@@ -59,7 +59,7 @@ const ClientsView: React.FC = () => {
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab)}
-                className={`px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
+                className={`flex-1 sm:flex-none px-3 py-1 rounded-md text-xs font-medium capitalize transition-colors ${activeTab === tab ? 'bg-emerald-500/20 text-emerald-400' : 'text-slate-400 hover:text-white'}`}
               >
                 {tab}
               </button>

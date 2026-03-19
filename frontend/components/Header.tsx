@@ -59,6 +59,21 @@ const Header: React.FC = () => {
 
         </nav>
 
+        {/* Desktop Auth Buttons */}
+        <div className="hidden md:flex items-center gap-2">
+          <button
+            onClick={() => navigate('/login')}
+            className="text-slate-300 hover:text-white text-sm font-medium transition-colors px-3 py-1.5"
+          >
+            Log In
+          </button>
+          <button
+            onClick={() => navigate('/signup')}
+            className="bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+          >
+            Get Started
+          </button>
+        </div>
         {/* Mobile Menu Toggle */}
         <button
           className="md:hidden text-white"

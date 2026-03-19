@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { getInvestmentInsights } from '../services/geminiService';
+import { getAIInsights } from '../services/queryServices';
 import { Sparkles, Send, Loader2, AlertCircle } from 'lucide-react';
 import { LoadingState } from '../types';
 
 const GeminiAdvisor: React.FC = () => {
   const [query, setQuery] = useState('');
+  const [submittedQuery, setSubmittedQuery] = useState('');
   const [response, setResponse] = useState<string | null>(null);
   const [status, setStatus] = useState<LoadingState>(LoadingState.IDLE);
 
@@ -17,12 +18,13 @@ const GeminiAdvisor: React.FC = () => {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
-    
+
+    setSubmittedQuery(query);
     setStatus(LoadingState.LOADING);
     setResponse(null);
-    
+
     try {
-      const result = await getInvestmentInsights(query);
+      const result = await getAIInsights(query);
       setResponse(result);
       setStatus(LoadingState.SUCCESS);
     } catch (error) {
@@ -35,7 +37,7 @@ const GeminiAdvisor: React.FC = () => {
   };
 
   return (
-    <section id="ai-advisor" className="py-24 relative overflow-hidden">
+    <section id="ai-advisor" className="py-12 sm:py-24 relative overflow-hidden">
         {/* Background Gradients */}
         <div className="absolute top-0 right-0 w-1/2 h-full bg-gradient-to-l from-emerald-900/10 to-transparent -z-10" />
         
@@ -95,7 +97,7 @@ const GeminiAdvisor: React.FC = () => {
                         <div className="h-[300px] bg-dark/50 p-6 overflow-y-auto flex flex-col gap-4">
                             {/* Welcome Message */}
                             <div className="flex gap-4">
-                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-blue-500 flex-shrink-0 flex items-center justify-center h-8">
+                                <div className="w-8 h-8 rounded-full bg-gradient-to-r from-emerald-400 to-blue-500 flex-shrink-0 flex items-center justify-center">
                                     <Sparkles className="w-4 h-4 text-white" />
                                 </div>
                                 <div className="bg-white/10 rounded-2xl rounded-tl-none p-4 max-w-[85%]">
@@ -110,7 +112,7 @@ const GeminiAdvisor: React.FC = () => {
                                         <div className="w-4 h-4 rounded-full bg-slate-400" />
                                     </div>
                                     <div className="bg-emerald-600 rounded-2xl rounded-tr-none p-4 max-w-[85%]">
-                                        <p className="text-white text-sm">{query}</p>
+                                        <p className="text-white text-sm">{submittedQuery}</p>
                                     </div>
                                 </div>
                             )}

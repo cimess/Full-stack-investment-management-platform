@@ -3,22 +3,6 @@ import { DollarSign, Users, Clock, CheckCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, LineChart, Line } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
 
-const aumData = [
-  { month: 'Sep', aum: 420000 },
-  { month: 'Oct', aum: 460000 },
-  { month: 'Nov', aum: 445000 },
-  { month: 'Dec', aum: 510000 },
-  { month: 'Jan', aum: 490000 },
-  { month: 'Feb', aum: 548000 },
-];
-
-const requestVolumeData = [
-  { week: 'W1', buy: 12, sell: 5 },
-  { week: 'W2', buy: 18, sell: 9 },
-  { week: 'W3', buy: 8, sell: 14 },
-  { week: 'W4', buy: 22, sell: 7 },
-];
-
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
     return (
@@ -47,7 +31,6 @@ const ManagerOverview: React.FC = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const userId = meData?.data?.manager.id;
 
-
   const handleCopyId = () => {
     if (userId) {
       navigator.clipboard.writeText(userId);
@@ -56,6 +39,88 @@ const ManagerOverview: React.FC = () => {
     }
   };
   
+  const clients = managerData?.data || [];
+  
+  // Calculate stats from real data
+  const totalAUM = React.useMemo(() => 
+    clients.reduce((acc: number, client: any) => {
+      const portfolioValue = client.portfolio?.investment?.reduce((pAcc: number, inv: any) => {
+        return pAcc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
+      }, 0) || 0;
+      return acc + portfolioValue;
+    }, 0)
+  , [clients]);
+
+  const activeClients = clients.length;
+  
+  const pendingRequests = React.useMemo(() => 
+    clients.reduce((acc: number, client: any) => {
+      const pendingCount = client.portfolio?.trade_request?.filter((req: any) => req.status === 'PENDING').length || 0;
+      return acc + pendingCount;
+    }, 0)
+  , [clients]);
+
+  const approvedTrades = React.useMemo(() => 
+    clients.reduce((acc: number, client: any) => {
+      const approvedCount = client.portfolio?.trade_request?.filter((req: any) => req.status === 'SUCCESS').length || 0;
+      return acc + approvedCount;
+    }, 0)
+  , [clients]);
+
+  // Generate real AUM trend based on client joining dates
+  const aumData = React.useMemo(() => {
+    if (!managerData?.data) return [];
+    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const now = new Date();
+    const result = [];
+
+    for (let i = 5; i >= 0; i--) {
+      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+      const monthLabel = months[targetDate.getMonth()];
+      
+      const aumAtMonth = clients.reduce((acc: number, client: any) => {
+        if (new Date(client.createdAt) <= new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0)) {
+           const val = client.portfolio?.investment?.reduce((pAcc: number, inv: any) => {
+             return pAcc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
+           }, 0) || 0;
+           return acc + val;
+        }
+        return acc;
+      }, 0);
+
+      result.push({ month: monthLabel, aum: aumAtMonth });
+    }
+    return result;
+  }, [clients, managerData?.data]);
+
+  // Generate real Request Volume data
+  const requestVolumeData = React.useMemo(() => {
+    if (!managerData?.data) return [];
+    const result = [];
+    const now = new Date();
+
+    for (let i = 4; i >= 1; i--) {
+      const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
+      const weekEnd = new Date(now.getTime() - ((i - 1) * 7 * 24 * 60 * 60 * 1000));
+      
+      let buyCount = 0;
+      let sellCount = 0;
+
+      clients.forEach((client: any) => {
+        client.portfolio?.trade_request?.forEach((req: any) => {
+          const reqDate = new Date(req.createdAt);
+          if (reqDate >= weekStart && reqDate < weekEnd) {
+            if (req.type === 'BUY') buyCount++;
+            else if (req.type === 'SELL') sellCount++;
+          }
+        });
+      });
+
+      result.push({ week: `W${5-i}`, buy: buyCount, sell: sellCount });
+    }
+    return result;
+  }, [clients, managerData?.data]);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -64,27 +129,6 @@ const ManagerOverview: React.FC = () => {
     );
   }
 
-  const clients = managerData?.data || [];
-  
-  // Calculate stats from real data
-  const totalAUM = clients.reduce((acc: number, client: any) => {
-    const portfolioValue = client.portfolio?.investment?.reduce((pAcc: number, inv: any) => {
-      return pAcc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
-    }, 0) || 0;
-    return acc + portfolioValue;
-  }, 0);
-
-  const activeClients = clients.length;
-  
-  const pendingRequests = clients.reduce((acc: number, client: any) => {
-    const pendingCount = client.portfolio?.trade_request?.filter((req: any) => req.status === 'PENDING').length || 0;
-    return acc + pendingCount;
-  }, 0);
-
-  const approvedTrades = clients.reduce((acc: number, client: any) => {
-    const approvedCount = client.portfolio?.trade_request?.filter((req: any) => req.status === 'APPROVED').length || 0;
-    return acc + approvedCount;
-  }, 0);
 
   return (
     <div className="space-y-6">
