@@ -100,7 +100,7 @@ router.get("/manager/public-profile/:managerId", verifyToken, getPublicManagerPr
 router.get("/admin/dashboard", verifyToken, authorise([Roles.ADMIN]), getAdminDashboard)
 router.post("/restrict/user", verifyToken, authorise([Roles.ADMIN]), restrictUser);
 router.post("/restrict/manager", verifyToken, authorise([Roles.ADMIN]), restrictManager);
-router.post("/add-super-admin", verifyToken, addSuperAdmin);
+// router.post("/add-super-admin", verifyToken, addSuperAdmin);
 router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN]), addAdmin)
 router.post("/manager/approval/key", verifyToken, authorise([Roles.ADMIN]), generateAccessKey)
 router.post("/admin/emergency-shutdown", verifyToken, authorise([Roles.ADMIN]), remoteShutdown);

@@ -1,10 +1,6 @@
 import { FaTag, FaSearchengin, FaListUl } from 'react-icons/fa6'
 import { IoGridOutline } from 'react-icons/io5'
-import imgB from '../assets/images/imgB.jpg'
-import img2 from '../assets/images/imT.jpg'
 import { useState } from 'react'
-import imgS from '../assets/images/imS.jpg'
-import imgE from '../assets/images/imE.jpg'
 import { useNavigate } from 'react-router-dom'
 import DetailsModal from './DetailsModal'
 import { StockCardProps } from '../types'
@@ -18,7 +14,7 @@ const card = [
     return: '+8.5%',
     risk: 'Medium',
     invest: '84,645.73',
-    image: imgB,
+    image: "/assets/images/imgB.jpg",
     symbol: 'BTC-USD',
     financial:
       'Bitcoin (BTC) is a cryptocurrency launched in 2010. Users are able to generate BTC through the process of mining. Bitcoin has a current supply of 19,950,600. The last known price of Bitcoin is 82,420.12720958 USD and is down -9.88 over the last 24 hours. It is currently trading on 12483 active market(s) with $116,350,374,824.36 traded',
@@ -31,6 +27,7 @@ const card = [
       industry: 'cryptocurrency',
       founded: 'July 2010',
     },
+    
   },
 
   {
@@ -39,7 +36,7 @@ const card = [
     return: '+20.5%',
     risk: 'Low',
     invest: '5000',
-    image: img2,
+    image: "/assets/images/imT.jpg",
     symbol: 'TSLA',
     financial:
       "Tesla Inc's financial performance in FY 2025 Q3 shows a concerning decline in profitability and revenue growth, with EPS growth declining by 64.02% and revenue growth at -1.56%. Efficiency metrics like inventory turnover improved to 5.92, but asset turnover weakened to 0.75. Despite these challenges, free cash flow growth surged by 540.61%, indicating strong cash generation capabilities amidst declining sales.",
@@ -61,7 +58,7 @@ const card = [
     return: '+40.5%',
     risk: 'Low',
     invest: '1000',
-    image: imgS,
+    image: "/assets/images/imS.jpg",
     about:
       "SpaceX designs, manufactures and launches rockets and spacecraft. The company has developed a fleet of reusable rockets including Falcon 9 which SpaceX claims is the first orbital class rocket capable of re-flight and Falcon Heavy, its super heavy lift rocket. SpaceX's mission is to create fully reusable launch vehicles capable of carrying humans to Mars and other destinations in the solar system. Additionally, SpaceX has developed StarLink, a satellite internet service created with thousands of small satellites in low Earth orbit.",
     financial:
@@ -81,7 +78,7 @@ const card = [
     return: '+40.5%',
     risk: 'High',
     invest: '3000',
-    image: imgE,
+    image: "/assets/images/imE.jpg",
     symbol: 'TTE',
     about:
       'Renewable Energy under Tesla Investment Co-Operation is strategically managed as a digital asset portfolio designed for long-term growth. Tesla Investment oversees the acquisition and distribution of Renewable shares, allowing investors to participate indirectly through our structured investment model',
@@ -98,17 +95,24 @@ const card = [
 
 
 
-const StockCard = (item:StockCardProps) => {
+const StockCard = (item: StockCardProps) => {
   const [isOpen, setIsOpen] = useState<boolean>(false)
 
-   function handleDetailsToggle(){
-  setIsOpen((prev:boolean)=>!prev)
+  function handleDetailsToggle() {
+    setIsOpen((prev: boolean) => !prev)
 
-}
+   }
   return (
     <div className="flex flex-col bg-dark text-white min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200 rounded-xl overflow-hidden shadow-lg border border-gray-800">
       {/* Image */}
-      <div className="bg-center bg-cover h-60" style={{ backgroundImage: `url(${item.image})` }} />
+      <div
+        className="h-60 bg-center bg-cover"
+        data-netlify-image-url={`/.netlify/images?url=${item.image}&w=400&fm=webp`}
+        style={{
+          backgroundImage: `url(${import.meta.env.DEV ? item.image : `/.netlify/images?url=${item.image}&w=400&fm=webp`})`
+        }}
+      />
+
 
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div>
@@ -124,13 +128,12 @@ const StockCard = (item:StockCardProps) => {
         <div className="flex justify-between text-sm text-gray-300">
           <p>Risk Level</p>
           <span
-            className={`px-2 py-0.5 rounded-full text-xs font-semibold ${
-              item.risk === 'Low'
+            className={`px-2 py-0.5 rounded-full text-xs font-semibold ${item.risk === 'Low'
                 ? 'bg-green-600 text-green-100'
                 : item.risk === 'Medium'
-                ? 'bg-yellow-300 text-yellow-700'
-                : 'bg-red-800/70 text-red-300'
-            }`}>
+                  ? 'bg-yellow-300 text-yellow-700'
+                  : 'bg-red-800/70 text-red-300'
+              }`}>
             {item.risk}
           </span>
         </div>
@@ -144,7 +147,7 @@ const StockCard = (item:StockCardProps) => {
           View Details
         </button>
         {
-          isOpen&&<DetailsModal  onClose={handleDetailsToggle} item={item} />
+          isOpen && <DetailsModal onClose={handleDetailsToggle} item={item} />
         }
       </div>
     </div>
@@ -200,7 +203,7 @@ const DiscoverPage = () => {
                 </div>
               ))}
             </div>
-            </div>
+          </div>
         </div>
       </main>
     </div>
