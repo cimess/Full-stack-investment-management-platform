@@ -6,6 +6,20 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 const TransactionsView: React.FC = () => {
   const { data, isLoading, isError } = getUserDashboard();
 
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const transactions = React.useMemo(() => {
+    return [...(data?.data?.transactions || []), ...(data?.data?.trade_requests || [])]
+      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [data?.data?.transactions, data?.data?.trade_requests]);
+
+  const virtualizer = useVirtualizer({
+    count: transactions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72, // Rough estimate of row height
+    overscan: 5,
+  });
+
   if (isLoading) {
     return (
       <div className="flex h-full items-center justify-center p-12">
@@ -14,17 +28,6 @@ const TransactionsView: React.FC = () => {
     );
   }
 
-  const transactions = [...(data?.data?.transactions || []), ...(data?.data?.trade_requests || [])]
-    .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
-  const parentRef = React.useRef<HTMLDivElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: transactions.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 72, // Rough estimate of row height
-    overscan: 5,
-  });
 
   return (
     <div className="space-y-6">

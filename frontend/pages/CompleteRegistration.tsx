@@ -27,7 +27,7 @@ export default function CompleteRegistration() {
 
   useEffect(() => {
     // If user already has a password, redirect them away
-    if (userData?.data?.password) {
+    if (userData?.data?.hasPassword) {
       navigate("/dashboard/client");
     }
   }, [userData, navigate]);

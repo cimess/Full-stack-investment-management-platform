@@ -5,6 +5,25 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 
 const TransactionsView: React.FC = () => {
   const { data: adminData, isLoading } = useGetAdminDashboard();
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  // Combing transactions and tradeRequests for a comprehensive log
+  const allLogs = React.useMemo(() => {
+    const transactions = adminData?.data?.transactions || [];
+    const tradeRequests = adminData?.data?.tradeRequests || [];
+    
+    // Sort by date descending
+    return [...transactions, ...tradeRequests].sort((a: any, b: any) => 
+      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
+  }, [adminData?.data?.transactions, adminData?.data?.tradeRequests]);
+
+  const virtualizer = useVirtualizer({
+    count: allLogs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 64, // Estimate for admin row height
+    overscan: 5,
+  });
 
   if (isLoading) {
     return (
@@ -14,23 +33,6 @@ const TransactionsView: React.FC = () => {
     );
   }
 
-  // Combing transactions and tradeRequests for a comprehensive log
-  const transactions = adminData?.data?.transactions || [];
-  const tradeRequests = adminData?.data?.tradeRequests || [];
-  
-  // Sort by date descending
-  const allLogs = [...transactions, ...tradeRequests].sort((a: any, b: any) => 
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-
-  const parentRef = React.useRef<HTMLDivElement>(null);
-
-  const virtualizer = useVirtualizer({
-    count: allLogs.length,
-    getScrollElement: () => parentRef.current,
-    estimateSize: () => 64, // Estimate for admin row height
-    overscan: 5,
-  });
 
   return (
     <div className="space-y-6">

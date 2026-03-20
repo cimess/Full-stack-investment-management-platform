@@ -13,7 +13,7 @@ import type { NextFunction } from "express";
 
 export const googleAuth=async (req: Request, res:Response) => {
 
-    const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null ;isVerified:boolean};
+    const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null ;isVerified:boolean; password?: string | null; isNewUser?: boolean };
 
     const oldRefreshToken = req.cookies?.refreshToken;
 
@@ -65,13 +65,13 @@ export const googleAuth=async (req: Request, res:Response) => {
     });
 
     const { id, roles, username, fullname, email, manager_id: managerId } = user;
-    const isNewUser = (user as any).isNewUser;
     const frontendUrl = process.env.NODE_ENV === "production" 
       ? process.env.FRONTEND_URL 
       : "http://localhost:5173";
     
-    // Redirect to complete registration if new Google user, otherwise to dashboard
-    const target = isNewUser ? `${frontendUrl}/complete-registration` : `${frontendUrl}/dashboard`;
+    // Redirect to complete registration if user has no password (common for new Google users)
+    const needsPassword = user.isNewUser || !user.password;
+    const target = needsPassword ? `${frontendUrl}/complete-registration` : `${frontendUrl}/dashboard`;
     return res.redirect(target);
 
   }
@@ -384,6 +384,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
       username: true,
       email: true,
       isVerified: true,
+      password: true, // Needed to check if user has set a password
       settings: true,
       manager: true, // The manager's OWN profile
       client_manager: { // The manager attached TO this client
@@ -412,9 +413,11 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     return next(createError(401, "Unauthorized"));
   }
   
-  // Convert BigInt to string to avoid JSON serialization errors
+  // Convert BigInt to string and check if password exists
   const serializedUser = {
     ...user,
+    hasPassword: !!user.password,
+    password: undefined, // Don't send the password hash to the frontend
     manager: user.manager ? {
       ...user.manager,
       aum_managed: (user.manager as any).aum_managed ? (user.manager as any).aum_managed.toString() : null
