@@ -3,8 +3,13 @@
 ## 📸 Screenshots
 
 ### NovaInvest App
-<img src="./app/Screenshot%202026-03-20%20at%2015-44-02%20NovaInvest%20-%20The%20Future%20of%20Wealth.png" width="700"/>
 
+
+
+![Uploading 1.png…]()![Uploading 2.png…]()![Uploading 4.png…]()
+![Uploading 5.png…]()
+
+![Uploading 3.png…]()
 
 
 **CimessInvest** is a high-performance, full-stack investment management platform designed for modern investors, portfolio managers, and administrators. It combines real-time financial data with sophisticated analytics and a rock-solid security layer.
