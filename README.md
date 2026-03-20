@@ -1,15 +1,14 @@
 # 🚀 CimessInvest: Professional Asset Management Platform
 
-## 📸 Screenshots
+## 📸 Screenshots[<img src="https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6" width="700"/>](https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6)
+
+[<img src="https://github.com/user-attachments/assets/c8f4c6eb-a29c-4dc8-b139-ce7ff9b2c98e" width="700" alt="NovaInvest Dashboard Screenshot"/>](https://github.com/user-attachments/assets/c8f4c6eb-a29c-4dc8-b139-ce7ff9b2c98e)
+
+
+
 
 ### NovaInvest App
 
-
-
-![Uploading 1.png…]()![Uploading 2.png…]()![Uploading 4.png…]()
-![Uploading 5.png…]()
-
-![Uploading 3.png…]()
 
 
 **CimessInvest** is a high-performance, full-stack investment management platform designed for modern investors, portfolio managers, and administrators. It combines real-time financial data with sophisticated analytics and a rock-solid security layer.
