@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUpRight, ArrowDownRight, Clock, Loader2 } from 'lucide-react';
 import { getUserDashboard } from "../../../hooks/useQuery";
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 const TransactionsView: React.FC = () => {
   const { data, isLoading, isError } = getUserDashboard();
@@ -13,10 +14,17 @@ const TransactionsView: React.FC = () => {
     );
   }
 
-
-
   const transactions = [...(data?.data?.transactions || []), ...(data?.data?.trade_requests || [])]
     .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: transactions.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 72, // Rough estimate of row height
+    overscan: 5,
+  });
 
   return (
     <div className="space-y-6">
@@ -31,8 +39,8 @@ const TransactionsView: React.FC = () => {
             No transaction history found.
           </div>
         ) : (
-          <>
-            {/* Mobile Card View */}
+          <div ref={parentRef} className="max-h-[600px] overflow-auto scrollbar-hide">
+            {/* Mobile Card View - Not virtualized for now to keep simplicity */}
             <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden">
               {transactions.map((act: any) => {
                 const isBuy = act.type === 'BUY';
@@ -84,11 +92,11 @@ const TransactionsView: React.FC = () => {
               })}
             </div>
 
-            {/* Desktop Table View */}
-            <div className="hidden md:block overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-white/5 bg-white/2">
+            {/* Desktop Table View - Virtualized */}
+            <div className="hidden md:block">
+              <table className="w-full border-collapse">
+                <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
+                  <tr className="border-b border-white/5">
                     <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Transaction</th>
                     <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Quantity</th>
                     <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Price / Total Value</th>
@@ -96,15 +104,29 @@ const TransactionsView: React.FC = () => {
                     <th className="text-center text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Status</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-white/3">
-                  {transactions.map((act: any) => {
+                <tbody 
+                  style={{
+                    height: `${virtualizer.getTotalSize()}px`,
+                    position: 'relative',
+                  }}
+                >
+                  {virtualizer.getVirtualItems().map((virtualRow) => {
+                    const act = transactions[virtualRow.index];
                     const isBuy = act.type === 'BUY';
                     const price = act.price ? Number(act.price) : 0;
                     const total = price ? price * act.quantity : 0;
                     const status = act.status ? act.status.toLowerCase() : 'completed';
                     
                     return (
-                      <tr key={act.id} className="hover:bg-white/2 transition-colors">
+                      <tr 
+                        key={virtualRow.key}
+                        data-index={virtualRow.index}
+                        ref={virtualizer.measureElement}
+                        className="hover:bg-white/2 transition-colors absolute top-0 left-0 w-full"
+                        style={{
+                          transform: `translateY(${virtualRow.start}px)`,
+                        }}
+                      >
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3">
                             <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} border border-white/5`}>
@@ -139,7 +161,7 @@ const TransactionsView: React.FC = () => {
                 </tbody>
               </table>
             </div>
-          </>
+          </div>
         )}
       </div>
     </div>

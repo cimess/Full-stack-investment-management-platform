@@ -3,7 +3,7 @@ import { loginSchema, registerSchema, verifyEmailSchema } from "../zodschema/reg
 import { prisma } from "../lib/prisma.js"
 import logger from "../winstonlog/logger.js";
 import type { Request, Response } from "express";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendEmail } from "../services/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";

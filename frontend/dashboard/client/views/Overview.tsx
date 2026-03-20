@@ -6,6 +6,7 @@ import { getUserDashboard } from "../../../hooks/useQuery";
 import { useQueryClient } from '@tanstack/react-query';
 import { toast,Zoom } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
+import AnalyticsWorker from '../../../workers/analytics.worker?worker';
 
 
 type User = {
@@ -72,32 +73,29 @@ const ClientOverview: React.FC = () => {
   const initialInvestment = portfolioValue - totalProfit;
   const percentageChange = initialInvestment > 0 ? (totalProfit / initialInvestment) * 100 : 0;
 
-  // Generate real chart data for the last 7 days
-  const chartData = React.useMemo(() => {
-    if (!data?.data) return [];
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    const result = [];
-    const now = new Date();
-    
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(now.getDate() - i);
-      const dayName = days[d.getDay()];
-      const dayEnd = new Date(d.setHours(23, 59, 59, 999));
+  const [chartData, setChartData] = React.useState<any[]>([]);
+  const [isCalculating, setIsCalculating] = React.useState(false);
 
-      const netChangeSinceThen = transactions
-        .filter((tx: any) => new Date(tx.createdAt) > dayEnd)
-        .reduce((acc: number, tx: any) => {
-          const amount = Number(tx.quantity) * Number(tx.price);
-          return tx.type === 'BUY' ? acc + amount : acc - amount;
-        }, 0);
+  useEffect(() => {
+    if (!data?.data || !transactions.length) return;
 
-      result.push({
-        name: dayName,
-        value: Math.max(0, portfolioValue - netChangeSinceThen)
-      });
-    }
-    return result;
+    setIsCalculating(true);
+    const worker = new AnalyticsWorker();
+
+    worker.onmessage = (e) => {
+      if (e.data.type === 'CHART_DATA_RESULT') {
+        setChartData(e.data.data);
+        setIsCalculating(false);
+        worker.terminate();
+      }
+    };
+
+    worker.postMessage({
+      type: 'CALCULATE_CHART_DATA',
+      payload: { portfolioValue, transactions }
+    });
+
+    return () => worker.terminate();
   }, [portfolioValue, transactions, data?.data]);
 
   if (isLoading) {
@@ -180,8 +178,14 @@ const ClientOverview: React.FC = () => {
               <p className="text-slate-500 text-xs lg:text-sm">Growth over the last 7 days</p>
             </div>
           </div>
-          <ResponsiveContainer width="100%" height={window.innerWidth < 640 ? 220 : 300}>
-            <AreaChart data={chartData}>
+          <div className="relative h-[220px] sm:h-[300px]">
+            {isCalculating && (
+              <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-xl">
+                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+              </div>
+            )}
+            <ResponsiveContainer width="100%" height="100%">
+              <AreaChart data={chartData}>
               <defs>
                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
@@ -197,7 +201,8 @@ const ClientOverview: React.FC = () => {
               />
               <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
             </AreaChart>
-          </ResponsiveContainer>
+            </ResponsiveContainer>
+          </div>
         </div>
  
         <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-white/5 space-y-4 lg:space-y-6">

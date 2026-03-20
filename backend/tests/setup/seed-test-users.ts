@@ -11,7 +11,7 @@
  */
 
 import { prisma } from '../../lib/prisma.js';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 export const TEST_CREDENTIALS = {
   client: {
@@ -36,6 +36,7 @@ async function seedTestUsers() {
   // Order matters due to foreign keys
   await prisma.trade_request.deleteMany({});
   await prisma.investment.deleteMany({});
+  await prisma.transaction.deleteMany({});
   await prisma.refreshToken.deleteMany({});
   await prisma.portfolio.deleteMany({});
   

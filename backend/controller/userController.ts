@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { prisma } from "../lib/prisma.js";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import { updateSchema } from "../zodschema/registerschemer.js";
 
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {

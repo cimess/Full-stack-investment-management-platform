@@ -9363,3 +9363,88 @@ An operation failed because it depends on one or more records that were required
 2026-03-19 14:03:21 [info]: Received Google OAuth callback...
 2026-03-19 14:24:03 [info]: Initiating Google OAuth login...
 2026-03-19 16:00:17 [info]: SIGTERM received: Starting graceful shutdown...
+2026-03-20 07:08:27 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "RefreshToken",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"RefreshToken_token_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "token"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-20 07:08:27 [error]: [500 Error] InternalServerError: Internal Server Error: 
+Invalid `tx.refreshToken.create()` invocation in
+/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/authentication.ts:293:54
+
+  290   sameSite: "lax",
+  291   maxAge: 10 * 60 * 1000
+  292 })
+→ 293 const saveRefreshToken = await tx.refreshToken.create(
+Unique constraint failed on the fields: (`token`)
+    at loginUser (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/authentication.ts:311:17)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)
+2026-03-20 07:08:27 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "User",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"User_email_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "email"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-20 07:08:28 [error]: undefined {
+  "code": "P2002",
+  "meta": {
+    "modelName": "RefreshToken",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "originalCode": "23505",
+        "originalMessage": "duplicate key value violates unique constraint \"RefreshToken_token_key\"",
+        "kind": "UniqueConstraintViolation",
+        "constraint": {
+          "fields": [
+            "token"
+          ]
+        }
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError"
+}
+2026-03-20 07:08:28 [error]: [500 Error] InternalServerError: Internal Server Error: 
+Invalid `tx.refreshToken.create()` invocation in
+/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/authentication.ts:293:54
+
+  290   sameSite: "lax",
+  291   maxAge: 10 * 60 * 1000
+  292 })
+→ 293 const saveRefreshToken = await tx.refreshToken.create(
+Unique constraint failed on the fields: (`token`)
+    at loginUser (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/controller/authentication.ts:311:17)
+    at processTicksAndRejections (node:internal/process/task_queues:103:5)

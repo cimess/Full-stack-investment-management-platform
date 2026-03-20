@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 

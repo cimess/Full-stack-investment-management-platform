@@ -1,15 +1,7 @@
-import React from 'react';
-import { ArrowLeftRight } from 'lucide-react';
-
-const recentTransactions = [
-  { id: 1, client: 'Alex Johnson', manager: 'Sarah M.', symbol: 'NVDA', type: 'buy', qty: 5, total: 3366.00, date: 'Feb 26', status: 'completed' },
-  { id: 2, client: 'Priya Sharma', manager: 'Sarah M.', symbol: 'AAPL', type: 'sell', qty: 10, total: 1823.00, date: 'Feb 25', status: 'completed' },
-  { id: 3, client: 'James Wilson', manager: 'Robert A.', symbol: 'TSLA', type: 'buy', qty: 4, total: 885.60, date: 'Feb 24', status: 'pending' },
-  { id: 4, client: 'Maria Chen', manager: 'Sarah M.', symbol: 'MSFT', type: 'buy', qty: 6, total: 1791.00, date: 'Feb 23', status: 'completed' },
-];
-
+import React, { useRef } from 'react';
+import { ArrowLeftRight, Loader2 } from 'lucide-react';
 import { useGetAdminDashboard } from '../../../hooks/useQuery';
-import { Loader2 } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 
 const TransactionsView: React.FC = () => {
   const { data: adminData, isLoading } = useGetAdminDashboard();
@@ -31,6 +23,15 @@ const TransactionsView: React.FC = () => {
     new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
   );
 
+  const parentRef = React.useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: allLogs.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 64, // Estimate for admin row height
+    overscan: 5,
+  });
+
   return (
     <div className="space-y-6">
       <div>
@@ -39,10 +40,10 @@ const TransactionsView: React.FC = () => {
       </div>
 
       <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead>
-              <tr className="border-b border-white/5 bg-white/2">
+        <div ref={parentRef} className="max-h-[700px] overflow-auto scrollbar-hide">
+          <table className="w-full border-collapse">
+            <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
+              <tr className="border-b border-white/5">
                 <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">User</th>
                 <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Manager</th>
                 <th className="text-center text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Type</th>
@@ -52,13 +53,26 @@ const TransactionsView: React.FC = () => {
                 <th className="text-center text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/3">
-              {allLogs.map((log: any) => {
+            <tbody 
+              style={{
+                height: `${virtualizer.getTotalSize()}px`,
+                position: 'relative',
+              }}
+            >
+              {virtualizer.getVirtualItems().map((virtualRow) => {
+                const log = allLogs[virtualRow.index];
                 const date = new Date(log.createdAt).toLocaleDateString();
-                const isTradeRequest = !!log.process_id;
                 
                 return (
-                  <tr key={log.id} className="hover:bg-white/2 transition-colors">
+                  <tr 
+                    key={virtualRow.key}
+                    data-index={virtualRow.index}
+                    ref={virtualizer.measureElement}
+                    className="hover:bg-white/2 transition-colors absolute top-0 left-0 w-full"
+                    style={{
+                      transform: `translateY(${virtualRow.start}px)`,
+                    }}
+                  >
                     <td className="px-6 py-4 text-white text-sm font-medium">{log.user_id ? 'User' : 'System'}</td>
                     <td className="px-4 py-4 text-slate-400 text-sm">{log.manager_id ? 'Assigned' : 'None'}</td>
                     <td className="px-4 py-4 text-center">

@@ -1,7 +1,9 @@
 import React from 'react';
-import { Users, Briefcase, DollarSign, AlertTriangle, TrendingUp, Loader2 } from 'lucide-react';
+import { Users, Briefcase, DollarSign, AlertTriangle, Loader2 } from 'lucide-react';
 import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
+import { useGetAdminDashboard } from '../../../hooks/useQuery';
+import AnalyticsWorker from '../../../workers/analytics.worker?worker';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -19,8 +21,6 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-import { useGetAdminDashboard } from '../../../hooks/useQuery';
-
 const Overview: React.FC = () => {
   const { data: adminData, isLoading } = useGetAdminDashboard();
 
@@ -33,7 +33,34 @@ const Overview: React.FC = () => {
     tradeRequests = [],
   } = adminData?.data || {};
 
-  // Calculate dynamic stats
+  const [analyticsData, setAnalyticsData] = React.useState<{ platformVolumeData: any[], tradeStatusData: any[] }>({ 
+    platformVolumeData: [], 
+    tradeStatusData: [] 
+  });
+  const [isCalculating, setIsCalculating] = React.useState(false);
+
+  React.useEffect(() => {
+    if (!transactions.length && !tradeRequests.length) return;
+
+    setIsCalculating(true);
+    const worker = new AnalyticsWorker();
+
+    worker.onmessage = (e) => {
+      if (e.data.type === 'ADMIN_ANALYTICS_RESULT') {
+        setAnalyticsData(e.data.data);
+        setIsCalculating(false);
+        worker.terminate();
+      }
+    };
+
+    worker.postMessage({
+      type: 'CALCULATE_ADMIN_ANALYTICS',
+      payload: { transactions, tradeRequests }
+    });
+
+    return () => worker.terminate();
+  }, [transactions, tradeRequests]);
+
   const totalVolume = React.useMemo(() => 
     transactions.reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0)
   , [transactions]);
@@ -42,38 +69,7 @@ const Overview: React.FC = () => {
   const activeManagersCount = managers.length;
   const restrictedCount = restrictedUser.length + restrictedManagers.length;
 
-  // Generate dynamic platform volume trend (last 6 months)
-  const platformVolumeData = React.useMemo(() => {
-    if (!adminData?.data) return [];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const now = new Date();
-    const result = [];
-
-    for (let i = 5; i >= 0; i--) {
-      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthLabel = months[targetDate.getMonth()];
-      
-      const volumeAtMonth = transactions
-        .filter((tx: any) => {
-          const txDate = new Date(tx.createdAt);
-          return txDate.getMonth() === targetDate.getMonth() && txDate.getFullYear() === targetDate.getFullYear();
-        })
-        .reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0);
-
-      result.push({ month: monthLabel, volume: volumeAtMonth });
-    }
-    return result;
-  }, [transactions, adminData?.data]);
-
-  // Generate real trade status breakdown
-  const tradeStatusData = React.useMemo(() => {
-    if (!adminData?.data) return [];
-    return [
-      { status: 'Success', count: tradeRequests.filter((r: any) => r.status === 'SUCCESS').length },
-      { status: 'Rejected', count: tradeRequests.filter((r: any) => r.status === 'REJECTED').length },
-      { status: 'Pending', count: tradeRequests.filter((r: any) => r.status === 'PENDING').length },
-    ];
-  }, [tradeRequests, adminData?.data]);
+  const { platformVolumeData, tradeStatusData } = analyticsData;
 
   if (isLoading) {
     return (
@@ -85,7 +81,6 @@ const Overview: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Platform Stats */}
       <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-4">
         <StatCard
           title="Total Platform Volume"
@@ -114,9 +109,13 @@ const Overview: React.FC = () => {
         />
       </div>
 
-      {/* Charts */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-4">
-        <div className="xl:col-span-2 glass-panel rounded-2xl p-6 border border-white/5">
+        <div className="xl:col-span-2 glass-panel rounded-2xl p-6 border border-white/5 relative">
+          {isCalculating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-2xl">
+              <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+            </div>
+          )}
           <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
           <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform</p>
           <ResponsiveContainer width="100%" height={250}>
@@ -136,7 +135,12 @@ const Overview: React.FC = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="glass-panel rounded-2xl p-6 border border-white/5">
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 relative">
+          {isCalculating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-2xl">
+              <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
+            </div>
+          )}
           <h2 className="text-white font-bold text-lg mb-1">Trade Status</h2>
           <p className="text-slate-500 text-sm mb-5">Current request breakdown</p>
           <ResponsiveContainer width="100%" height={250}>

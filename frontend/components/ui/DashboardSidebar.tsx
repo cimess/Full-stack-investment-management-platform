@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import {logout} from "../../hooks/useQuery"
+import { logout } from "../../hooks/useQuery";
 import {
   LayoutDashboard,
   TrendingUp,
@@ -17,6 +17,8 @@ import {
   UserCheck,
   Activity,
 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import { getClientAll, getManagerAll, getAdminDashboard, getMarketQuotes } from '../../services/queryServices';
 
 export type UserRole = 'client' | 'manager' | 'admin';
 
@@ -90,9 +92,21 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const navItems = navByRole[role];
 
-
+  const handlePrefetch = (path: string) => {
+    // Determine which query to prefetch based on path
+    if (path.includes('/market')) {
+      queryClient.prefetchQuery({ queryKey: ["marketQuotes"], queryFn: getMarketQuotes });
+    } else if (path.includes('/transactions')) {
+      queryClient.prefetchQuery({ queryKey: ["userDashboard"], queryFn: getClientAll });
+    } else if (path === '/dashboard/client' || path === '/dashboard/manager' || path === '/dashboard/admin') {
+      const queryKey = role === 'admin' ? ["adminDashboard"] : role === 'manager' ? ["managerDashboard"] : ["userDashboard"];
+      const queryFn = role === 'admin' ? getAdminDashboard : role === 'manager' ? getManagerAll : getClientAll;
+      queryClient.prefetchQuery({ queryKey, queryFn });
+    }
+  };
 
   const handleNavClick = (path: string) => {
     navigate(path);
@@ -159,6 +173,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
             <button
               key={item.path}
               onClick={() => handleNavClick(item.path)}
+              onMouseEnter={() => handlePrefetch(item.path)}
               className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive
                   ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'

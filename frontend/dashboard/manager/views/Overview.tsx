@@ -2,6 +2,10 @@ import React from 'react';
 import { DollarSign, Users, Clock, CheckCircle } from 'lucide-react';
 import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, LineChart, Line } from 'recharts';
 import StatCard from '../../../components/ui/StatCard';
+import { useGetManagerDashboard } from '../../../hooks/useQuery';
+import { Loader2, Copy, Check } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
+import AnalyticsWorker from '../../../workers/analytics.worker?worker';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -19,9 +23,7 @@ const CustomTooltip = ({ active, payload, label }: any) => {
   return null;
 };
 
-import { useGetManagerDashboard } from '../../../hooks/useQuery';
-import { Loader2, Copy, Check } from 'lucide-react';
-import { useQueryClient } from '@tanstack/react-query';
+
 
 const ManagerOverview: React.FC = () => {
   const { data: managerData, isLoading } = useGetManagerDashboard();
@@ -67,59 +69,32 @@ const ManagerOverview: React.FC = () => {
     }, 0)
   , [clients]);
 
-  // Generate real AUM trend based on client joining dates
-  const aumData = React.useMemo(() => {
-    if (!managerData?.data) return [];
-    const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-    const now = new Date();
-    const result = [];
+  const [analyticsData, setAnalyticsData] = React.useState<{ aumData: any[], requestVolumeData: any[] }>({ aumData: [], requestVolumeData: [] });
+  const [isCalculating, setIsCalculating] = React.useState(false);
 
-    for (let i = 5; i >= 0; i--) {
-      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
-      const monthLabel = months[targetDate.getMonth()];
-      
-      const aumAtMonth = clients.reduce((acc: number, client: any) => {
-        if (new Date(client.createdAt) <= new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0)) {
-           const val = client.portfolio?.investment?.reduce((pAcc: number, inv: any) => {
-             return pAcc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
-           }, 0) || 0;
-           return acc + val;
-        }
-        return acc;
-      }, 0);
+  React.useEffect(() => {
+    if (!clients.length) return;
 
-      result.push({ month: monthLabel, aum: aumAtMonth });
-    }
-    return result;
-  }, [clients, managerData?.data]);
+    setIsCalculating(true);
+    const worker = new AnalyticsWorker();
 
-  // Generate real Request Volume data
-  const requestVolumeData = React.useMemo(() => {
-    if (!managerData?.data) return [];
-    const result = [];
-    const now = new Date();
+    worker.onmessage = (e) => {
+      if (e.data.type === 'MANAGER_ANALYTICS_RESULT') {
+        setAnalyticsData(e.data.data);
+        setIsCalculating(false);
+        worker.terminate();
+      }
+    };
 
-    for (let i = 4; i >= 1; i--) {
-      const weekStart = new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000));
-      const weekEnd = new Date(now.getTime() - ((i - 1) * 7 * 24 * 60 * 60 * 1000));
-      
-      let buyCount = 0;
-      let sellCount = 0;
+    worker.postMessage({
+      type: 'CALCULATE_MANAGER_ANALYTICS',
+      payload: { clients }
+    });
 
-      clients.forEach((client: any) => {
-        client.portfolio?.trade_request?.forEach((req: any) => {
-          const reqDate = new Date(req.createdAt);
-          if (reqDate >= weekStart && reqDate < weekEnd) {
-            if (req.type === 'BUY') buyCount++;
-            else if (req.type === 'SELL') sellCount++;
-          }
-        });
-      });
+    return () => worker.terminate();
+  }, [clients]);
 
-      result.push({ week: `W${5-i}`, buy: buyCount, sell: sellCount });
-    }
-    return result;
-  }, [clients, managerData?.data]);
+  const { aumData, requestVolumeData } = analyticsData;
 
   if (isLoading) {
     return (
@@ -194,7 +169,12 @@ const ManagerOverview: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-        <div className="glass-panel rounded-2xl p-6 border border-white/5">
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 relative">
+          {isCalculating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-2xl">
+              <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+            </div>
+          )}
           <h2 className="text-white font-bold text-lg mb-1">AUM Trend</h2>
           <p className="text-slate-500 text-sm mb-5">Assets under management (6 months)</p>
           <ResponsiveContainer width="100%" height={260}>
@@ -208,7 +188,12 @@ const ManagerOverview: React.FC = () => {
           </ResponsiveContainer>
         </div>
 
-        <div className="glass-panel rounded-2xl p-6 border border-white/5">
+        <div className="glass-panel rounded-2xl p-6 border border-white/5 relative">
+          {isCalculating && (
+            <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-2xl">
+              <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
+            </div>
+          )}
           <h2 className="text-white font-bold text-lg mb-1">Request Volume</h2>
           <p className="text-slate-500 text-sm mb-5">Buy vs Sell requests per week</p>
           <ResponsiveContainer width="100%" height={260}>

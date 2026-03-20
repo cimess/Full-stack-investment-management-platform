@@ -92,6 +92,16 @@ if (process.env.NODE_ENV !== "test") {
   try {
     if(process.env.NODE_ENV==="production"){
       startMarketWorker(300,true);
+      
+      // Database Keep-alive Ping (Prevents Render DB Sleep)
+      setInterval(async () => {
+        try {
+          await prisma.$queryRaw`SELECT 1`;
+          logger.info("Database ping successful (Keep-alive)");
+        } catch (err) {
+          logger.error("Database ping failed (Keep-alive):", err);
+        }
+      }, 45 * 60 * 1000); // 45 minutes
     }
   } catch (err) {
     logger.error("Error in startMarketWorker:", err);
