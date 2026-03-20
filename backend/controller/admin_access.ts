@@ -162,6 +162,12 @@ export const addSuperAdmin = async (req: Request, res: Response, next: NextFunct
         data: { roles: Roles.ADMIN }
       });
 
+      const admin = await tx.admin.findFirst({
+        where: { super_admin: true }
+      });
+      if(admin){
+        throw (createError(400, "Super Admin already exists pls who are you ??"));
+      }
       // 3. Create Admin profile
       const hashedPassword = await bcrypt.hash(super_admin_access, 10);
       await tx.admin.create({
