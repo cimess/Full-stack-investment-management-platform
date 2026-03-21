@@ -37,35 +37,33 @@ const features = [
 
 const Features: React.FC = () => {
   return (
-    <section id="features" className="py-24 bg-dark relative">
+    <section id="features" className="py-32 bg-black relative">
       <div className="max-w-7xl mx-auto px-6">
         <ScrollReveal>
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-3xl md:text-5xl font-bold mb-6">
-              Powerful tools for <span className="gradient-text">smart investors</span>
+          <div className="text-center max-w-3xl mx-auto mb-20">
+            <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter">
+              Powerful tools for <span className="premium-text-gradient">smart investors</span>
             </h2>
-            <p className="text-slate-400 text-lg">
-              We've built a comprehensive ecosystem designed to help you grow, manage, and protect your wealth.
+            <p className="text-slate-500 text-lg font-medium leading-relaxed">
+              A comprehensive ecosystem designed to help you grow, manage, and protect your wealth.
             </p>
           </div>
         </ScrollReveal>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {features.map((feature, index) => (
             <ScrollReveal key={index} delay={index * 0.1} className={`${index === 0 || index === 3 ? 'md:col-span-2' : 'md:col-span-1'}`}>
               <div
                 className={`
-                  glass-panel p-8 rounded-2xl relative overflow-hidden group hover:-translate-y-1 transition-all duration-300 spotlight h-full
+                  premium-card p-10 h-full group hover:translate-y-[-4px]
                 `}
               >
-                <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-
                 <div className="relative z-10">
-                  <div className="w-12 h-12 bg-white/5 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
-                    {feature.icon}
+                  <div className="w-14 h-14 bg-white/[0.03] border border-white/10 rounded-2xl flex items-center justify-center mb-10 group-hover:border-white/20 transition-all duration-500">
+                    {React.cloneElement(feature.icon as React.ReactElement<any>, { className: "w-6 h-6", strokeWidth: 1.5 })}
                   </div>
-                  <h3 className="text-xl font-bold mb-3 font-display">{feature.title}</h3>
-                  <p className="text-slate-400 leading-relaxed">
+                  <h3 className="text-2xl font-bold mb-4 tracking-tight text-white">{feature.title}</h3>
+                  <p className="text-slate-500 font-medium leading-relaxed">
                     {feature.description}
                   </p>
                 </div>

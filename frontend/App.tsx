@@ -27,7 +27,19 @@ const PageLoader = () => (
 const App = () => {
   return (
     <>
-      <ToastContainer />
+      <ToastContainer 
+        position="top-center"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        draggablePercent={10}
+        theme="dark"
+      />
       <Router>
      <Suspense fallback={<PageLoader />}>
       <Routes>

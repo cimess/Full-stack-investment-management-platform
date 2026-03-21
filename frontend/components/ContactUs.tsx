@@ -3,11 +3,12 @@ import { FiSend, FiMail, FiMapPin, FiPhone, FiTwitter, FiLinkedin, FiInstagram, 
 import emailjs from '@emailjs/browser';
 
 function ContactUs() {
-  const form = useRef();
-  const [status, setStatus] = useState('idle'); // idle, sending, success, error
+  const form = useRef<HTMLFormElement>(null);
+  const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const sendEmail = (e) => {
+  const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!form.current) return;
     setStatus('sending');
 
     // Replace these with your actual EmailJS service, template, and public key
@@ -20,7 +21,7 @@ function ContactUs() {
       .then((result) => {
           console.log(result.text);
           setStatus('success');
-          e.target.reset();
+          e.currentTarget.reset();
           setTimeout(() => setStatus('idle'), 5000);
       }, (error) => {
           console.log(error.text);
@@ -33,14 +34,14 @@ function ContactUs() {
     <section id="contact" className="relative py-24 px-4 overflow-hidden">
       {/* Background Elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10">
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-emerald-500/20 rounded-full blur-[128px]" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/20 rounded-full blur-[128px]" />
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-white/[0.03] rounded-full blur-[128px]" />
+        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-white/[0.02] rounded-full blur-[128px]" />
       </div>
 
       <div className="max-w-7xl mx-auto">
-        <div className="text-center mb-16">
-          <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">Get in <span className="text-emerald-400">Touch</span></h2>
-          <p className="text-gray-400 text-lg max-w-2xl mx-auto">
+        <div className="text-center mb-24">
+          <h2 className="text-4xl md:text-6xl font-bold text-white mb-6 tracking-tighter">Get in <span className="text-slate-500">Touch</span></h2>
+          <p className="text-slate-500 text-lg font-medium max-w-2xl mx-auto leading-relaxed">
             Have questions about your portfolio? Our team is here to help you navigate your investment journey.
           </p>
         </div>
@@ -48,8 +49,8 @@ function ContactUs() {
         <div className="grid lg:grid-cols-2 gap-12 items-start">
           {/* Contact Info */}
           <div className="space-y-8">
-            <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-2xl p-8 hover:bg-white/10 transition-colors duration-300">
-              <h3 className="text-2xl font-bold text-white mb-6">Contact Information</h3>
+            <div className="premium-card p-10">
+              <h3 className="text-2xl font-bold text-white mb-8 tracking-tight">Contact Information</h3>
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
                   <div className="p-3 rounded-lg bg-emerald-500/10 text-emerald-400">
@@ -100,66 +101,66 @@ function ContactUs() {
           </div>
 
           {/* Contact Form */}
-          <div className="bg-white/5 backdrop-blur-xl border border-white/10 rounded-3xl p-8 md:p-10 shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          <div className="premium-card p-10 group">
+            <div className="absolute inset-0 bg-white/[0.01] opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
 
             <form ref={form} onSubmit={sendEmail} className="flex flex-col gap-6 relative z-10">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label htmlFor="user_name" className="text-sm font-medium text-gray-300 ml-1">Full Name</label>
+                <div className="space-y-3">
+                  <label htmlFor="user_name" className="premium-label ml-1">Full Name</label>
                   <input
                     name="user_name"
                     id="user_name"
                     type="text"
                     required
                     placeholder="John Doe"
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-white/20 transition-all font-medium"
                   />
                 </div>
-                <div className="space-y-2">
-                  <label htmlFor="user_email" className="text-sm font-medium text-gray-300 ml-1">Email Address</label>
+                <div className="space-y-3">
+                  <label htmlFor="user_email" className="premium-label ml-1">Email Address</label>
                   <input
                     name="user_email"
                     id="user_email"
                     type="email"
                     required
                     placeholder="john@example.com"
-                    className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-white/20 transition-all font-medium"
                   />
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="subject" className="text-sm font-medium text-gray-300 ml-1">Subject</label>
+              <div className="space-y-3">
+                <label htmlFor="subject" className="premium-label ml-1">Subject</label>
                 <input
                   name="subject"
                   id="subject"
                   type="text"
                   required
                   placeholder="How can we help?"
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-white/20 transition-all font-medium"
                 />
               </div>
 
-              <div className="space-y-2">
-                <label htmlFor="message" className="text-sm font-medium text-gray-300 ml-1">Message</label>
+              <div className="space-y-3">
+                <label htmlFor="message" className="premium-label ml-1">Message</label>
                 <textarea
                   name="message"
                   id="message"
-                  rows="4"
+                  rows={4}
                   required
                   placeholder="Tell us more about your inquiry..."
-                  className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-gray-500 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition-all resize-none"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-600 focus:outline-none focus:border-white/20 transition-all font-medium resize-none shadow-inner"
                 ></textarea>
               </div>
 
               <button
                 type="submit"
                 disabled={status === 'sending'}
-                className={`mt-2 w-full font-bold py-4 rounded-xl shadow-lg shadow-emerald-900/20 hover:shadow-emerald-900/40 transform transition-all duration-300 flex items-center justify-center gap-2
-                  ${status === 'sending' ? 'bg-gray-600 cursor-not-allowed' : 'bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 hover:-translate-y-0.5 text-white'}
-                  ${status === 'success' ? 'bg-green-600 hover:bg-green-500' : ''}
-                  ${status === 'error' ? 'bg-red-600 hover:bg-red-500' : ''}
+                className={`mt-4 w-full font-bold uppercase text-xs tracking-widest py-4 rounded-xl transition-all duration-300 flex items-center justify-center gap-2 active:scale-[0.98]
+                  ${status === 'sending' ? 'bg-slate-800 text-slate-500 cursor-not-allowed' : 'bg-white text-black hover:bg-slate-200 shadow-xl'}
+                  ${status === 'success' ? 'bg-emerald-500 text-white shadow-emerald-500/20' : ''}
+                  ${status === 'error' ? 'bg-red-500 text-white shadow-red-500/20' : ''}
                 `}
               >
                 {status === 'idle' && (

@@ -103,7 +103,7 @@ const StockCard = (item: StockCardProps) => {
 
    }
   return (
-    <div className="flex flex-col bg-dark text-white min-h-screen selection:bg-emerald-500/30 selection:text-emerald-200 rounded-xl overflow-hidden shadow-lg border border-gray-800">
+    <div className="flex flex-col bg-[#0a0a0a] text-white min-h-screen selection:bg-white/10 rounded-3xl overflow-hidden premium-card group">
       {/* Image */}
       <div
         className="h-60 bg-center bg-cover"
@@ -116,8 +116,8 @@ const StockCard = (item: StockCardProps) => {
 
       <div className="p-5 flex flex-col gap-4 flex-1">
         <div>
-          <p className="text-xs text-gray-500 dark:text-gray-400">{item.type}</p>
-          <h3 className="font-bold text-lg text-gray-300">{item.label}</h3>
+          <p className="premium-label mb-1">{item.type}</p>
+          <h3 className="font-bold text-xl text-white tracking-tighter">{item.label}</h3>
         </div>
 
         <div className="flex justify-between text-sm text-gray-300">
@@ -138,12 +138,12 @@ const StockCard = (item: StockCardProps) => {
           </span>
         </div>
 
-        <div className="flex justify-between text-sm border-t pt-3 text-gray-300">
+        <div className="flex justify-between text-sm border-t border-white/5 pt-4 text-slate-400 font-medium">
           <p>Min. Investment</p>
-          <p className="font-bold text-white">${item.invest}</p>
+          <p className="font-bold text-white tracking-tight">${item.invest}</p>
         </div>
 
-        <button onClick={handleDetailsToggle} className="w-full h-10 button rounded font-bold text-sm mt-auto">
+        <button onClick={handleDetailsToggle} className="w-full h-12 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest mt-auto hover:bg-slate-200 transition-all active:scale-[0.98]">
           View Details
         </button>
         {
@@ -161,7 +161,7 @@ const DiscoverPage = () => {
 
 
   return (
-    <div id="discover" className="font-display min-h-screen flex flex-col w-dvw mx-auto px-4  lg:px-8 max-w-7xl pt-24">
+    <div id="discover" className="font-display min-h-screen flex flex-col w-full mx-auto px-6 lg:px-8 max-w-7xl pt-32 pb-20">
       {/* Top Navbar */}
 
       {/* Main */}
@@ -171,9 +171,9 @@ const DiscoverPage = () => {
           <div className="flex-1 flex flex-col gap-6 px-4 md:px-0 ">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-white text-4xl font-black">Discover Investment Opportunities</p>
-                <p className=" text-[#92adc9] text-base">
-                  Explore new assets to add to your portfolio
+                <h2 className="text-white text-4xl md:text-5xl font-bold tracking-tighter mb-4">Discover Opportunities</h2>
+                <p className="text-slate-500 text-lg font-medium max-w-2xl">
+                  Explore high-growth assets and curated portfolios managed by top-tier investment strategies.
                 </p>
               </div>
               {/* <button

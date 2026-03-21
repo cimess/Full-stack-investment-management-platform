@@ -31,7 +31,7 @@ const ManagerDashboard: React.FC = () => {
   const firstName = user?.fullname?.split(" ")[0];
 
   return (
-    <div className="flex h-screen bg-[#020617] overflow-hidden">
+    <div className="flex h-screen bg-black overflow-hidden">
       <DashboardSidebar 
         role="manager" 
         userName={firstName || "Manager"} 

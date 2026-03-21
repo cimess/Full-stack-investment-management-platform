@@ -1,0 +1,132 @@
+/* 
+  NovaInvest Premium Theme (Vercel/Linear inspired) 
+  -----------------------------------------------
+  This file is standalone and reusable for other projects.
+  To use Geist, ensure the .woff2 files are in your /public/fonts/ directory.
+*/
+
+/* 1. FONT DEFINITIONS (GEIST SANS) */
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-SemiBold.woff2') format('woff2');
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist';
+  src: url('/fonts/Geist-Bold.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 2. FONT DEFINITIONS (GEIST MONO) */
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Regular.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('/fonts/GeistMono-Medium.woff2') format('woff2');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+/* 3. CORE THEME VARIABLES */
+:root {
+  /* Backgrounds & Text */
+  --bg-deep: #000000;      /* Pure Vercel Black */
+  --bg-surface: #0a0a0a;   /* Subtle Surface */
+  --text-main: #ffffff;
+  --text-muted: #888888;   /* Muted Gray */
+  
+  /* Borders & Glass */
+  --border-dim: rgba(255, 255, 255, 0.08);
+  --border-active: rgba(255, 255, 255, 0.2);
+  --glass-bg: rgba(0, 0, 0, 0.5);
+  
+  /* Brand Accents */
+  --accent-primary: #ffffff; /* Contrast Vercel White */
+  --accent-secondary: #0070f3; /* Vercel Blue */
+}
+
+/* 4. PREMIUM UTILITY CLASSES */
+
+/* The "Vercel" Glass Card */
+.premium-card {
+  background: var(--glass-bg);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--border-dim);
+  border-top-color: rgba(255, 255, 255, 0.1); /* "Glass Lip" effect */
+  border-radius: 1rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.premium-card:hover {
+  background: rgba(15, 23, 42, 0.4);
+  border-color: var(--border-active);
+  transform: translateY(-2px);
+  box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.7);
+}
+
+/* Minimal Sidebar Link */
+.premium-nav-item {
+  position: relative;
+  transition: all 0.2s ease;
+  color: var(--text-muted);
+}
+
+.premium-nav-item:hover {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.premium-nav-item.active {
+  color: var(--text-main);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border-active);
+}
+
+/* Tiny Uppercase Label (Linear Style) */
+.premium-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--text-muted);
+}
+
+/* "Execute" Button */
+.premium-action-btn {
+  background: #ffffff;
+  color: #000000;
+  font-weight: 600;
+  padding: 0.5rem 1rem;
+  border-radius: 0.75rem;
+  transition: all 0.2s ease;
+}
+
+.premium-action-btn:hover {
+  background: #e2e8f0;
+  transform: scale(0.98);
+}

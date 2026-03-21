@@ -7,7 +7,8 @@ import {
   getAdminDashboard, getMarketQuotes, searchStock,
   postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
-  updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI
+  updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI,
+  getMarketCategories
 } from "../services/queryServices"
 
 
@@ -117,6 +118,13 @@ export const useGetMarketQuotes = () => {
   return useQuery({
     queryKey: ["marketQuotes"],
     queryFn: getMarketQuotes
+  })
+}
+
+export const useGetMarketCategories = () => {
+  return useQuery({
+    queryKey: ["marketCategories"],
+    queryFn: getMarketCategories
   })
 }
 

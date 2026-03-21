@@ -14,80 +14,70 @@ const data = [
 
 const MarketChart: React.FC = () => {
   return (
-    <section id="market" className="py-24 bg-surface relative">
+    <section id="market" className="py-32 bg-black relative">
         <div className="max-w-7xl mx-auto px-6">
             <ScrollReveal>
-                <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8">
                     <div>
-                        <h2 className="text-3xl font-bold mb-2">Market Performance</h2>
-                        <p className="text-slate-400">Live index tracking across major sectors.</p>
+                        <h2 className="text-4xl font-bold mb-3 tracking-tighter">Market Performance</h2>
+                        <p className="text-slate-500 font-medium">Live index tracking across major sectors.</p>
                     </div>
-                    <div className="flex gap-4">
-                        <button className="px-4 py-2 rounded-lg bg-emerald-500/10 text-emerald-400 text-sm font-medium border border-emerald-500/20">1D</button>
-                        <button className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:text-white text-sm font-medium transition-colors">1W</button>
-                        <button className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:text-white text-sm font-medium transition-colors">1M</button>
-                        <button className="px-4 py-2 rounded-lg bg-white/5 text-slate-400 hover:text-white text-sm font-medium transition-colors">1Y</button>
+                    <div className="flex gap-3 bg-white/[0.03] p-1.5 rounded-2xl border border-white/10">
+                        {['1D', '1W', '1M', '1Y'].map((t) => (
+                           <button key={t} className={`px-5 py-2 rounded-xl text-xs font-bold transition-all ${t === '1D' ? 'bg-white text-black' : 'text-slate-500 hover:text-white'}`}>{t}</button>
+                        ))}
                     </div>
                 </div>
             </ScrollReveal>
 
             <ScrollReveal delay={0.2}>
-                <div className="h-[400px] w-full glass-panel rounded-2xl p-4 md:p-8 border border-white/5 spotlight group">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+                <div className="h-[450px] w-full premium-card p-6 md:p-10 group">
                     <ResponsiveContainer width="100%" height="100%">
                         <AreaChart
                             data={data}
-                            margin={{ top: 10, right: 30, left: 0, bottom: 0 }}
+                            margin={{ top: 10, right: 10, left: 0, bottom: 0 }}
                         >
                             <defs>
                                 <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                                    <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
-                                    <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                                    <stop offset="5%" stopColor="#ffffff" stopOpacity={0.1}/>
+                                    <stop offset="95%" stopColor="#ffffff" stopOpacity={0}/>
                                 </linearGradient>
-                                <filter id="glow" height="300%" width="300%" x="-100%" y="-100%">
-                                    <feGaussianBlur stdDeviation="4" result="coloredBlur" />
-                                    <feMerge>
-                                        <feMergeNode in="coloredBlur" />
-                                        <feMergeNode in="SourceGraphic" />
-                                    </feMerge>
-                                </filter>
                             </defs>
-                            <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+                            <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
                             <XAxis
                                 dataKey="name"
-                                stroke="#64748b"
+                                stroke="#555555"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: '#64748b', fontSize: 12 }}
-                                dy={10}
+                                tick={{ fill: '#555555', fontSize: 11, fontWeight: 600 }}
+                                dy={15}
                             />
                             <YAxis
-                                stroke="#64748b"
+                                stroke="#555555"
                                 axisLine={false}
                                 tickLine={false}
-                                tick={{ fill: '#64748b', fontSize: 12 }}
+                                tick={{ fill: '#555555', fontSize: 11, fontWeight: 600 }}
                                 tickFormatter={(value) => `$${value}`}
                             />
                             <Tooltip
-                                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid #334155', borderRadius: '8px' }}
-                                itemStyle={{ color: '#10b981' }}
-                                labelStyle={{ color: '#94a3b8' }}
+                                contentStyle={{ backgroundColor: '#0a0a0a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', boxShadow: '0 20px 40px rgba(0,0,0,0.5)' }}
+                                itemStyle={{ color: '#ffffff', fontWeight: 700 }}
+                                labelStyle={{ color: '#888888', fontSize: '10px', textTransform: 'uppercase', letterSpacing: '0.1em' }}
                             />
                             <Area
                                 type="monotone"
                                 dataKey="value"
-                                stroke="#10b981"
-                                strokeWidth={3}
+                                stroke="#ffffff"
+                                strokeWidth={2}
                                 fillOpacity={1}
                                 fill="url(#colorValue)"
-                                style={{ filter: 'drop-shadow(0px 0px 8px rgba(16, 185, 129, 0.4))' }}
                             />
                         </AreaChart>
                     </ResponsiveContainer>
                 </div>
             </ScrollReveal>
 
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mt-8">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mt-12">
                 {[
                     { label: "S&P 500", val: "4,783.45", change: "+1.2%" },
                     { label: "NASDAQ", val: "16,248.12", change: "+2.4%" },
@@ -95,11 +85,11 @@ const MarketChart: React.FC = () => {
                     { label: "BTC/USD", val: "64,230.10", change: "+4.5%" }
                 ].map((item, i) => (
                     <ScrollReveal key={i} delay={0.4 + (i * 0.1)}>
-                        <div className="bg-white/5 rounded-xl p-4 border border-white/5 hover:border-emerald-500/30 transition-colors">
-                            <p className="text-slate-400 text-sm mb-1">{item.label}</p>
-                            <div className="flex items-baseline gap-2">
-                                <span className="text-xl font-bold">{item.val}</span>
-                                <span className="text-emerald-400 text-xs font-medium">{item.change}</span>
+                        <div className="premium-card p-6 group hover:translate-y-[-2px]">
+                            <p className="premium-label mb-2">{item.label}</p>
+                            <div className="flex items-baseline justify-between">
+                                <span className="text-xl font-bold font-mono tracking-tighter">{item.val}</span>
+                                <span className="text-emerald-400 text-xs font-bold font-mono">{item.change}</span>
                             </div>
                         </div>
                     </ScrollReveal>

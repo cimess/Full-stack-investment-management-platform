@@ -28,20 +28,19 @@ const Header: React.FC = () => {
 
   return (
     <header
-
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled ? 'bg-dark/80 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'
+        isScrolled ? 'bg-black/80 backdrop-blur-md border-b border-white/5 py-4' : 'bg-transparent py-6'
       }`}
     >
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div
         onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}
-         className="flex items-center gap-2 cursor-pointer">
-          <div className="bg-gradient-to-br from-emerald-400 to-blue-500 p-2 rounded-lg">
-            <TrendingUp className="text-white w-6 h-6" />
+         className="flex items-center gap-2 cursor-pointer group">
+          <div className="bg-white p-1.5 rounded-lg group-hover:bg-slate-200 transition-colors">
+            <TrendingUp className="text-black w-5 h-5" strokeWidth={2.5} />
           </div>
-          <span className="text-2xl font-bold tracking-tight text-white">
-            Nova<span className="text-emerald-400">Invest</span>
+          <span className="text-xl font-bold tracking-tighter text-white">
+            Nova<span className="text-slate-400">Invest</span>
           </span>
         </div>
 
@@ -51,7 +50,7 @@ const Header: React.FC = () => {
             <a
               key={link.name}
               href={link.href}
-              className="text-slate-300 hover:text-white text-sm font-medium transition-colors"
+              className="text-slate-500 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors"
             >
               {link.name}
             </a>
@@ -60,16 +59,16 @@ const Header: React.FC = () => {
         </nav>
 
         {/* Desktop Auth Buttons */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-3">
           <button
             onClick={() => navigate('/login')}
-            className="text-slate-300 hover:text-white text-sm font-medium transition-colors px-3 py-1.5"
+            className="text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors px-4 py-2"
           >
             Log In
           </button>
           <button
             onClick={() => navigate('/signup')}
-            className="bg-emerald-500 hover:bg-emerald-400 text-white text-sm font-semibold px-4 py-1.5 rounded-lg transition-colors"
+            className="bg-white text-black text-xs font-bold uppercase tracking-widest px-6 py-2.5 rounded-xl hover:bg-slate-200 transition-all active:scale-[0.98]"
           >
             Get Started
           </button>
@@ -79,19 +78,19 @@ const Header: React.FC = () => {
           className="md:hidden text-white"
           onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
         >
-          {isMobileMenuOpen ? <X /> : <Menu />}
+          {isMobileMenuOpen ? <X strokeWidth={1.5} /> : <Menu strokeWidth={1.5} />}
         </button>
       </div>
 
       {/* Mobile Nav */}
       {isMobileMenuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-dark border-b border-white/5 p-6 animate-in slide-in-from-top-5">
-          <div className="flex flex-col gap-4">
+        <div className="md:hidden absolute top-full left-0 right-0 bg-black border-b border-white/5 p-8 animate-in slide-in-from-top-5">
+          <div className="flex flex-col gap-6">
             {navLinks.map((link) => (
               <a
                 key={link.name}
                 href={link.href}
-                className="text-slate-300 hover:text-white py-2"
+                className="text-slate-400 hover:text-white text-sm font-bold uppercase tracking-widest"
                 onClick={() => setIsMobileMenuOpen(false)}
               >
                 {link.name}
@@ -100,8 +99,7 @@ const Header: React.FC = () => {
 
             <button
               onClick={() => {navigate('/login');setIsMobileMenuOpen(false)}}
-
-              className="bg-emerald-500 text-white py-3 rounded-lg font-semibold w-full"
+              className="bg-white text-black py-4 rounded-xl font-bold uppercase text-xs tracking-widest w-full active:scale-[0.98]"
             >
               Get Started
             </button>

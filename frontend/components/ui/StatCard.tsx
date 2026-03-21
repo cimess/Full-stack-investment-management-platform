@@ -21,34 +21,32 @@ const StatCard: React.FC<StatCardProps> = ({
   subtitle,
 }) => {
   return (
-    <div className="glass-panel rounded-2xl p-4 sm:p-6 hover:border-white/10 transition-all duration-300 group hover:shadow-lg hover:shadow-emerald-500/5">
+    <div className="premium-card p-4 sm:p-6 group hover:translate-y-[-2px]">
       <div className="flex items-start justify-between">
         <div className="flex-1">
-          <p className="text-slate-400 text-xs sm:text-sm font-medium mb-1">{title}</p>
-          <p className="text-xl sm:text-2xl font-bold text-white mb-1">{value}</p>
-          {subtitle && <p className="text-slate-500 text-[10px] sm:text-xs">{subtitle}</p>}
+          <p className="premium-label mb-1.5 opacity-80">{title}</p>
+          <p className="text-xl sm:text-2xl font-bold text-white mb-1.5 tracking-tighter font-mono">{value}</p>
+          {subtitle && <p className="text-slate-500 text-[10px] sm:text-xs font-medium">{subtitle}</p>}
         </div>
-        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl ${iconBg} flex items-center justify-center group-hover:scale-110 transition-transform flex-shrink-0 ml-3`}>
-          {icon}
+        <div className={`w-10 h-10 sm:w-11 sm:h-11 rounded-xl ${iconBg} bg-opacity-5 flex items-center justify-center transition-all duration-300 border border-white/[0.03] group-hover:border-white/10 flex-shrink-0 ml-3`}>
+          {React.cloneElement(icon as React.ReactElement<any>, { className: "w-5 h-5", strokeWidth: 1.5 })}
         </div>
       </div>
 
       {change && (
-        <div className="mt-4 flex items-center gap-1.5">
-          {changeType === 'up' && <TrendingUp className="w-3.5 h-3.5 text-emerald-400" />}
-          {changeType === 'down' && <TrendingDown className="w-3.5 h-3.5 text-red-400" />}
-          <span
-            className={`text-xs font-medium ${
-              changeType === 'up'
-                ? 'text-emerald-400'
-                : changeType === 'down'
-                ? 'text-red-400'
-                : 'text-slate-400'
-            }`}
-          >
-            {change}
-          </span>
-          <span className="text-slate-500 text-xs">vs last month</span>
+        <div className="mt-5 flex items-center gap-2">
+          <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-lg ${
+            changeType === 'up' 
+              ? 'bg-emerald-500/10 text-emerald-400' 
+              : changeType === 'down' 
+              ? 'bg-red-500/10 text-red-400' 
+              : 'bg-white/5 text-slate-400'
+            }`}>
+            {changeType === 'up' && <TrendingUp className="w-3 h-3" strokeWidth={2} />}
+            {changeType === 'down' && <TrendingDown className="w-3 h-3" strokeWidth={2} />}
+            <span className="text-[11px] font-bold font-mono tracking-tight">{change}</span>
+          </div>
+          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">vs last month</span>
         </div>
       )}
     </div>

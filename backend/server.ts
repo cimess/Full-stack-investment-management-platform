@@ -90,9 +90,11 @@ if (process.env.NODE_ENV !== "test") {
   });
 
   try {
-    if(process.env.NODE_ENV==="production"){
-      startMarketWorker(300,true);
-      
+    // Run the market worker in both development and production
+    // to ensure live data is fetched across all environments.
+    startMarketWorker(10, true);
+
+    if (process.env.NODE_ENV === "production") {
       // Database Keep-alive Ping (Prevents Render DB Sleep)
       setInterval(async () => {
         try {

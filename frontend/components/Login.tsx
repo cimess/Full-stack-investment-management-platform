@@ -244,22 +244,21 @@ const passwordFeedback = () => {
     <>
 
     {showLoader && <Loader message={redirectMessage} />}
-    {!showLoader && <><Header/><div className="min-h-screen overflow-y-auto flex items-center justify-center py-6">
+    {!showLoader && <><Header/><div className="min-h-screen overflow-y-auto flex items-center justify-center py-20 bg-black">
       <div
-        className={`relative w-[95%] sm:w-[85%] md:w-[70%] lg:w-[55%] my-4 mt-[10vh] sm:mt-[14vh] rounded-2xl p-4 sm:p-8 pt-12 sm:pt-16 backdrop-blur-xl
-        bg-white/5 border border-white/10 shadow-2xl transition-transform
-        hover:-translate-y-1 ${shake ? "animate-shake" : ""}`}
+        className={`relative w-[95%] sm:w-[85%] md:w-[70%] lg:w-[45%] rounded-[2.5rem] p-8 sm:p-12 premium-card transition-all duration-500
+        ${shake ? "animate-shake" : ""}`}
       >
         {/* Badge */}
         <div
           onMouseEnter={() => setHoverBadge(true)}
           onMouseLeave={() => setHoverBadge(false)}
-          className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-full
-          flex items-center justify-center text-white text-3xl shadow-xl
-          transition-all duration-300 animate-float
+          className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-2xl
+          flex items-center justify-center text-white text-3xl shadow-2xl border border-white/10
+          transition-all duration-500
           ${redirectSuccess
-            ? "bg-gradient-to-br from-green-400 to-emerald-600 animate-pulse"
-            : "bg-gradient-to-br from-indigo-500 to-purple-700"}`}
+            ? "bg-emerald-500 shadow-emerald-500/20"
+            : "bg-white/[0.03] backdrop-blur-xl"}`}
         >
           <i
             className={`fas ${
@@ -269,27 +268,33 @@ const passwordFeedback = () => {
                 ? "fa-user"
                 : "fa-lock-open"
             }`}
+             style={success ? {color: 'white'} : {color: '#888888'}}
           />
         </div>
 
-        <h1 className="text-center text-white text-2xl font-semibold mb-6">
-          {loginUi ? "Welcome Back" : "Create an Account"}
+        <h1 className="text-center text-white text-3xl font-bold mb-3 tracking-tighter">
+          {loginUi ? "Welcome back" : "Create your account"}
         </h1>
 
-        <p className="text-center text-cyan-300 text-sm mb-6 min-h-[1.5rem]">
-          { message}
+        <p className="text-center text-slate-500 text-sm mb-10 font-medium">
+          { message }
         </p>
 
         {/* Google Button */}
-        <div className="flex justify-center mb-4">
+        <div className="flex justify-center mb-8">
           <button
             type="button"
-            className="flex items-center gap-2 px-4 py-2 rounded-xl bg-white text-gray-700 shadow border border-gray-200 hover:bg-gray-100"
+            className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-white text-black font-bold border border-white hover:bg-slate-100 transition-all active:scale-[0.98]"
             onClick={() => (window.location.href = "/api/auth/google")}
           >
-            <SiGoogle />
+            <SiGoogle size={18} />
             <span>Continue with Google</span>
           </button>
+        </div>
+
+        <div className="relative flex items-center justify-center mb-8">
+           <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/5"></div></div>
+           <span className="relative px-4 text-[10px] font-bold uppercase tracking-widest text-slate-500 bg-[#0a0a0a]">Or continue with email</span>
         </div>
 
         {/*   LOGIN AND SIGNUP LAYOUT */}
@@ -297,12 +302,11 @@ const passwordFeedback = () => {
 
             {/* first name */}
           {loginUi ? null :<div className="relative">
-            <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
-            <input
+             <input
               type="text"
               placeholder="First Name"
-              className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10
+              text-white px-5 py-3.5 outline-none focus:border-white/20 transition-all font-medium"
               value={firstName}
               onChange={(e) => { setFirstName(e.target.value);}}
               onFocus={() => setMessage("Enter your first name")}
@@ -311,12 +315,11 @@ const passwordFeedback = () => {
 }
           {/* last name */}
           {loginUi ? null :<div className="relative">
-            <i className="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Last Name"
-              className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10
+              text-white px-5 py-3.5 outline-none focus:border-white/20 transition-all font-medium"
               value={lastName}
               onChange={(e) => { setLastName(e.target.value)}}
               onFocus={() => setMessage('Enter your last name')}
@@ -326,12 +329,11 @@ const passwordFeedback = () => {
 
           {/* Username */}
             {loginUi ? null :<div className="relative">
-            <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="text"
               placeholder="Username"
-              className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10
+              text-white px-5 py-3.5 outline-none focus:border-white/20 transition-all font-medium"
               value={username}
               onChange={(e) => setUsername(e.target.value)}
               onFocus={() => setMessage("Enter your username")}
@@ -339,12 +341,11 @@ const passwordFeedback = () => {
           </div>
             }
            <div className="relative">
-            <i className="fas fa-user absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type="email"
               placeholder="Email"
-              className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10
+              text-white px-5 py-3.5 outline-none focus:border-white/20 transition-all font-medium"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               onFocus={() => setMessage("Enter your email")}
@@ -353,19 +354,18 @@ const passwordFeedback = () => {
 
           {/* Password */}
           <div className="relative">
-            <i className="fas fa-lock absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
             <input
               type={showPassword? "text": "password"}
               placeholder="Password"
-              className="w-full rounded-xl bg-white/10 border border-white/20
-              text-white px-10 py-2.5 outline-none focus:ring-2 focus:ring-cyan-400"
+              className="w-full rounded-xl bg-white/[0.03] border border-white/10
+              text-white px-5 py-3.5 outline-none focus:border-white/20 transition-all font-medium"
               value={password}
               onChange={(e) => { setPassword(e.target.value);setMessage(passwordFeedback())}}
               onFocus={()=>{setMessage("Enter your password")}}
             />
-            <button onClick={()=>setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+            <button onClick={()=>setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white"
                type="button">
-              {showPassword ?<EyeOff size={18} /> : <Eye size={18} />}
+              {showPassword ?<EyeOff size={18} strokeWidth={1.5} /> : <Eye size={18} strokeWidth={1.5} />}
 
             </button>
           </div>
@@ -429,14 +429,12 @@ const passwordFeedback = () => {
           {/* Button */}
           <button
             disabled={loginPending||loginSuccess||registerPending||registerSuccess}
-            className={`w-full py-2.5 sm:py-3 rounded-xl font-medium tracking-wide
-            transition-all shadow-lg text-sm sm:text-base
+            className={`w-full py-4 rounded-xl font-bold tracking-tight transition-all active:scale-[0.98] disabled:opacity-50
             ${
               success
-                ? "bg-gradient-to-r from-green-400 to-emerald-600"
-                : "bg-gradient-to-r from-indigo-500 to-purple-700 hover:-translate-y-0.5"
-            }
-            disabled:opacity-70`}
+                ? "bg-emerald-500 text-white"
+                : "bg-white text-black hover:bg-slate-100"
+            }`}
             type="submit"
           >
             {success
@@ -444,8 +442,8 @@ const passwordFeedback = () => {
               : loginPending
               ? "Authenticating..."
               :registerPending
-              ? "Registering..."
-              : "Sign In"}
+              ? "Creating Account..."
+              : loginUi ? "Sign in" : "Create account"}
 
           </button>
         </form>

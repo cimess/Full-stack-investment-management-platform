@@ -25,6 +25,7 @@ export enum LoadingState {
   ERROR = 'ERROR'
 }
 export interface StockCardProps{
+  id:string,
   label:string,
   image:string,
   type:string,

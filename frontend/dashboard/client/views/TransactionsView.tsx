@@ -98,7 +98,7 @@ const TransactionsView: React.FC = () => {
             {/* Desktop Table View - Virtualized */}
             <div className="hidden md:block">
               <table className="w-full border-collapse">
-                <thead className="sticky top-0 z-10 bg-[#0f172a] shadow-sm">
+                <thead className="sticky top-0 z-10 bg-black shadow-sm">
                   <tr className="border-b border-white/5">
                     <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Transaction</th>
                     <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Quantity</th>

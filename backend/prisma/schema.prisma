@@ -75,6 +75,7 @@ model StockTable {
   fiftyTwoWeekHigh Decimal?        @db.Decimal(10, 2)
   currency         String          @default("USD")
   exchange         String?
+  assetType        String          @default("STOCK")
   lastUpdated      DateTime?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt
@@ -227,4 +228,10 @@ model Notification {
   type      NotificationType @default(SYSTEM)
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+}
+
+model SystemConfig {
+  key       String   @id
+  value     String
+  updatedAt DateTime @updatedAt
 }

@@ -1,3 +1,4 @@
+/* Tailwind Directives */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -7,8 +8,8 @@
 }
 
 body {
-  background-color: #020617;
-  color: #f8fafc;
+  background-color: #000000;
+  color: #ffffff;
   overflow-x: hidden;
 }
 
@@ -18,28 +19,29 @@ body {
 ::-webkit-scrollbar {
   width: 8px;
 }
-::-webkit-scrollbar-track {
-  background: #020617;
+::–webkit-scrollbar-track {
+  background: #000000;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: #1a1a1a;
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: #262626;
 }
 
 /* Utilities */
 .glass-panel {
-  background: rgba(15, 23, 42, 0.6);
+  background: rgba(0, 0, 0, 0.4);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .gradient-text {
-  background: linear-gradient(to right, #34d399, #3b82f6);
+  background: linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0.7) 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 
@@ -220,3 +222,76 @@ body {
   left: 1.375rem;
 }
 
+
+/* Custom Toast Styles */
+.Toastify__toast {
+  border-radius: 12px !important;
+  background: rgba(20, 20, 20, 0.9) !important;
+  backdrop-filter: blur(10px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  color: white !important;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+.Toastify__close-button {
+  color: white !important;
+  opacity: 0.5 !important;
+}
+
+.Toastify__toast-icon {
+  width: 16px !important;
+}
+
+@media (max-width: 640px) {
+  .Toastify__toast-container {
+    width: 100% !important;
+    left: 0 !important;
+    padding: 0 20px !important;
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    top: 20px !important;
+  }
+
+  .Toastify__toast {
+    border-radius: 9999px !important;
+    padding: 6px 16px !important;
+    min-height: 40px !important;
+    margin-bottom: 8px !important;
+    font-size: 12px !important;
+    width: fit-content !important;
+    max-width: 280px !important;
+  }
+
+  .Toastify__toast-body {
+    padding: 0 4px !important;
+    margin: 0 !important;
+  }
+}
+
+/* Color Variants for Toasts (Refined for Premium Look) */
+.Toastify__toast--success {
+  border-left: 3px solid #10b981 !important;
+  background: rgba(16, 185, 129, 0.544) !important;
+}
+
+.Toastify__toast--error {
+  border-left: 3px solid #ef4444 !important;
+  background: rgba(222, 22, 22, 0.845) !important;
+}
+
+.Toastify__toast--warning {
+  border-left: 3px solid #f59e0b !important;
+  background: rgba(245, 159, 11, 0.549) !important;
+}
+
+.Toastify__toast--info {
+  border-left: 3px solid #3b82f6 !important;
+  background: rgba(59, 131, 246, 0.606) !important;
+}
+
+/* Icon colors to match the specific toast type */
+.Toastify__toast--success .Toastify__toast-icon { fill: #10b981 !important; }
+.Toastify__toast--error .Toastify__toast-icon { fill: #ef4444 !important; }
+.Toastify__toast--warning .Toastify__toast-icon { fill: #f59e0b !important; }
+.Toastify__toast--info .Toastify__toast-icon { fill: #3b82f6 !important; }

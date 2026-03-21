@@ -40,7 +40,7 @@ const AdminDashboard: React.FC = () => {
 
 
   return (
-    <div className="flex h-screen bg-[#020617] overflow-hidden">
+    <div className="flex h-screen bg-black overflow-hidden">
       <DashboardSidebar 
         role={"admin"} 
         userName={firstName || "Admin"} 

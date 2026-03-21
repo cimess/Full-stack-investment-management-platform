@@ -4,7 +4,10 @@ import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is required
-import { Roles } from "@prisma/client";
+
+
+
+
 export const postStockDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { symbol } = req.body ;
@@ -183,6 +186,59 @@ export const searchStockController = async (req: Request, res: Response, next: N
 
   } catch (err: any) {
     logger.error("Error in searchStock controller:", err);
+    return next(err);
+  }
+};
+
+export const getMarketCategories = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    // 1. Top Gainers
+    const gainers = await prisma.stockTable.findMany({
+      where: { changePercent: { gt: 0 } },
+      orderBy: { changePercent: 'desc' },
+      take: 20
+    });
+
+    // 2. Top Losers
+    const losers = await prisma.stockTable.findMany({
+      where: { changePercent: { lt: 0 } },
+      orderBy: { changePercent: 'asc' },
+      take: 20
+    });
+
+    // 3. Crypto
+    const crypto = await prisma.stockTable.findMany({
+      where: { symbol: { endsWith: '-USD' } },
+      orderBy: { marketCap: 'desc' },
+      take: 20
+    });
+
+    // 4. Most Active / Largest Cap (excluding crypto)
+    const mostActive = await prisma.stockTable.findMany({
+      where: { NOT: { symbol: { endsWith: '-USD' } } },
+      orderBy: { marketCap: 'desc' },
+      take: 20
+    });
+
+    // Helper to format BigInt to string for JSON serialization
+    const formatStock = (stock: any) => ({
+      ...stock,
+      marketCap: stock.marketCap ? stock.marketCap.toString() : null,
+      price: Number(stock.price)
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: {
+        gainers: gainers.map(formatStock),
+        losers: losers.map(formatStock),
+        crypto: crypto.map(formatStock),
+        mostActive: mostActive.map(formatStock)
+      }
+    });
+
+  } catch (err: any) {
+    logger.error("Error in getMarketCategories controller:", err);
     return next(err);
   }
 };

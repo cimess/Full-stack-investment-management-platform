@@ -10,7 +10,7 @@ import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
-import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails } from "../controller/market_data.js";
+import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount } from "../controller/userController.js";
 
@@ -64,6 +64,7 @@ router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER])
 router.get("/market/quotes", verifyToken, getMarketQuotes);
 router.post("/market/search", verifyToken, searchStockController);
 router.post("/market/stock-details", verifyToken, postStockDetails);
+router.get("/market/categories", verifyToken, getMarketCategories);
 
 // --- Authentication Routes ---
 router.post("/register", registerUser);

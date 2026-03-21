@@ -65,40 +65,46 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
   };
 
   return (
-    <header className="flex items-center justify-between px-4 lg:px-6 py-4 border-b border-white/5 bg-[#020617]/80 backdrop-blur-sm sticky top-0 z-20">
+    <header className="flex items-center justify-between px-3 md:px-8 py-3 border-b border-white/[0.05] bg-black/80 backdrop-blur-md sticky top-0 z-20">
       <div className="flex items-center gap-4">
         {/* Mobile Menu Toggle */}
         <button
           onClick={onToggleSidebar}
-          className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 lg:hidden"
+          className="p-2 -ml-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 lg:hidden transition-colors"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5" strokeWidth={1.5} />
         </button>
 
         {/* Page Title */}
-        <div>
-          <h1 className="text-lg lg:text-xl font-bold text-white leading-tight">{pageTitle}</h1>
-          <p className="text-slate-500 text-[10px] lg:text-xs mt-0.5">
+        <div className="hidden sm:block">
+          <h1 className="text-sm lg:text-base font-semibold text-white tracking-tight">{pageTitle}</h1>
+          <p className="text-slate-500 text-[10px] uppercase tracking-widest mt-0.5 font-bold">
             {new Date().toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}
           </p>
         </div>
       </div>
 
 
-      {portfolioValue && <div>
-        <h1 className='text-lg lg:text-xl font-bold text-gray-500 leading-tight'>Portfolio value</h1>
-        <p className='text-lg lg:text-xl font-bold text-white leading-tight'>${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
-      </div>}
+      {typeof portfolioValue === 'number' && (
+        <div className="flex flex-col items-center justify-center text-center">
+          <h2 className="hidden sm:block text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-0.5">
+            Total Portfolio
+          </h2>
+          <p className="text-base md:text-lg font-bold text-white tracking-tighter font-mono">
+            ${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </p>
+        </div>
+      )}
 
       {/* Right Controls */}
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-2 sm:gap-4">
         {/* Search */}
         <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" strokeWidth={1.5} />
           <input
             type="text"
-            placeholder="Search..."
-            className="bg-white/5 border border-white/8 text-slate-300 placeholder-slate-500 text-sm pl-9 pr-4 py-2 rounded-xl w-52 focus:outline-none focus:border-emerald-500/50 focus:bg-white/8 transition-all"
+            placeholder="Search symbols..."
+            className="bg-white/[0.03] border border-white/10 text-slate-200 placeholder-slate-600 text-xs pl-9 pr-4 py-2 rounded-xl w-48 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
           />
         </div>
 
@@ -106,41 +112,41 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
         <div className="relative">
           <button
             onClick={() => { setShowNotifs(!showNotifs); setShowProfile(false); }}
-            className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-4 h-4" strokeWidth={1.5} />
             {unread > 0 && (
-              <span className="absolute top-1 right-1 w-4 h-4 bg-emerald-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center">
-                {unread}
-              </span>
+              <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-emerald-500 rounded-full shadow-[0_0_8px_rgba(16,185,129,0.8)]" />
             )}
           </button>
 
           {showNotifs && (
-            <div className="absolute right-0 translate-x-[10%] top-full mt-2 w-72 
-            sm:w-80 max-w-[calc(100vw-1rem)] glass-panel rounded-2xl 
-            shadow-2xl border overflow-hidden z-50 backdrop-blur-lg">
-              <div className="px-4 py-3 border-b border-white/5 flex items-center justify-between">
-                <span className="text-white font-semibold text-sm">Notifications</span>
-                <span onClick={markAllRead} className="text-emerald-400 text-xs font-medium cursor-pointer hover:text-emerald-300">Mark all read</span>
+            <div className="absolute right-0 translate-x-[10%] top-full mt-3 w-72 
+            sm:w-80 max-w-[calc(100vw-1rem)] bg-black/95 rounded-2xl 
+            shadow-2xl border border-white/10 overflow-hidden z-50 backdrop-blur-xl">
+              <div className="px-5 py-4 border-b border-white/5 flex items-center justify-between">
+                <span className="text-white font-semibold text-xs uppercase tracking-wider">Notifications</span>
+                <button onClick={markAllRead} className="text-emerald-400 text-[10px] font-bold uppercase tracking-widest hover:text-emerald-300 transition-colors">Mark all read</button>
               </div>
-              <div className="divide-y divide-white/5 max-h-72 overflow-y-auto">
+              <div className="divide-y divide-white/5 max-h-80 overflow-y-auto scrollbar-hide">
                 {notifications.length === 0 ? (
-                  <div className="px-4 py-6 text-center text-slate-500 text-sm">
+                  <div className="px-5 py-8 text-center text-slate-500 text-xs font-medium">
                     No notifications yet.
                   </div>
                 ) : (
                   notifications?.map((n: any) => (
-                    <div key={n.id} className={`flex items-start gap-3 px-4 py-3 hover:bg-white/3 transition-colors ${!n.read ? 'bg-white/2' : ''} cursor-pointer`}
+                    <div key={n.id} className={`flex items-start gap-4 px-5 py-4 hover:bg-white/[0.02] transition-colors ${!n.read ? 'bg-white/[0.01]' : ''} cursor-pointer`}
                       onClick={() => handleReadMsg(n.id)}
                     >
-                      <div className="flex-shrink-0 mt-0.5">{notifIcons[n.type] || notifIcons.info}</div>
-                      <div className="flex-1 min-w-0">
-                        <p className="text-white text-xs font-semibold mb-0.5">{n.title}</p>
-                        <p className={`text-xs leading-relaxed ${!n.read ? 'text-slate-200' : 'text-slate-400'}`}>{n.message}</p>
-                        <p className="text-slate-600 text-xs mt-1">{formatTime(n.createdAt)}</p>
+                      <div className="flex-shrink-0 mt-0.5">
+                        {React.cloneElement((notifIcons[n.type] || notifIcons.info) as React.ReactElement<any>, { className: "w-3.5 h-3.5", strokeWidth: 1.5 })}
                       </div>
-                      {!n.read && <span className="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 mt-1.5" />}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-xs font-semibold mb-0.5 tracking-tight">{n.title}</p>
+                        <p className={`text-[11px] leading-relaxed ${!n.read ? 'text-slate-200' : 'text-slate-400'}`}>{n.message}</p>
+                        <p className="text-slate-600 text-[10px] mt-1.5 font-bold uppercase tracking-wider">{formatTime(n.createdAt)}</p>
+                      </div>
+                      {!n.read && <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 flex-shrink-0 mt-2 shadow-[0_0_8px_rgba(16,185,129,0.6)]" />}
                     </div>
                   ))
                 )}
@@ -153,24 +159,27 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
         <div className="relative">
           <button
             onClick={() => { setShowProfile(!showProfile); setShowNotifs(false); }}
-            className="flex items-center gap-2 p-1.5 pr-3 rounded-xl hover:bg-white/5 transition-colors group"
+            className="flex items-center gap-2 p-1 rounded-xl hover:bg-white/5 transition-all group"
           >
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold">
+            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-white text-xs font-bold shadow-inner group-hover:border-white/20 transition-all">
               {userName.charAt(0).toUpperCase()}
             </div>
-            {/* <span className="text-slate-300 text-sm font-medium hidden md:block">{userName}</span> */}
-            <ChevronDown className={`w-4 h-4 text-slate-500 hidden md:block transition-transform ${showProfile ? 'rotate-180' : ''}`} />
+            <ChevronDown className={`w-3 h-3 text-slate-500 hidden sm:block transition-transform duration-300 ${showProfile ? 'rotate-180' : ''}`} strokeWidth={2} />
           </button>
 
           {showProfile && (
-            <div className="absolute right-0 top-full mt-2 w-44 glass-panel rounded-xl shadow-2xl border border-white/8 overflow-hidden z-50">
-              <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Profile</button>
-              <button className="w-full text-left px-4 py-3 text-slate-300 text-sm hover:bg-white/5 hover:text-white transition-colors">Settings</button>
+            <div className="absolute right-0 top-full mt-3 w-48 bg-black/95 rounded-2xl shadow-2xl border border-white/10 overflow-hidden z-50 backdrop-blur-xl">
+              <div className="px-4 py-3 border-b border-white/5">
+                <p className="text-white text-xs font-bold truncate">{userName}</p>
+                <p className="text-slate-500 text-[10px] font-bold uppercase tracking-wider mt-0.5">Account Settings</p>
+              </div>
+              <button className="w-full text-left px-4 py-2.5 text-slate-300 text-[11px] font-medium hover:bg-white/5 hover:text-white transition-colors">Security Details</button>
+              <button className="w-full text-left px-4 py-2.5 text-slate-300 text-[11px] font-medium hover:bg-white/5 hover:text-white transition-colors">Interface Preferences</button>
               <div className="border-t border-white/5" />
-              <button className="w-full text-left px-4 py-3 text-red-400 text-sm hover:bg-red-500/10 transition-colors"
+              <button className="w-full text-left px-4 py-3 text-red-400/80 text-[11px] font-bold uppercase tracking-widest hover:bg-red-500/10 hover:text-red-400 transition-colors"
                 onClick={handleLogout}
               >
-                Logout
+                Sign Out
               </button>
             </div>
           )}

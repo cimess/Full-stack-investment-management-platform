@@ -1,18 +1,11 @@
-# 🚀 CimessInvest: Professional Asset Management Platform
+# 🚀 NovaInvest: Professional Asset Management Platform
 
-## 📸 Screenshots[<img src="https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6" width="700"/>](https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6)
+## 📸 Screenshots
+[<img src="https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6" width="700"/>](https://github.com/user-attachments/assets/d00eaa61-424a-4b65-8de6-b878e3af5cb6)
 
 [<img src="https://github.com/user-attachments/assets/c8f4c6eb-a29c-4dc8-b139-ce7ff9b2c98e" width="700" alt="NovaInvest Dashboard Screenshot"/>](https://github.com/user-attachments/assets/c8f4c6eb-a29c-4dc8-b139-ce7ff9b2c98e)
 
-
-
-
-### NovaInvest App
-
-
-
-**CimessInvest** is a high-performance, full-stack investment management platform designed for modern investors, portfolio managers, and administrators. It combines real-time financial data with sophisticated analytics and a rock-solid security layer.
-**website**: https://cimessinvest.com
+**NovaInvest** is a high-performance, full-stack investment management platform designed for modern investors, portfolio managers, and administrators. It combines real-time financial data with sophisticated analytics and a rock-solid security layer.
 
 ---
 
@@ -23,21 +16,26 @@
 -   **Manager Dashboard**: Oversee multiple client portfolios, approve/reject trade requests, and track managed Asset Under Management (AUM).
 -   **Admin Dashboard**: Maintain platform health, manage user/manager restrictions, and monitor global trade volumes.
 
-### 📈 Intelligent Portfolio Tracking
--   **Real-time Stock Exploration**: Fast search and live data for global stock markets.
--   **Performance Analytics**: Multi-threaded calculations offloaded to background workers to keep the UI smooth during heavy 7-day trend processing.
--   **Automated Trade Logging**: Comprehensive history for every buy/sell action.
+### 📈 Advanced Trading Experience (New)
+-   **Persistent Searchable Trading**: A professional-grade asset selection modal with real-time alphabetically sorted results and instant filtering.
+-   **Integrated Transaction Review**: A mandatory review step provides a comprehensive financial summary before final trade confirmation, ensuring user confidence.
+-   **Real-time Estimation**: Live calculation of total trade costs and portfolio impacts as users adjust order quantities.
+
+### 🛡️ Security & Privacy
+-   **Soft-Delete Account Deactivation**: Secure account disabling feature that preserves data integrity while preventing unauthorized access and invalidating active sessions.
+-   **OAuth 2.0 Integration**: Secure Google authentication with server-side proxying for session persistence.
+-   **JWT-based Permissions**: Granular access control for clients, managers, and admins.
 
 ---
 
 ## ⚡ Engineering Excellence (The "Wow" Factor)
 
-This project isn't just a basic React app. It implements production-grade engineering patterns to ensure extreme performance:
+This project implements production-grade engineering patterns to ensure extreme performance:
 
--   **DOM Virtualization**: Powered by `@tanstack/react-virtual`. Even with 10,000+ transactions or stocks, the UI remains perfectly fluid by only rendering what's visible on screen.
--   **Multithreaded Processing (Web Workers)**: Heavy financial calculations (AUM totals, trend lines, and data reduction) are offloaded to background worker threads, preventing "Main Thread" jank and keeping the UI interactive.
--   **Predictive Navigation (Prefetching)**: Integrated `onMouseEnter` prefetching via TanStack Query. The app predicts where you're going and starts loading data before you even click, resulting in a "Zero-latency" feeling.
--   **Secure OAuth Proxying**: Architecture-level fix using Netlify Proxies to facilitate secure, Cross-Site session persistence with `sameSite: "lax"`.
+-   **Deep Black Design System**: A premium, high-contrast UI (Pure #000000) utilizing glassmorphism, consistent Lucide icon weight (1.5px), and optimized mobile responsiveness.
+-   **DOM Virtualization**: Powered by `@tanstack/react-virtual`, ensuring fluid performance even with 10,000+ transactions or stocks.
+-   **Multithreaded Processing (Web Workers)**: Offloads heavy financial calculations and 7-day trend processing to background threads to prevent UI jank.
+-   **Predictive Navigation**: Intelligent prefetching via TanStack Query to eliminate perceived latency during navigation.
 
 ---
 
@@ -45,18 +43,16 @@ This project isn't just a basic React app. It implements production-grade engine
 
 **Frontend:**
 -   **Core**: React + TypeScript + Vite
--   **Styling**: TailwindCSS (Modern, responsive, glassmorphic design)
--   **State & Data**: TanStack Query (React Query)
--   **Virtualization**: TanStack Virtual
--   **Charts**: Recharts (Custom themed)
+-   **Styling**: Vanilla CSS + Tailwind (Custom Glassmorphic System)
+-   **State**: TanStack Query (React Query)
 -   **Icons**: Lucide React
+-   **Toasts**: React-Toastify (Custom mobile-optimized)
 
 **Backend:**
 -   **Runtime**: Node.js + Express
 -   **ORM**: Prisma
 -   **Database**: PostgreSQL
--   **Authentication**: Passport.js (Google OAuth 2.0) & JWT
--   **Security**: Helmet, Rate Limiting, Winston Logging
+-   **Authentication**: Passport.js + JWT
 
 ---
 
@@ -68,7 +64,7 @@ This project isn't just a basic React app. It implements production-grade engine
 
 ### Setup
 
-1.  **Clone the Repository**:
+1.  **Clone Global Repository**:
     ```bash
     git clone https://github.com/cimess/Novalinvest.git
     cd novainvest
@@ -78,7 +74,6 @@ This project isn't just a basic React app. It implements production-grade engine
     ```bash
     cd backend
     npm install
-    cp .env.example .env # Add your DB URL and Google OAuth Keys
     npx prisma generate
     npx prisma migrate dev
     npm run dev
@@ -94,9 +89,7 @@ This project isn't just a basic React app. It implements production-grade engine
 ---
 
 ## 🛡️ License
-Distributed under the MIT License. See `LICENSE` for more information.
+Distributed under the MIT License.
 
----
-
-**Developed with ❤️ by cimessdev[THANKGOD AIMUAN]
+**Developed with ❤️ by [THANKGOD AIMUAN] (cimessdev)**
 *Showcasing next-generation web performance and full-stack architecture.*

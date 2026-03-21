@@ -124,19 +124,19 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       )}
 
       <aside
-        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-[#020617] border-r border-white/5 transition-all duration-300 transform
+        className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-black border-r border-white/5 transition-all duration-300 transform
         ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}
         lg:relative lg:translate-x-0 ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
       >
       {/* Logo */}
-      <div className={`flex items-center gap-3 px-6 py-6 border-b border-white/5 ${collapsed ? 'justify-center px-3' : ''}`}>
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-emerald-400 to-blue-500 flex items-center justify-center flex-shrink-0">
-          <span className="text-white font-bold text-xs">CM</span>
+      <div className={`flex items-center gap-3 px-6 py-8 border-b border-white/5 ${collapsed ? 'justify-center px-3' : ''}`}>
+        <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10 shadow-inner">
+          <span className="text-white font-bold text-xs tracking-tighter">NI</span>
         </div>
         {!collapsed && (
-          <div>
-            <span className="text-white font-bold text-lg">Cimess</span>
-            <span className="gradient-text font-bold text-lg">Invest</span>
+          <div className="flex flex-col">
+            <span className="text-white font-bold text-lg leading-tight tracking-tight">NovaInvest</span>
+            <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em] -mt-0.5">Wealth Management</span>
           </div>
         )}
       </div>
@@ -144,29 +144,30 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       {/* Collapse Toggle */}
       <button
         onClick={() => setCollapsed(!collapsed)}
-        className="hidden lg:flex absolute -right-3 top-8 w-6 h-6 bg-slate-800 border border-white/10 rounded-full items-center justify-center text-slate-400 hover:text-white transition-colors z-10"
+        className="hidden lg:flex absolute -right-3 top-10 w-6 h-6 bg-black border border-white/10 rounded-full items-center justify-center text-slate-400 hover:text-white transition-all z-10 hover:scale-110 active:scale-95"
       >
-        {collapsed ? <ChevronRight className="w-3 h-3" /> : <ChevronLeft className="w-3 h-3" />}
+        {collapsed ? <ChevronRight className="w-3 h-3" strokeWidth={2.5} /> : <ChevronLeft className="w-3 h-3" strokeWidth={2.5} />}
       </button>
+
       {/* User Info */}
       {!collapsed && (
-        <div className="px-4 py-4 border-b border-white/5">
-          <div className="flex items-center gap-3 p-2 rounded-xl bg-white/3">
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500 to-blue-500 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+        <div className="px-4 py-6 border-b border-white/5">
+          <div className="flex items-center gap-3 p-3 rounded-2xl bg-white/[0.03] border border-white/[0.05]">
+            <div className="w-9 h-9 rounded-xl bg-slate-800 flex items-center justify-center text-white text-sm font-bold flex-shrink-0 border border-white/5">
               {userName.charAt(0).toUpperCase()}
             </div>
             <div className="min-w-0">
               <p className="text-white text-sm font-medium truncate">{userName}</p>
-              <span className={`text-xs px-2 py-0.5 rounded-full border ${roleBadgeColors[role]}`}>
+              <div className={`mt-1 inline-flex px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider ${roleBadgeColors[role]}`}>
                 {roleLabels[role]}
-              </span>
+              </div>
             </div>
           </div>
         </div>
       )}
 
       {/* Nav Items */}
-      <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+      <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-1.5 scrollbar-hide">
         {navItems.map((item) => {
           const isActive = location.pathname === item.path || location.pathname.startsWith(item.path + '/');
           return (
@@ -174,19 +175,22 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               key={item.path}
               onClick={() => handleNavClick(item.path)}
               onMouseEnter={() => handlePrefetch(item.path)}
-              className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
+              className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${
                 isActive
-                  ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                  : 'text-slate-400 hover:bg-white/5 hover:text-white border border-transparent'
-              } ${collapsed ? 'justify-center' : ''}`}
+                  ? 'bg-white/5 text-white border border-white/10 shadow-sm'
+                  : 'text-slate-400 hover:bg-white/[0.02] hover:text-slate-200 border border-transparent'
+              } ${collapsed ? 'justify-center px-0' : ''}`}
               title={collapsed ? item.label : undefined}
             >
-              <span className={`flex-shrink-0 transition-transform group-hover:scale-110 ${isActive ? 'text-emerald-400' : ''}`}>
-                {item.icon}
+              <span className={`flex-shrink-0 transition-transform ${isActive ? 'text-white' : 'group-hover:text-slate-200'}`}>
+                {React.cloneElement(item.icon as React.ReactElement<any>, { 
+                  className: "w-4 h-4",
+                  strokeWidth: 1.5 
+                })}
               </span>
-              {!collapsed && <span>{item.label}</span>}
+              {!collapsed && <span className="tracking-tight">{item.label}</span>}
               {!collapsed && isActive && (
-                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                <div className="ml-auto w-1 h-1 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]" />
               )}
             </button>
           );
@@ -194,16 +198,16 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       </nav>
 
       {/* Logout */}
-      <div className="p-3 border-t border-white/5">
+      <div className="p-4 border-t border-white/5 bg-black/20">
         <button
           onClick={handleLogout}
-          className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:bg-red-500/10 hover:text-red-400 transition-all group ${
-            collapsed ? 'justify-center' : ''
+          className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-500 hover:bg-red-500/10 hover:text-red-400 transition-all group ${
+            collapsed ? 'justify-center px-0' : ''
           }`}
           title={collapsed ? 'Logout' : undefined}
         >
-          <LogOut className="w-5 h-5 flex-shrink-0 group-hover:scale-110 transition-transform" />
-          {!collapsed && <span>Logout</span>}
+          <LogOut className="w-4 h-4 flex-shrink-0 group-hover:scale-110 transition-transform" strokeWidth={1.5} />
+          {!collapsed && <span className="tracking-tight">Sign Out</span>}
         </button>
       </div>
     </aside>

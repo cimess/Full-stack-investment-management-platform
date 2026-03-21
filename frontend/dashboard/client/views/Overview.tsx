@@ -178,13 +178,13 @@ const ClientOverview: React.FC = () => {
         <div className="xl:col-span-2 glass-panel rounded-2xl p-4 lg:p-6 border border-white/5">
           <div className="flex items-center justify-between mb-6">
             <div>
-              <h2 className="text-white font-bold text-base lg:text-lg">Portfolio Performance</h2>
-              <p className="text-slate-500 text-xs lg:text-sm">Growth over the last 7 days</p>
+              <h2 className="text-white font-bold text-base lg:text-lg tracking-tight">Portfolio Performance</h2>
+              <p className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-widest font-bold mt-1">Last 7 Days</p>
             </div>
           </div>
           <div className="relative h-[220px] sm:h-[300px]">
             {isCalculating && (
-              <div className="absolute inset-0 flex items-center justify-center bg-slate-900/20 backdrop-blur-sm z-10 rounded-xl">
+              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10 rounded-xl">
                 <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
               </div>
             )}
@@ -200,7 +200,7 @@ const ClientOverview: React.FC = () => {
               <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
               <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} hide />
               <Tooltip
-                contentStyle={{ backgroundColor: '#0f172a', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
+                contentStyle={{ backgroundColor: '#000000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
                 itemStyle={{ color: '#10b981' }}
               />
               <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
@@ -213,28 +213,28 @@ const ClientOverview: React.FC = () => {
           <h2 className="text-white font-bold text-base lg:text-lg">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
             {['Market', 'Portfolio', 'History', 'Manager'].map((item) => (
-              <button key={item} className="flex flex-col items-center justify-center gap-2 p-4 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-colors group">
-                <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 group-hover:scale-110 transition-transform">
-                  <ArrowUpRight className="w-5 h-5" />
+              <button key={item} className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all group">
+                <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
+                  <ArrowUpRight className="w-4 h-4" />
                 </div>
-                <span className="text-slate-300 text-xs font-medium">{item}</span>
+                <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{item}</span>
               </button>
             ))}
           </div>
           
-          <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/20 border border-indigo-500/20">
-             <h3 className="text-white text-sm font-bold mb-1">Portfolio Manager</h3>
+          <div className="p-5 rounded-2xl bg-black/40 border border-white/5">
+             <h3 className="text-white text-sm font-bold mb-1 tracking-tight">Portfolio Manager</h3>
              {user?.client_manager ? (
                <>
-                  <p className="text-indigo-200/70 text-xs mb-3">{user.client_manager.user.fullname} is overseeing your requests.</p>
-                  <button className="w-full py-2 bg-indigo-500 text-white rounded-lg text-xs font-bold hover:bg-indigo-600 transition-colors">
-                    Contact {user.client_manager.user.fullname.split(' ')[0]}
+                  <p className="text-slate-500 text-xs mb-4">{user.client_manager.user.fullname} is overseeing your account.</p>
+                  <button className="w-full py-2.5 bg-white text-black rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
+                    Contact Manager
                   </button>
                </>
              ) : (
                <>
-                  <p className="text-indigo-200/70 text-xs mb-3">You currently do not have a dedicated portfolio manager.</p>
-                  <button className="w-full py-2 bg-slate-700 text-white rounded-lg text-xs font-bold hover:bg-slate-600 transition-colors">
+                  <p className="text-slate-500 text-xs mb-4">No dedicated manager assigned yet.</p>
+                  <button className="w-full py-2.5 bg-white/5 text-white border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors">
                     Assign Manager
                   </button>
                </>
