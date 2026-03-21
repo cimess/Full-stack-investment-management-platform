@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: import.meta.env.NODE_ENV === "production" ? "https://cimessinvest.onrender.com/api" : "/api",
+  baseURL: "/api",
   withCredentials: true,
   timeout: 60000,
   headers: {
