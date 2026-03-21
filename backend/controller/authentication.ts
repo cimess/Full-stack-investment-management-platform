@@ -26,7 +26,18 @@ export const googleAuth=async (req: Request, res:Response) => {
         }
       });
     }
+
+    // --- CHECK FOR DISABLED STATUS ---
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+    if (dbUser?.disabled) {
+      const frontendUrl = process.env.NODE_ENV === "production" 
+        ? process.env.FRONTEND_URL 
+        : "http://localhost:5173";
+      return res.redirect(`${frontendUrl}/login?error=account_deactivated`);
+    }
+
     if(!user.isVerified){
+
       await prisma.user.update({
         where:{id:user.id},
         data:{isVerified:true}
@@ -85,7 +96,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   if (!result.success) {
     return next(createError(400, result.error.issues[0]?.message as string));
   }
-  const { username, name, password, email } = result.data;
+  const { username, name, password, email,role } = result.data;
+  const userRole = role ==="CLIENT"?"USER":'MANAGER';
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const otp = crypto.randomInt(100000, 999999).toString();
@@ -129,13 +141,26 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         fullname:name+' '+username,
         password:hashedPassword,
         username,
-        roles:'USER',
+        roles:userRole?userRole:'USER',
         isVerified:false,
         verificationToken:null,
         verificationTokenExpires:null
       }
     })
-
+    if(role==="MANAGER"){
+                     
+          // generate approval code
+          const approval_code=crypto.randomUUID();
+    
+              const result=
+               
+                await prisma.manager.create({
+                  data:{
+                    manager_id:user.id,
+                    approval_code:approval_code,
+                  }
+                })
+              }
     const accessToken = generateAccessToken({
       id: user.id,
       roles: user.roles
@@ -252,6 +277,10 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       if (user.restricted) {
         return next(createError(401, "user is currently restricted"));
       }
+      if (user.disabled) {
+        return next(createError(401, "This account has been deactivated. Please contact support to reactivate."));
+      }
+
       // if (!user.isVerified) {
       //   return next(createError(403, "Please verify your email address to log in"));
       // }

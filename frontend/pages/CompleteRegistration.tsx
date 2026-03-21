@@ -3,7 +3,9 @@ import Header from '../components/Header';
 import Footer from '../components/Footer';
 import { useUpdateUserProfile, useGetMe } from '../hooks/useQuery';
 import { toast, Zoom } from 'react-toastify';
-import { Eye, EyeOff, Lock } from "lucide-react";
+import { Eye, EyeOff, Lock, User, ChevronDown, AlertCircle } from "lucide-react";
+import { useQueryClient } from '@tanstack/react-query';
+
 import { useNavigate } from 'react-router-dom';
 import Loader from '../components/loadericon/loader';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
@@ -15,26 +17,31 @@ export default function CompleteRegistration() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
-  
+  const [role, setRole] = useState<"CLIENT" | "MANAGER">("CLIENT");
+  const [showRoleDropdown, setShowRoleDropdown] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
+
+
+  const queryClient = useQueryClient();
   const { data: userData, isLoading: userLoading } = useGetMe();
   const { mutate: updateProfile, isPending: updatePending } = useUpdateUserProfile();
   
   const { startRedirect, showLoader, message: redirectMessage, success: redirectSuccess } = useLoadingRedirect({
     initialMessage: "Password set successfully!",
     loadingMessage: "Preparing your dashboard...",
-    target: "/dashboard/client"
+    target: role === "MANAGER" ? "/dashboard/manager" : "/dashboard/client"
   });
 
   useEffect(() => {
     // If user already has a password, redirect them away
-    if (userData?.data?.hasPassword) {
-      navigate("/dashboard/client");
-    }
+    // if (userData?.data?.hasPassword) {
+    //   navigate("/dashboard/client");
+    // }
   }, [userData, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!password || !confirmPassword) {
       toast.error("Please fill all fields");
       setShake(true);
@@ -56,9 +63,16 @@ export default function CompleteRegistration() {
       return;
     }
 
-    updateProfile({ password }, {
-      onSuccess: () => {
-        startRedirect();
+    setShowConfirm(true);
+  };
+
+  const handleFinalSubmit = () => {
+    setShowConfirm(false);
+   
+    updateProfile({ password, role }, {
+      onSuccess: async() => {
+        await queryClient.invalidateQueries({ queryKey: ['me'] });
+        role === "MANAGER" ? startRedirect("/dashboard/manager") : startRedirect();
       },
       onError: (error: any) => {
         const msg = (error as any)?.response?.data?.message || "Failed to set password";
@@ -71,7 +85,9 @@ export default function CompleteRegistration() {
         });
       }
     });
-  };
+  }
+
+
 
   if (userLoading) return <Loader message="Verifying session..." />;
 
@@ -121,6 +137,7 @@ export default function CompleteRegistration() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+               
 
                 <div className="relative">
                   <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={18} />
@@ -133,6 +150,47 @@ export default function CompleteRegistration() {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                   />
                 </div>
+                 <div className="relative group">
+                  <div 
+                    onClick={() => setShowRoleDropdown(!showRoleDropdown)}
+                    className="w-full rounded-xl bg-white/10 border border-white/20
+                    text-white px-4 py-4 outline-none focus:ring-2 focus:ring-cyan-400 
+                    cursor-pointer flex items-center gap-4 transition-all hover:bg-white/15 active:scale-[0.99]"
+                  >
+                    <User className="text-gray-400 shrink-0" size={18} />
+                    <span className="flex-grow text-sm lg:text-base font-medium text-gray-400">
+                      {role === "CLIENT" ? "Client" : "Manager"}
+                    </span>
+                    <ChevronDown 
+                      className={`text-gray-400 transition-transform duration-300 ${showRoleDropdown ? 'rotate-180 text-cyan-400' : ''}`} 
+                      size={18} 
+                    />
+                  </div>
+
+                  {showRoleDropdown && (
+                    <div className="absolute top-full mt-2 left-0 right-0 rounded-xl bg-[#0f172a] border border-white/20 shadow-2xl overflow-hidden z-20 animate-in fade-in zoom-in-95 duration-200">
+                      <div 
+                        onClick={() => { setRole("CLIENT"); setShowRoleDropdown(false); }}
+                        className={`px-4 py-4 cursor-pointer transition-colors flex items-center gap-4 ${role === 'CLIENT' ? 'bg-white/10 text-cyan-400' : 'text-white hover:bg-white/5'}`}
+                      >
+                        <User className={role === 'CLIENT' ? 'text-cyan-400' : 'text-gray-400'} size={18} />
+                        <span className="font-medium">Client</span>
+                      </div>
+                      <div 
+                        onClick={() => { setRole("MANAGER"); setShowRoleDropdown(false); }}
+                        className={`px-4 py-4 cursor-pointer transition-colors flex items-center gap-4 ${role === 'MANAGER' ? 'bg-white/10 text-cyan-400' : 'text-white hover:bg-white/5'}`}
+                      >
+                        <User className={role === 'MANAGER' ? 'text-cyan-400' : 'text-gray-400'} size={18} />
+                        <span className="font-medium">Manager</span>
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-cyan-300 text-[10px] lg:text-xs px-4 mt-2 font-light">
+                    Please select your account role to proceed
+                  </div>
+                </div>
+
+
 
                 <button
                   disabled={updatePending || redirectSuccess}
@@ -150,7 +208,43 @@ export default function CompleteRegistration() {
             </div>
           </div>
           <Footer />
+          
+          {/* Custom Confirmation Modal */}
+          {showConfirm && (
+            <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-modal-fade">
+              <div className="bg-slate-900 border border-white/10 rounded-2xl p-8 max-w-sm w-full shadow-2xl animate-modal-zoom">
+
+                <div className="w-16 h-16 bg-cyan-500/10 rounded-full flex items-center justify-center mx-auto mb-6 text-cyan-400">
+                  <AlertCircle size={32} />
+                </div>
+                
+                <h3 className="text-white text-xl font-bold text-center mb-3">Confirm Your Role</h3>
+                
+                <p className="text-gray-400 text-center mb-8 leading-relaxed">
+                  You are about to register as a <span className="text-cyan-400 font-bold uppercase tracking-wider">{role}</span>. 
+                  Please note that you <span className="text-white font-medium italic">can only change this role</span> by the approval of the admin.
+                </p>
+                
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setShowConfirm(false)}
+                    className="flex-1 py-3 px-4 rounded-xl bg-white/5 border border-white/10 text-white font-medium hover:bg-white/10 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                  <button 
+                    onClick={handleFinalSubmit}
+                    className="flex-1 py-3 px-4 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-bold hover:shadow-[0_0_20px_rgba(6,182,212,0.4)] transition-all active:scale-95"
+                  >
+                    Confirm
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
+
           <style>{`
+
             @keyframes shake {
               10%, 90% { transform: translateX(-2px); }
               20%, 80% { transform: translateX(4px); }
@@ -163,7 +257,19 @@ export default function CompleteRegistration() {
               50% { transform: translate(-50%, -10px); }
             }
             .animate-float { animation: float 3s ease-in-out infinite; }
+            
+            @keyframes modal-fade-in {
+              from { opacity: 0; }
+              to { opacity: 1; }
+            }
+            @keyframes modal-zoom-in {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            .animate-modal-fade { animation: modal-fade-in 0.2s ease-out; }
+            .animate-modal-zoom { animation: modal-zoom-in 0.2s ease-out; }
           `}</style>
+
         </>
       )}
     </>

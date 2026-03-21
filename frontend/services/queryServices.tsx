@@ -149,3 +149,9 @@ export const getAIInsights = async (query: string): Promise<string> => {
   const response = await api.post("/ai", { query });
   return response.data.data as string;
 }
+
+export const deactivateAccountAPI = async () => {
+  const response = await api.post("/user/deactivate");
+  return response.data;
+}
+

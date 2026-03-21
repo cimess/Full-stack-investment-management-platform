@@ -7,8 +7,9 @@ import {
   getAdminDashboard, getMarketQuotes, searchStock,
   postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
-  updateUserProfileAPI, getPublicManagerProfileAPI
+  updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI
 } from "../services/queryServices"
+
 
 export const register = () => {
   return useMutation({
@@ -106,7 +107,9 @@ export const adminRestrictManager = () => {
 export const getUserDashboard = () => {
   return useQuery({
     queryKey: ["userDashboard"],
-    queryFn: getClientAll
+    queryFn: getClientAll,
+    retry: 1,
+    refetchOnWindowFocus: false,
   })
 }
 
@@ -194,3 +197,10 @@ export const useGetPublicManagerProfile = (managerId: string) => {
     enabled: !!managerId && managerId.length > 5 // Only fetch if ID looks somewhat valid
   })
 }
+
+export const useDeactivateAccount = () => {
+  return useMutation({
+    mutationFn: deactivateAccountAPI
+  })
+}
+

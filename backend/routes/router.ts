@@ -12,7 +12,8 @@ import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManager
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
-import { updateProfile } from "../controller/userController.js";
+import { updateProfile, deactivateAccount } from "../controller/userController.js";
+
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
@@ -79,6 +80,8 @@ router.get("/get/me", verifyToken, getMe);
 // --- Settings & Notifications ---
 router.patch("/user/settings", verifyToken, updateUserSettings);
 router.patch("/user/profile", verifyToken, updateProfile);
+router.post("/user/deactivate", verifyToken, deactivateAccount);
+
 router.get("/user/notifications", verifyToken, getNotifications);
 router.patch("/user/notifications/read", verifyToken, markNotificationsRead);
 

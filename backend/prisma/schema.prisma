@@ -47,6 +47,8 @@ model User {
   verificationToken        String?
   verificationTokenExpires DateTime?
 
+  disabled                 Boolean   @default(false)
+
   settings                 UserSettings?     @relation("userSettings")
   notifications            Notification[]    @relation("user_notifications")
 
@@ -134,7 +136,8 @@ model Trade_request {
 model RefreshToken {
   id        String   @id @default(cuid())
   token     String   @unique
-  user      User     @relation("refreshToken", fields: [user_id], references: [id])
+  user      User     @relation("refreshToken", fields: [user_id], references: [id], onDelete: Cascade)
+
   user_id   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

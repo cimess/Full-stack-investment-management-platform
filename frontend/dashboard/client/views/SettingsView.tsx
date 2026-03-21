@@ -1,9 +1,9 @@
 import React from 'react';
-import { Shield, Bell, ChevronRight, UserPlus, Loader2, User, Mail, Lock, X, CheckCircle2, Eye, EyeOff } from 'lucide-react';
+import { Shield, Bell, ChevronRight, UserPlus, Loader2, User, Mail, Lock, X, CheckCircle2, Eye, EyeOff, AlertTriangle, Trash2 } from 'lucide-react';
 import Switch from '../../../components/switchButton/switch';
 import { 
   useRedeemAdmin, useRedeemManager, useAddManagerToClient, useGetMe, 
-  useUpdateUserProfile, useGetPublicManagerProfile 
+  useUpdateUserProfile, useGetPublicManagerProfile, useDeactivateAccount 
 } from '../../../hooks/useQuery';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
@@ -37,12 +37,18 @@ const SettingsView: React.FC = () => {
   const [confirmPassword, setConfirmPassword] = React.useState('');
   const [showNewPassword, setShowNewPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
+  
+  // Deactivate State
+  const [showDeactivateConfirm, setShowDeactivateConfirm] = React.useState(false);
 
   // Mutations
   const { mutate: updateUser, isPending: isUpdatingUser } = useUpdateUserProfile();
   const { mutate: redeemAdmin } = useRedeemAdmin();
   const { mutate: redeemManager } = useRedeemManager();
   const { mutate: linkManager } = useAddManagerToClient();
+  const { mutate: deactivateAccount, isPending: isDeactivating } = useDeactivateAccount();
+
+
 
   // Manager Preview Hook
   const { data: managerPreview, isLoading: isLoadingPreview } = useGetPublicManagerProfile(managerId);
@@ -141,7 +147,23 @@ const SettingsView: React.FC = () => {
     });
   };
 
+  const handleDeactivate = () => {
+
+    deactivateAccount(undefined, {
+      onSuccess: () => {
+        toast.success("Account deactivated. We're sorry to see you go.");
+        queryClient.clear();
+        window.location.href = "/login";
+      },
+      onError: (err: any) => {
+        toast.error(err.response?.data?.message || "Failed to deactivate account");
+        setShowDeactivateConfirm(false);
+      }
+    });
+  };
+
   return (
+
     <div className="max-w-4xl space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
         <h2 className="text-white font-bold text-2xl tracking-tight">Account Settings</h2>
@@ -421,8 +443,39 @@ const SettingsView: React.FC = () => {
                 </button>
              </div>
           </div>
+
+          {/* Danger Zone */}
+          <div className="md:col-span-2 glass-panel p-4 sm:p-8 rounded-3xl border border-red-500/10 
+          space-y-6 bg-red-500/[0.02] relative overflow-hidden group hover:border-red-500/30 transition-all">
+            <div className="flex items-center gap-4 text-white">
+              <div className="w-12 h-12 rounded-2xl bg-red-500/10 flex items-center 
+              justify-center border border-red-500/20 group-hover:scale-110 transition-transform duration-500">
+                <AlertTriangle className="w-6 h-6 text-red-500" />
+              </div>
+              <div>
+                <h3 className="font-bold text-base text-red-500">Danger Zone</h3>
+                <p className="text-slate-500 text-xs">Irreversible actions concerning your account status</p>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center justify-between p-6 rounded-2xl bg-red-500/[0.03] border border-red-500/10 gap-4">
+              <div className="text-center sm:text-left">
+                <h4 className="text-white font-bold text-sm">Deactivate Account</h4>
+                <p className="text-slate-500 text-xs mt-1">This will disable your access and release your manager connection.</p>
+              </div>
+              <button 
+                onClick={() => setShowDeactivateConfirm(true)}
+                className="w-full sm:w-auto px-6 py-2.5 bg-red-500/10 hover:bg-red-500 text-red-500 hover:text-white 
+                text-[10px] font-black uppercase tracking-widest rounded-xl border border-red-500/20 
+                transition-all duration-300"
+              >
+                Deactivate
+              </button>
+            </div>
+          </div>
         </div>
       </div>
+
 
       <div className="flex justify-center sm:justify-end pt-8 pb-12 sm:pb-0">
         <button 
@@ -500,7 +553,39 @@ const SettingsView: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Deactivate Confirmation Modal */}
+      {showDeactivateConfirm && (
+        <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/90 backdrop-blur-xl" onClick={() => setShowDeactivateConfirm(false)} />
+          <div className="relative w-full max-w-sm glass-panel p-8 rounded-[2rem] border border-red-500/20 shadow-2xl animate-in fade-in zoom-in-95">
+            <div className="w-16 h-16 rounded-2xl bg-red-500/10 flex items-center justify-center mx-auto mb-6 border border-red-500/20">
+              <Trash2 className="w-8 h-8 text-red-500" />
+            </div>
+            <h3 className="text-white font-bold text-xl text-center mb-2">Final Confirmation</h3>
+            <p className="text-slate-400 text-sm text-center mb-8">
+              Are you absolutely sure you want to deactivate your account? This action is immediate and will log you out.
+            </p>
+            <div className="flex flex-col gap-3">
+              <button 
+                onClick={handleDeactivate}
+                disabled={isDeactivating}
+                className="w-full py-4 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-all flex items-center justify-center gap-2"
+              >
+                {isDeactivating ? <Loader2 className="w-4 h-4 animate-spin" /> : "Yes, Deactivate Account"}
+              </button>
+              <button 
+                onClick={() => setShowDeactivateConfirm(false)}
+                className="w-full py-4 bg-white/5 text-slate-300 font-bold rounded-2xl hover:bg-white/10 transition-all"
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
+
   );
 };
 

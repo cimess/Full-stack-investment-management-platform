@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle, Menu } from 'lucide-react';
-import { useGetNotifications, useMarkNotificationsRead } from '../../hooks/useQuery';
+import { useGetNotifications, useMarkNotificationsRead, getUserDashboard } from '../../hooks/useQuery';
 import { useQueryClient } from '@tanstack/react-query';
 
 const notifIcons: Record<string, React.ReactNode> = {
@@ -33,7 +33,7 @@ interface TopBarProps {
   handleLogout?: () => void;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout }) => {
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout}) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
@@ -43,6 +43,11 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
 
   const notifications = (notificationsResponse as any)?.data?.notifications || [];
   const unread = (notificationsResponse as any)?.data?.unreadCount || 0;
+
+  const { data } = getUserDashboard();
+const investments = data?.data?.investments || [];
+const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
+
 
   const handleReadMsg = (id: string) => {
     // If it's already a bulk mark-as-read API, run it for all when clicked anywhere unread
@@ -78,6 +83,12 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
           </p>
         </div>
       </div>
+
+
+      {portfolioValue && <div>
+        <h1 className='text-lg lg:text-xl font-bold text-gray-500 leading-tight'>Portfolio value</h1>
+        <p className='text-lg lg:text-xl font-bold text-white leading-tight'>${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}</p>
+      </div>}
 
       {/* Right Controls */}
       <div className="flex items-center gap-3">

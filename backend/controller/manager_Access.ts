@@ -5,6 +5,10 @@ import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 
+
+
+
+
 export const getManagerAccess = async (req: Request, res: Response, next: NextFunction) => {
   const { access_key } = req.body;
   const userId = req.user?.id;
