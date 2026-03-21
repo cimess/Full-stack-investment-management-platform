@@ -327,11 +327,42 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
 
 
   try{
-      const portfolio=await prisma.portfolio.findFirst({
-        where:{ user_id:client_id }
+      let portfolio = await prisma.portfolio.findFirst({
+        where: { user_id: client_id }
       })
-      if(!portfolio){
-        throw createError(404,"portfolio not found");
+
+      // 4. Fetch User and Manager Info (Fetch early to return it with empty state if needed)
+      const user = await prisma.user.findUnique({
+        where: { id: client_id },
+        select: {
+          id: true,
+          fullname: true,
+          email: true,
+          client_manager: {
+            select: {
+              manager_id: true,
+              user: {
+                select: {
+                  fullname: true,
+                  email: true
+                }
+              }
+            }
+          }
+        }
+      });
+
+      if (!portfolio) {
+        // Return a successful but empty dashboard state for new users
+        return res.status(200).json({
+          success: true,
+          data: {
+            user,
+            transactions: [],
+            trade_requests: [],
+            investments: []
+          }
+        });
       }
 
       //  Fetch Actual Transactions (History of executed trades)
@@ -381,26 +412,6 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
       })
 
 
-      // 4. Fetch User and Manager Info
-      const user = await prisma.user.findUnique({
-        where: { id: client_id },
-        select: {
-          id: true,
-          fullname: true,
-          email: true,
-          client_manager: {
-            select: {
-              manager_id: true,
-              user: {
-                select: {
-                  fullname: true,
-                  email: true
-                }
-              }
-            }
-          }
-        }
-      });
 
 
       res.status(200).json({

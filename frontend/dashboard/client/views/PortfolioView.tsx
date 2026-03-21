@@ -266,6 +266,14 @@ const PortfolioView: React.FC = () => {
     );
   }
 
+  if (isError || !data?.data) {
+    return (
+      <div className="flex h-full items-center justify-center p-12 text-slate-400">
+        Failed to load portfolio data.
+      </div>
+    );
+  }
+
   const holdings = processedHoldings;
 
   return (

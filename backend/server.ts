@@ -11,6 +11,7 @@ import router from "./routes/router.js";
 import { startMarketWorker } from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
+import { scannerLimiter } from "./middlewear/404Limiter.js";
 
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {
@@ -63,6 +64,15 @@ if (process.env.NODE_ENV === "production") {
 }
 app.use(passport.initialize());
 app.use("/api", router);
+
+// --- 404 & Scanner Protection ---
+// If the request didn't match any route in the router, it falls through to here.
+app.use("/api/*", scannerLimiter, (req, res) => {
+  res.status(404).json({
+    success: false,
+    message: `Route ${req.originalUrl} not found.`
+  });
+});
 
 
 const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
