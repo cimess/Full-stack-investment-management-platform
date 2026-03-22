@@ -10172,3 +10172,68 @@ Unique constraint failed on the fields: (`token`)
 2026-03-21 18:24:39 [info]: Fetching 119 stocks from Yahoo Finance (batch)...
 2026-03-21 18:24:40 [info]: Worker: Batch of 119 symbols updated.
 2026-03-21 18:24:40 [info]: Worker: All background price refreshes completed.
+2026-03-22 11:07:18 [info]: [Database] Using CA Certificate from: /home/cimess/Dev/myPersonalPortfolio/novainvest/backend/certs/ca.pem
+2026-03-22 11:07:20 [error]: Seeding failed: 
+Invalid `prisma.stockTable.count()` invocation:
+
+
+Error opening a TLS connection: self-signed certificate in certificate chain {
+  "code": "P1011",
+  "meta": {
+    "modelName": "StockTable",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "kind": "TlsConnectionError",
+        "reason": "self-signed certificate in certificate chain"
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError",
+  "stack": "PrismaClientKnownRequestError: \nInvalid `prisma.stockTable.count()` invocation:\n\n\nError opening a TLS connection: self-signed certificate in certificate chain\n    at zr.handleRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)\n    at zr.handleAndLogRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)\n    at zr.request (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async a (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:808:24)\n    at async seedTopSymbols (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/services/marketservice.ts:202:27)\n    at async refreshMarketData (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/services/marketWorker.ts:14:5)"
+}
+2026-03-22 11:07:21 [warn]: Could not restore Yahoo session from DB (will start fresh): 
+Invalid `prisma.systemConfig.findUnique()` invocation:
+
+
+Error opening a TLS connection: self-signed certificate in certificate chain {
+  "code": "P1011",
+  "meta": {
+    "modelName": "SystemConfig",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "kind": "TlsConnectionError",
+        "reason": "self-signed certificate in certificate chain"
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError",
+  "stack": "PrismaClientKnownRequestError: \nInvalid `prisma.systemConfig.findUnique()` invocation:\n\n\nError opening a TLS connection: self-signed certificate in certificate chain\n    at zr.handleRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)\n    at zr.handleAndLogRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)\n    at zr.request (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async a (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:808:24)\n    at async syncCookiesFromDb (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/services/marketservice.ts:33:20)"
+}
+2026-03-22 11:07:22 [error]: Worker Error: 
+Invalid `prisma.stockTable.findMany()` invocation:
+
+
+Error opening a TLS connection: self-signed certificate in certificate chain {
+  "code": "P1011",
+  "meta": {
+    "modelName": "StockTable",
+    "driverAdapterError": {
+      "name": "DriverAdapterError",
+      "cause": {
+        "kind": "TlsConnectionError",
+        "reason": "self-signed certificate in certificate chain"
+      }
+    }
+  },
+  "clientVersion": "7.4.2",
+  "name": "PrismaClientKnownRequestError",
+  "stack": "PrismaClientKnownRequestError: \nInvalid `prisma.stockTable.findMany()` invocation:\n\n\nError opening a TLS connection: self-signed certificate in certificate chain\n    at zr.handleRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:237:13)\n    at zr.handleAndLogRequestError (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:183:12)\n    at zr.request (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/RequestHandler.ts:152:12)\n    at process.processTicksAndRejections (node:internal/process/task_queues:103:5)\n    at async a (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/node_modules/@prisma/client/src/runtime/getPrismaClient.ts:808:24)\n    at async refreshMarketData (/home/cimess/Dev/myPersonalPortfolio/novainvest/backend/services/marketWorker.ts:17:27)"
+}
+2026-03-22 11:07:25 [info]: [GET] / → 404 (6ms)
+2026-03-22 11:07:25 [info]: [GET] /health → 200 (2ms)
+2026-03-22 11:07:25 [info]: [GET] /api/foo → 404 (2ms)
+2026-03-22 11:07:29 [info]: SIGINT received: Starting graceful shutdown...

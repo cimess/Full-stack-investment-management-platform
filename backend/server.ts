@@ -82,20 +82,14 @@ if (process.env.NODE_ENV === "production") {
 }
 app.use(passport.initialize());
 
-// Add this before app.use("/api", router);
-app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "NovaInvest API is running. Use /api/health for status."
-  });
-});
+// --- Routes ---
 
 
 app.use("/api", router);
 
 // --- 404 & Scanner Protection ---
-// If the request didn't match any route in the router, it falls through to here.
-app.use("/api", scannerLimiter, (req, res) => {
+// Global catch-all for any unmatched route (including root / and invalid /api routes)
+app.use(scannerLimiter, (req, res) => {
   res.status(404).json({
     success: false,
     message: `Route ${req.originalUrl} not found.`
