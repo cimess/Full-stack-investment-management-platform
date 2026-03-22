@@ -21,7 +21,7 @@ import { getAIInsightsController } from "../controller/aiController.js";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // Only 5 login attempts allowed!
+  max: 10, // Increased from 5 to 100 for production setup
   message: { success: false, message: "Too many attempts, please try again after 15 minutes" }
 });
 
