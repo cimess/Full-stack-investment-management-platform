@@ -31,7 +31,7 @@ export const refreshMarketData = async (run: boolean) => {
 
     for (const batch of batches) {
       const result = await getQuotes(batch);
-      
+
       if (result.success && Array.isArray(result.data)) {
         await Promise.all(result.data.map(async (stock: any) => {
           return prisma.stockTable.update({
@@ -52,7 +52,7 @@ export const refreshMarketData = async (run: boolean) => {
         await new Promise(res => setTimeout(res, 500));
       }
     }
-    
+
     logger.info("Worker: All background price refreshes completed.");
   } catch (err) {
     logger.error("Worker Error:", err);
@@ -63,7 +63,6 @@ export const startMarketWorker = (mins: number, run: boolean) => {
   // We don't run immediately on start here because seedTopSymbols might take a while
   // and we don't want to block the main thread. 
   // But since it's an async call, we'll fire it off.
-  refreshMarketData(run); 
+  refreshMarketData(run);
   setInterval(() => refreshMarketData(run), mins * 60 * 1000);
 };
-  

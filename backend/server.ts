@@ -63,6 +63,16 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 app.use(passport.initialize());
+
+// Add this before app.use("/api", router);
+app.get("/", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "NovaInvest API is running. Use /api/health for status."
+  });
+});
+
+
 app.use("/api", router);
 
 // --- 404 & Scanner Protection ---
