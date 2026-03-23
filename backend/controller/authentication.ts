@@ -134,8 +134,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     //   })
 
 
-
-    const user=await prisma.user.create({
+const user=await prisma.$transaction(async(tx)=>{
+    const user=await tx.user.create({
       data:{
         email,
         fullname:name+' '+username,
@@ -154,7 +154,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     
               const result=
                
-                await prisma.manager.create({
+                await tx.manager.create({
                   data:{
                     manager_id:user.id,
                     approval_code:approval_code,
@@ -171,13 +171,13 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       roles: user.roles
     });
 
-    await prisma.refreshToken.create({
+    await tx.refreshToken.create({
       data: {
         token: refreshToken,
         user_id: user.id
       }
     });
-
+ 
     res.cookie("accessToken", accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
@@ -191,6 +191,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
+
+     })
  
     const frontendUrl = process.env.NODE_ENV === "production" 
       ? process.env.FRONTEND_URL 
