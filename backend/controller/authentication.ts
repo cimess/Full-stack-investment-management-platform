@@ -11,81 +11,81 @@ import type { NextFunction } from "express";
 
 
 
-export const googleAuth=async (req: Request, res:Response) => {
+export const googleAuth = async (req: Request, res: Response) => {
 
-    const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null ;isVerified:boolean; password?: string | null; isNewUser?: boolean };
+  const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null; isVerified: boolean; password?: string | null; isNewUser?: boolean };
 
-    const oldRefreshToken = req.cookies?.refreshToken;
+  const oldRefreshToken = req.cookies?.refreshToken;
 
 
-    if (oldRefreshToken) {
-      await prisma.refreshToken.deleteMany({
-        where: {
-          user_id:user?.id,
-          token: oldRefreshToken
-        }
-      });
-    }
-
-    // --- CHECK FOR DISABLED STATUS ---
-    const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
-    if (dbUser?.disabled) {
-      const frontendUrl = process.env.NODE_ENV === "production" 
-        ? process.env.FRONTEND_URL 
-        : "http://localhost:5173";
-      return res.redirect(`${frontendUrl}/login?error=account_deactivated`);
-    }
-
-    if(!user.isVerified){
-
-      await prisma.user.update({
-        where:{id:user.id},
-        data:{isVerified:true}
-      });
-    }
-
-    const accessToken = generateAccessToken({
-      id: user.id,
-      roles: user.roles
-    });
-
-    const refreshToken = generateRefreshToken({
-      id: user.id,
-      roles: user.roles
-    });
-
-    await prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        user_id: user.id
+  if (oldRefreshToken) {
+    await prisma.refreshToken.deleteMany({
+      where: {
+        user_id: user?.id,
+        token: oldRefreshToken
       }
     });
-
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-    const { id, roles, username, fullname, email, manager_id: managerId } = user;
-    const frontendUrl = process.env.NODE_ENV === "production" 
-      ? process.env.FRONTEND_URL 
-      : "http://localhost:5173";
-    
-    // Redirect to complete registration if user has no password (common for new Google users)
-    const needsPassword = user.isNewUser || !user.password;
-    const target = needsPassword ? `${frontendUrl}/complete-registration` : `${frontendUrl}/dashboard`;
-    return res.redirect(target);
-
   }
+
+  // --- CHECK FOR DISABLED STATUS ---
+  const dbUser = await prisma.user.findUnique({ where: { id: user.id } });
+  if (dbUser?.disabled) {
+    const frontendUrl = process.env.NODE_ENV === "production"
+      ? process.env.FRONTEND_URL
+      : "http://localhost:5173";
+    return res.redirect(`${frontendUrl}/login?error=account_deactivated`);
+  }
+
+  if (!user.isVerified) {
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { isVerified: true }
+    });
+  }
+
+  const accessToken = generateAccessToken({
+    id: user.id,
+    roles: user.roles
+  });
+
+  const refreshToken = generateRefreshToken({
+    id: user.id,
+    roles: user.roles
+  });
+
+  await prisma.refreshToken.create({
+    data: {
+      token: refreshToken,
+      user_id: user.id
+    }
+  });
+
+  res.cookie("accessToken", accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 15 * 60 * 1000
+  });
+
+  res.cookie("refreshToken", refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000
+  });
+
+  const { id, roles, username, fullname, email, manager_id: managerId } = user;
+  const frontendUrl = process.env.NODE_ENV === "production"
+    ? process.env.FRONTEND_URL
+    : "http://localhost:5173";
+
+  // Redirect to complete registration if user has no password (common for new Google users)
+  const needsPassword = user.isNewUser || !user.password;
+  const target = needsPassword ? `${frontendUrl}/complete-registration` : `${frontendUrl}/dashboard`;
+  return res.redirect(target);
+
+}
 
 
 
@@ -96,8 +96,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   if (!result.success) {
     return next(createError(400, result.error.issues[0]?.message as string));
   }
-  const { username, name, password, email,role } = result.data;
-  const userRole = role ==="CLIENT"?"USER":'MANAGER';
+  const { username, name, password, email, role } = result.data;
+  const userRole = role === "CLIENT" ? "USER" : 'MANAGER';
 
   const hashedPassword = await bcrypt.hash(password, 10);
   const otp = crypto.randomInt(100000, 999999).toString();
@@ -134,71 +134,72 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     //   })
 
 
-const user=await prisma.$transaction(async(tx)=>{
-    const user=await tx.user.create({
-      data:{
-        email,
-        fullname:name+' '+username,
-        password:hashedPassword,
-        username,
-        roles:userRole?userRole:'USER',
-        isVerified:false,
-        verificationToken:null,
-        verificationTokenExpires:null
+    const user = await prisma.$transaction(async (tx) => {
+      const user = await tx.user.create({
+        data: {
+          email,
+          fullname: name + ' ' + username,
+          password: hashedPassword,
+          username,
+          roles: userRole ? userRole : 'USER',
+          isVerified: false,
+          verificationToken: null,
+          verificationTokenExpires: null
+        }
+      })
+      if (role === "MANAGER") {
+
+        // generate approval code
+        const approval_code = crypto.randomUUID();
+
+        const result =
+
+          await tx.manager.create({
+            data: {
+              manager_id: user.id,
+              approval_code: approval_code,
+            }
+          })
       }
+      const accessToken = generateAccessToken({
+        id: user.id,
+        roles: user.roles
+      });
+
+      const refreshToken = generateRefreshToken({
+        id: user.id,
+        roles: user.roles
+      });
+
+      await tx.refreshToken.create({
+        data: {
+          token: refreshToken,
+          user_id: user.id
+        }
+      });
+
+      res.cookie("accessToken", accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000
+      });
+
+      res.cookie("refreshToken", refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+
     })
-    if(role==="MANAGER"){
-                     
-          // generate approval code
-          const approval_code=crypto.randomUUID();
-    
-              const result=
-               
-                await tx.manager.create({
-                  data:{
-                    manager_id:user.id,
-                    approval_code:approval_code,
-                  }
-                })
-              }
-    const accessToken = generateAccessToken({
-      id: user.id,
-      roles: user.roles
-    });
 
-    const refreshToken = generateRefreshToken({
-      id: user.id,
-      roles: user.roles
-    });
-
-    await tx.refreshToken.create({
-      data: {
-        token: refreshToken,
-        user_id: user.id
-      }
-    });
- 
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 15 * 60 * 1000
-    });
-
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: 7 * 24 * 60 * 60 * 1000
-    });
-
-     })
- 
-    const frontendUrl = process.env.NODE_ENV === "production" 
-      ? process.env.FRONTEND_URL 
-      : "http://localhost:5173";
-    // After successful OAuth, set cookies and redirect to frontend dashboard
-    return res.redirect(`${frontendUrl}/dashboard`);
+const { id, roles, username, fullname, email, manager_id } = user as any;
+return res.status(201).json({
+  success: true,
+  message: "Registration successful! Redirecting...",
+  data: { id, roles, fullname, email, username, manager_id }
+});
 
   } catch (err: any) {
     logger.error(err);
@@ -286,8 +287,8 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       // if (!user.isVerified) {
       //   return next(createError(403, "Please verify your email address to log in"));
       // }
-      if(!user.password){
-        return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));  
+      if (!user.password) {
+        return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));
       }
 
       const isPasswordValid = await bcrypt.compare(password, user.password);
@@ -443,7 +444,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   if (!user) {
     return next(createError(401, "Unauthorized"));
   }
-  
+
   // Convert BigInt to string and check if password exists
   const serializedUser = {
     ...user,

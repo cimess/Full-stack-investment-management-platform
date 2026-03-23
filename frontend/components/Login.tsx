@@ -120,6 +120,7 @@ useEffect(() => {
 
   setMessage(apiErrorMessage);
   setSuccess(false);
+
 }
 
 
@@ -230,6 +231,7 @@ if(loginSuccess||registerSuccess){
       name: firstName + " " + lastName,
       role
     });
+
   };
 
 
