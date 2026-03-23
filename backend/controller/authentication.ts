@@ -134,7 +134,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     //   })
 
 
-    const user = await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx) => {
       const user = await tx.user.create({
         data: {
           email,
@@ -192,14 +192,16 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         maxAge: 7 * 24 * 60 * 60 * 1000
       });
 
+      const { id, roles, username: user_name, fullname, email: user_email, manager_id } = user as any;
+      return res.status(201).json({
+        success: true,
+        message: "Registration successful! Redirecting...",
+        data: { id, roles, fullname, username: user_name, email: user_email, manager_id }
+      });
+
     })
 
-const { id, roles, username, fullname, email, manager_id } = user as any;
-return res.status(201).json({
-  success: true,
-  message: "Registration successful! Redirecting...",
-  data: { id, roles, fullname, email, username, manager_id }
-});
+
 
   } catch (err: any) {
     logger.error(err);
