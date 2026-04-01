@@ -8,7 +8,7 @@ import rateLimit from "express-rate-limit";
 import type { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
-import { startMarketWorker } from "./services/marketWorker.js";
+import { startMarketWorker} from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
@@ -124,7 +124,8 @@ if (process.env.NODE_ENV !== "test") {
   try {
     // Run the market worker in both development and production
     // to ensure live data is fetched across all environments.
-    startMarketWorker(10, true);
+       startMarketWorker();
+  
 
     if (process.env.NODE_ENV === "production") {
       // Database Keep-alive Ping (Prevents Render DB Sleep)
@@ -169,3 +170,6 @@ if (process.env.NODE_ENV !== "test") {
   process.on("SIGTERM", () => gracefulShutdown("SIGTERM"));
   process.on("SIGINT", () => gracefulShutdown("SIGINT"));
 }
+
+
+``

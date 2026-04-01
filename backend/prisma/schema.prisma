@@ -66,16 +66,29 @@ model StockTable {
   symbol           String          @unique
   company          String
   price            Decimal         @db.Decimal(10, 2)
-  changePercent    Decimal?        @db.Decimal(8, 2)
+  changePercent    Decimal?        @db.Decimal(8, 4)
   marketCap        BigInt?
-  volume           String?
+  volume           BigInt?
   peRatio          Decimal?        @db.Decimal(10, 2)
-  dividendYield    Decimal?        @db.Decimal(8, 2)
+  dividendYield    Decimal?        @db.Decimal(8, 4)
   fiftyTwoWeekLow  Decimal?        @db.Decimal(10, 2)
   fiftyTwoWeekHigh Decimal?        @db.Decimal(10, 2)
+  fiftyTwoWeekChangePercent  Decimal?  @db.Decimal(8, 4) 
+  dayHigh          Decimal?        @db.Decimal(10, 2)
+  dayLow           Decimal?        @db.Decimal(10, 2)
+  ytdReturn        Decimal?        @db.Decimal(8, 4)
+  change           Decimal?        @db.Decimal(8, 2)
   currency         String          @default("USD")
   exchange         String?
   assetType        String          @default("STOCK")
+  open             Decimal?        @db.Decimal(10, 2)
+  previousClose    Decimal?        @db.Decimal(10, 2)
+  bid              Decimal?        @db.Decimal(10, 2)
+  ask              Decimal?        @db.Decimal(10, 2)
+  bidSize          Int?
+  askSize          Int?
+  beta             Decimal?        @db.Decimal(8, 4)
+  eps              Decimal?        @db.Decimal(10, 4)
   lastUpdated      DateTime?
   createdAt        DateTime        @default(now())
   updatedAt        DateTime        @updatedAt

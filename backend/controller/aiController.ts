@@ -23,9 +23,10 @@ export const getAIInsightsController = async (req: Request, res: Response) => {
             data: insights
         });
     } catch (error: any) {
+        console.error("AI Insight Error:", error);
         return res.status(500).json({
             success: false,
-            message: error.message || "Failed to connect to NovaInvest AI."
+            message: "An error occurred while generating AI insights. Please try again later."
         });
     }
 };

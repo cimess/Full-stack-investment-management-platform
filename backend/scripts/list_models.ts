@@ -14,11 +14,15 @@ const listModels = async () => {
         return;
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${API_KEY}`;
+    const url = `https://generativelanguage.googleapis.com/v1beta/models`;
 
     try {
-        console.log("Fetching available models from Google...");
-        const response = await fetch(url);
+        console.log("Fetching available models from Google via secure headers...");
+        const response = await fetch(url, {
+            headers: {
+                'x-goog-api-key': API_KEY
+            }
+        });
         const data = await response.json();
 
         if (data.error) {
