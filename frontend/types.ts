@@ -25,7 +25,7 @@ export enum LoadingState {
   ERROR = 'ERROR'
 }
 export interface StockCardProps{
-  id:string,
+  id?:string,
   label:string,
   image:string,
   type:string,
@@ -35,6 +35,20 @@ export interface StockCardProps{
   symbol:string,
   financial:string,
   about:string,
+  marketCap?: string;
+  volume?: string;
+  peRatio?: string;
+  dividendYield?: string;
+  eps?: string;
+  fiftyTwoWeekLow?: string;
+  fiftyTwoWeekHigh?: string;
+  open?: string;
+  previousClose?: string;
+  beta?: string;
+  startDate?: string;
+  circulatingSupply?: string;
+  maxSupply?: string;
+  marketCapRank?: string;
   stats:{
     ceo:string,
     more:string,

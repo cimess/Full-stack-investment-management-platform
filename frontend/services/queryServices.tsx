@@ -90,8 +90,9 @@ export const getMarketQuotes = async () => {
   return response.data
 }
 
-export const searchStock = async (query: string) => {
-  const response = await api.post("/market/search", { query })
+export const searchStock = async (symbols: string) => {
+  console.log("query from service",symbols)
+  const response = await api.post("/market/search", { symbols })
   return response.data
 }
 
@@ -102,6 +103,11 @@ export const postMarketQuotes = async (symbols: string[]) => {
 
 export const fetchStockDetailsAPI = async (symbol: string) => {
   const response = await api.post("/market/stock-details", { symbol })
+  return response.data
+}
+
+export const fetchStockHistoryAPI = async (symbol: string, range: string = '1mo') => {
+  const response = await api.get(`/market/history/${symbol}?range=${range}`)
   return response.data
 }
 
@@ -155,7 +161,7 @@ export const deactivateAccountAPI = async () => {
   return response.data;
 }
 
-export const getMarketCategories = async () => {
-  const response = await api.get("/market/categories");
+export const getMarketCategories = async (page: number = 1) => {
+  const response = await api.get(`/market/categories?page=${page}`);
   return response.data;
 }

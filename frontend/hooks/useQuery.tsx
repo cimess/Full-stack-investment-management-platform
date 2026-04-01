@@ -1,4 +1,4 @@
-import { useMutation, useQuery } from "@tanstack/react-query"
+import { useMutation, useQuery, useInfiniteQuery } from "@tanstack/react-query"
 import api from "../lib/axios"
 import {
   getClientAll, refreshToken, loginUser, registerUser, verifyEmail,
@@ -8,7 +8,7 @@ import {
   postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
   updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI,
-  getMarketCategories
+  getMarketCategories, getAIInsights, fetchStockHistoryAPI
 } from "../services/queryServices"
 
 
@@ -122,9 +122,16 @@ export const useGetMarketQuotes = () => {
 }
 
 export const useGetMarketCategories = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["marketCategories"],
-    queryFn: getMarketCategories
+    queryFn: ({ pageParam = 1 }) => getMarketCategories(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If the last page has data, assume there's a next page
+      // In a real app, we'd check if lastPage.data.equity.length < pageSize
+      const hasData = Object.values(lastPage.data).some((arr: any) => arr && arr.length > 0);
+      return hasData ? allPages.length + 1 : undefined;
+    }
   })
 }
 
@@ -143,6 +150,12 @@ export const usePostMarketQuotes = () => {
 export const useFetchStockDetails = () => {
   return useMutation({
     mutationFn: (symbol: string) => fetchStockDetailsAPI(symbol)
+  })
+}
+
+export const useFetchStockHistory = () => {
+  return useMutation({
+    mutationFn: ({ symbol, range }: { symbol: string; range?: string }) => fetchStockHistoryAPI(symbol, range)
   })
 }
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Users, Briefcase, DollarSign, AlertTriangle, Loader2 } from 'lucide-react';
-import { AreaChart, Area, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import DashboardChart from '../../../components/DashboardChart';
 import StatCard from '../../../components/ui/StatCard';
 import { useGetAdminDashboard } from '../../../hooks/useQuery';
 import AnalyticsWorker from '../../../workers/analytics.worker?worker';
@@ -118,21 +118,10 @@ const Overview: React.FC = () => {
           )}
           <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
           <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform</p>
-          <ResponsiveContainer width="100%" height={250}>
-            <AreaChart data={platformVolumeData}>
-              <defs>
-                <linearGradient id="volGrad" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.25} />
-                  <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
-              <Tooltip content={<CustomTooltip />} />
-              <Area type="monotone" dataKey="volume" stroke="#8b5cf6" strokeWidth={2.5} fill="url(#volGrad)" />
-            </AreaChart>
-          </ResponsiveContainer>
+          <DashboardChart 
+            series={[{ type: 'area', data: platformVolumeData, color: '#8b5cf6', dataKey: 'volume' }]} 
+            loading={isCalculating} 
+          />
         </div>
 
         <div className="glass-panel rounded-2xl p-6 border border-white/5 relative">
@@ -143,14 +132,10 @@ const Overview: React.FC = () => {
           )}
           <h2 className="text-white font-bold text-lg mb-1">Trade Status</h2>
           <p className="text-slate-500 text-sm mb-5">Current request breakdown</p>
-          <ResponsiveContainer width="100%" height={250}>
-            <BarChart data={tradeStatusData} layout="vertical">
-              <XAxis type="number" tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} hide />
-              <YAxis type="category" dataKey="status" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} width={80} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="count" fill="#8b5cf6" radius={[0, 4, 4, 0]} name="Count" />
-            </BarChart>
-          </ResponsiveContainer>
+          <DashboardChart 
+            series={[{ type: 'bar', data: tradeStatusData, color: '#8b5cf6', dataKey: 'count' }]} 
+            loading={isCalculating} 
+          />
         </div>
       </div>
     </div>

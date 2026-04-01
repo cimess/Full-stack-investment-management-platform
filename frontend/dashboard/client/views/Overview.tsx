@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { DollarSign, TrendingUp, ArrowUpRight, ArrowDownRight, Briefcase, Loader2 } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
+import DashboardChart from '../../../components/DashboardChart';
 import StatCard from '../../../components/ui/StatCard';
 import { getUserDashboard } from "../../../hooks/useQuery";
 import { useQueryClient } from '@tanstack/react-query';
@@ -170,42 +170,29 @@ const ClientOverview: React.FC = () => {
               <p className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-widest font-bold mt-1">Last 7 Days</p>
             </div>
           </div>
-          <div className="relative h-[220px] sm:h-[300px]">
-            {isCalculating && (
-              <div className="absolute inset-0 flex items-center justify-center bg-black/20 backdrop-blur-sm z-10 rounded-xl">
-                <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
-              </div>
-            )}
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={chartData}>
-              <defs>
-                <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#10b981" stopOpacity={0.3} />
-                  <stop offset="95%" stopColor="#10b981" stopOpacity={0} />
-                </linearGradient>
-              </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-              <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} />
-              <YAxis axisLine={false} tickLine={false} tick={{ fill: '#64748b', fontSize: 12 }} hide />
-              <Tooltip
-                contentStyle={{ backgroundColor: '#000000', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }}
-                itemStyle={{ color: '#10b981' }}
-              />
-              <Area type="monotone" dataKey="value" stroke="#10b981" strokeWidth={3} fillOpacity={1} fill="url(#colorValue)" />
-            </AreaChart>
-            </ResponsiveContainer>
+          <div className="relative">
+            <DashboardChart 
+              series={[{ type: 'area', data: chartData, color: '#10b981', dataKey: 'value' }]} 
+              height={300} 
+              loading={isCalculating} 
+            />
           </div>
         </div>
  
         <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-white/5 space-y-4 lg:space-y-6">
           <h2 className="text-white font-bold text-base lg:text-lg">Quick Actions</h2>
           <div className="grid grid-cols-2 gap-3">
-            {['Market', 'Portfolio', 'History', 'Manager'].map((item) => (
-              <button key={item} className="flex flex-col items-center justify-center gap-2 p-3 rounded-xl bg-white/3 border border-white/5 hover:bg-white/5 transition-all group">
+            {[{name:'Market',nav:"/dashboard/client/market" }, {name: 'Portfolio', nav:"/dashboard/client/portfolio" },
+             {name: 'Transactions', nav:"/dashboard/client/transactions" },
+             {name: 'Manager', nav:"/dashboard/client/manager" }].map((item) => (
+              <button key={item.name} className="flex flex-col items-center justify-center
+               gap-2 p-3 rounded-xl bg-white/3 border 
+               border-white/5 hover:bg-white/5 transition-all group"
+               onClick={() => navigate(item.nav)}>
                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
-                <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{item}</span>
+                <span className="text-slate-400 text-[10px] font-bold uppercase tracking-wider">{item.name}</span>
               </button>
             ))}
           </div>
@@ -215,14 +202,18 @@ const ClientOverview: React.FC = () => {
              {user?.client_manager ? (
                <>
                   <p className="text-slate-500 text-xs mb-4">{user.client_manager.user.fullname} is overseeing your account.</p>
-                  <button className="w-full py-2.5 bg-white text-black rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors">
+                  <button className="w-full py-2.5 bg-white text-black 
+                  rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
+                  onClick={() => navigate("/dashboard/client/manager")}>
                     Contact Manager
                   </button>
                </>
              ) : (
                <>
                   <p className="text-slate-500 text-xs mb-4">No dedicated manager assigned yet.</p>
-                  <button className="w-full py-2.5 bg-white/5 text-white border border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors">
+                  <button className="w-full py-2.5 bg-white/5 text-white border 
+                  border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors"
+                  onClick={() => navigate("/dashboard/client/manager")}>
                     Assign Manager
                   </button>
                </>

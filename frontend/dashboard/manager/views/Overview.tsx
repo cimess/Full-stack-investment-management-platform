@@ -1,9 +1,8 @@
 import React from 'react';
-import { DollarSign, Users, Clock, CheckCircle } from 'lucide-react';
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar, LineChart, Line } from 'recharts';
+import { DollarSign, Users, Clock, CheckCircle, Loader2, Copy, Check } from 'lucide-react';
+import DashboardChart from '../../../components/DashboardChart';
 import StatCard from '../../../components/ui/StatCard';
 import { useGetManagerDashboard } from '../../../hooks/useQuery';
-import { Loader2, Copy, Check } from 'lucide-react';
 import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsWorker from '../../../workers/analytics.worker?worker';
 
@@ -177,15 +176,10 @@ const ManagerOverview: React.FC = () => {
           )}
           <h2 className="text-white font-bold text-lg mb-1">AUM Trend</h2>
           <p className="text-slate-500 text-sm mb-5">Assets under management (6 months)</p>
-          <ResponsiveContainer width="100%" height={260}>
-            <LineChart data={aumData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-              <XAxis dataKey="month" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} tickFormatter={v => `$${(v / 1000).toFixed(0)}k`} />
-              <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="aum" stroke="#3b82f6" strokeWidth={3} dot={{ fill: '#3b82f6', stroke: '#0f172a', strokeWidth: 2, r: 5 }} activeDot={{ r: 8 }} name="AUM" />
-            </LineChart>
-          </ResponsiveContainer>
+          <DashboardChart 
+            series={[{ type: 'line', data: aumData, color: '#3b82f6', dataKey: 'aum' }]} 
+            loading={isCalculating} 
+          />
         </div>
 
         <div className="glass-panel rounded-2xl p-6 border border-white/5 relative">
@@ -196,16 +190,13 @@ const ManagerOverview: React.FC = () => {
           )}
           <h2 className="text-white font-bold text-lg mb-1">Request Volume</h2>
           <p className="text-slate-500 text-sm mb-5">Buy vs Sell requests per week</p>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={requestVolumeData}>
-              <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-              <XAxis dataKey="week" tick={{ fill: '#94a3b8', fontSize: 12 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: '#94a3b8', fontSize: 11 }} axisLine={false} tickLine={false} />
-              <Tooltip content={<CustomTooltip />} />
-              <Bar dataKey="buy" fill="#10b981" radius={[4, 4, 0, 0]} name="Buy" />
-              <Bar dataKey="sell" fill="#ef4444" radius={[4, 4, 0, 0]} name="Sell" />
-            </BarChart>
-          </ResponsiveContainer>
+          <DashboardChart 
+            series={[
+              { type: 'bar', data: requestVolumeData, color: '#10b981', dataKey: 'buy' },
+              { type: 'bar', data: requestVolumeData, color: '#ef4444', dataKey: 'sell' }
+            ]} 
+            loading={isCalculating} 
+          />
         </div>
       </div>
     </div>
