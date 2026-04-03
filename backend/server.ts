@@ -56,7 +56,7 @@ app.use(rateLimit({
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.get("host");
-    const allowedHosts = ["api.cimessinvest.com"];
+    const allowedHosts = ["api.cimessinvest.com","full-stack-investment-management-platform.onrender.com"];
     
     // Allow the health check or local requests if needed, but enforce custom domain for all else
     const isHealthCheck = req.path === "/api/health" || req.path === "/health";
