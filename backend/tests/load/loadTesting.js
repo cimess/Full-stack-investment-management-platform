@@ -40,7 +40,7 @@ export const options = {
 
 export default function () {
   // Make request to health endpoint
-  let res = http.get('https://api.cimessinvest.com/api/health', {
+ let res = http.get('https://full-stack-investment-management-platform.onrender.com/api/health', {
     headers: {
       'Origin': 'https://cimessinvest.com',
       'Connection': 'keep-alive',  // Avoid repeated TLS handshake overhead

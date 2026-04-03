@@ -88,33 +88,35 @@ app.use(passport.initialize());
 
 // CPU + Event Loop monitor
 
+// CPU & event loop monitor
 const h = monitorEventLoopDelay();
 h.enable();
 
-setInterval(() => {
-  console.log("event loop lag:", h.mean / 1e6, "ms");
-}, 5000);
-
-// Request timing middleware
 app.use((req, res, next) => {
   const start = performance.now();
+
+  // set headers early with a getter
+  res.setHeader("x-node-time-ms", 0);  // placeholder
+  res.setHeader("x-event-loop-ms", 0); // placeholder
 
   res.on("finish", () => {
     const duration = (performance.now() - start).toFixed(2);
     const loopLag = h.mean.toFixed(2);
+    console.log(`[${req.ip}] ${req.method} ${req.url} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`);
 
-    // Log to console (existing)
-    console.log(
-      `[${req.ip}] ${req.method} ${req.url} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`
-    );
+    // update headers if needed before response is sent
+    // actually, cannot do here
+  });
 
-    // **Add headers for external testing**
-    res.setHeader("x-node-time-ms", duration);
-    res.setHeader("x-event-loop-ms", loopLag);
+  // overwrite headers in a middleware before sending
+  res.on("header", () => {
+    res.setHeader("x-node-time-ms", (performance.now() - start).toFixed(2));
+    res.setHeader("x-event-loop-ms", h.mean.toFixed(2));
   });
 
   next();
 });
+
 
 
 
