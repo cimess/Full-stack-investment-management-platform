@@ -12,7 +12,7 @@ import { startMarketWorker} from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
-import { monitorEventLoopDelay } from "perf_hooks";
+import { monitorEventLoopDelay,performance, PerformanceObserver } from "perf_hooks";
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {
   (BigInt.prototype as any).toJSON = function () {
@@ -85,7 +85,8 @@ if (process.env.NODE_ENV === "production") {
 }
 app.use(passport.initialize());
 
-// cpu monitor
+
+// CPU + Event Loop monitor
 
 const h = monitorEventLoopDelay();
 h.enable();
@@ -93,6 +94,28 @@ h.enable();
 setInterval(() => {
   console.log("event loop lag:", h.mean / 1e6, "ms");
 }, 5000);
+
+// Request timing middleware
+app.use((req, res, next) => {
+  const start = performance.now();
+
+  res.on("finish", () => {
+    const duration = (performance.now() - start).toFixed(2);
+    const loopLag = h.mean.toFixed(2);
+
+    // Log to console (existing)
+    console.log(
+      `[${req.ip}] ${req.method} ${req.url} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`
+    );
+
+    // **Add headers for external testing**
+    res.setHeader("x-node-time-ms", duration);
+    res.setHeader("x-event-loop-ms", loopLag);
+  });
+
+  next();
+});
+
 
 
 // --- Routes ---
