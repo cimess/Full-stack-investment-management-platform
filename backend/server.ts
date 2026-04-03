@@ -12,7 +12,7 @@ import { startMarketWorker} from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
-
+import { monitorEventLoopDelay } from "perf_hooks";
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {
   (BigInt.prototype as any).toJSON = function () {
@@ -84,6 +84,16 @@ if (process.env.NODE_ENV === "production") {
   });
 }
 app.use(passport.initialize());
+
+// cpu monitor
+
+const h = monitorEventLoopDelay();
+h.enable();
+
+setInterval(() => {
+  console.log("event loop lag:", h.mean / 1e6, "ms");
+}, 5000);
+
 
 // --- Routes ---
 
