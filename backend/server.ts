@@ -101,7 +101,7 @@ app.use((req, res, next) => {
 
   res.on("finish", () => {
     const duration = (performance.now() - start).toFixed(2);
-    const loopLag = h.mean.toFixed(2);
+    const loopLag = (h.mean / 1e6).toFixed(2);
     console.log(`[${req.ip}] ${req.method} ${req.url} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`);
 
     // update headers if needed before response is sent
