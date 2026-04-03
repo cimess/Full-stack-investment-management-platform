@@ -48,17 +48,20 @@ app.use(helmet({
 }));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === "production" ? 100 : 10000, // Increased for production debugging
+  max: process.env.NODE_ENV === "production" ? 100 : 10000, 
+  skip: (req) => req.path === "/api/health" || req.path === "/health",
 }));
 
 // Domain Enforcement: Redirect or block requests to the default .onrender.com URL
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.get("host");
-    const allowedHost = "api.cimessinvest.com";
+    const allowedHosts = ["api.cimessinvest.com"];
     
     // Allow the health check or local requests if needed, but enforce custom domain for all else
-    if (host && host !== allowedHost && !host.includes("localhost")) {
+    const isHealthCheck = req.path === "/api/health" || req.path === "/health";
+
+    if (host && !allowedHosts.includes(host) && !host.includes("localhost") && !isHealthCheck) {
       logger.warn(`Security: Request to unauthorized host ${host} from ${req.ip}. Blocking.`);
       return res.status(403).json({ 
         success: false, 
