@@ -33,7 +33,7 @@ model User {
   id         String   @id @default(cuid())
   googleId   String?  @unique
   email      String   @unique
-  username   String   
+  username   String
   password   String?
   fullname   String
   roles      Roles    @default(USER)
@@ -47,10 +47,10 @@ model User {
   verificationToken        String?
   verificationTokenExpires DateTime?
 
-  disabled                 Boolean   @default(false)
+  disabled Boolean @default(false)
 
-  settings                 UserSettings?     @relation("userSettings")
-  notifications            Notification[]    @relation("user_notifications")
+  settings      UserSettings?  @relation("userSettings")
+  notifications Notification[] @relation("user_notifications")
 
   portfolio        Portfolio[]       @relation("portfolio")
   refreshToken     RefreshToken[]    @relation("refreshToken")
@@ -62,39 +62,43 @@ model User {
 }
 
 model StockTable {
-  id               String          @id @default(cuid())
-  symbol           String          @unique
-  company          String
-  price            Decimal         @db.Decimal(10, 2)
-  changePercent    Decimal?        @db.Decimal(8, 4)
-  marketCap        BigInt?
-  volume           BigInt?
-  peRatio          Decimal?        @db.Decimal(10, 2)
-  dividendYield    Decimal?        @db.Decimal(8, 4)
-  fiftyTwoWeekLow  Decimal?        @db.Decimal(10, 2)
-  fiftyTwoWeekHigh Decimal?        @db.Decimal(10, 2)
-  fiftyTwoWeekChangePercent  Decimal?  @db.Decimal(8, 4) 
-  dayHigh          Decimal?        @db.Decimal(10, 2)
-  dayLow           Decimal?        @db.Decimal(10, 2)
-  ytdReturn        Decimal?        @db.Decimal(8, 4)
-  change           Decimal?        @db.Decimal(8, 2)
-  currency         String          @default("USD")
-  exchange         String?
-  assetType        String          @default("STOCK")
-  open             Decimal?        @db.Decimal(10, 2)
-  previousClose    Decimal?        @db.Decimal(10, 2)
-  bid              Decimal?        @db.Decimal(10, 2)
-  ask              Decimal?        @db.Decimal(10, 2)
-  bidSize          Int?
-  askSize          Int?
-  beta             Decimal?        @db.Decimal(8, 4)
-  eps              Decimal?        @db.Decimal(10, 4)
-  lastUpdated      DateTime?
-  createdAt        DateTime        @default(now())
-  updatedAt        DateTime        @updatedAt
-  investment       Investment[]    @relation("stock")
-  transaction      Transaction[]   @relation("stockTransaction")
-  trade_request    Trade_request[] @relation("trade_request")
+  id                        String          @id @default(cuid())
+  symbol                    String          @unique
+  company                   String
+  price                     Decimal         @db.Decimal(10, 2)
+  changePercent             Decimal?        @db.Decimal(8, 4)
+  marketCap                 BigInt?
+  volume                    BigInt?
+  peRatio                   Decimal?        @db.Decimal(10, 2)
+  dividendYield             Decimal?        @db.Decimal(8, 4)
+  fiftyTwoWeekLow           Decimal?        @db.Decimal(10, 2)
+  fiftyTwoWeekHigh          Decimal?        @db.Decimal(10, 2)
+  fiftyTwoWeekChangePercent Decimal?        @db.Decimal(8, 4)
+  dayHigh                   Decimal?        @db.Decimal(10, 2)
+  dayLow                    Decimal?        @db.Decimal(10, 2)
+  ytdReturn                 Decimal?        @db.Decimal(8, 4)
+  change                    Decimal?        @db.Decimal(8, 2)
+  currency                  String          @default("USD")
+  exchange                  String?
+  assetType                 String          @default("STOCK")
+  open                      Decimal?        @db.Decimal(10, 2)
+  previousClose             Decimal?        @db.Decimal(10, 2)
+  bid                       Decimal?        @db.Decimal(10, 2)
+  ask                       Decimal?        @db.Decimal(10, 2)
+  bidSize                   Int?
+  askSize                   Int?
+  beta                      Decimal?        @db.Decimal(8, 4)
+  eps                       Decimal?        @db.Decimal(10, 4)
+  lastUpdated               DateTime?
+  createdAt                 DateTime        @default(now())
+  updatedAt                 DateTime        @updatedAt
+  investment                Investment[]    @relation("stock")
+  transaction               Transaction[]   @relation("stockTransaction")
+  trade_request             Trade_request[] @relation("trade_request")
+
+  @@index([marketCap(sort: Desc)])
+  @@index([changePercent(sort: Desc)])
+  @@index([lastUpdated(sort: Desc)])
 }
 
 model Portfolio {
@@ -130,6 +134,8 @@ model Transaction {
   price        Decimal         @db.Decimal(10, 2)
   type         TransactionType
   createdAt    DateTime        @default(now())
+
+  @@index([createdAt(sort: Desc)])
 }
 
 model Trade_request {
@@ -148,9 +154,9 @@ model Trade_request {
 }
 
 model RefreshToken {
-  id        String   @id @default(cuid())
-  token     String   @unique
-  user      User     @relation("refreshToken", fields: [user_id], references: [id], onDelete: Cascade)
+  id    String @id @default(cuid())
+  token String @unique
+  user  User   @relation("refreshToken", fields: [user_id], references: [id], onDelete: Cascade)
 
   user_id   String
   createdAt DateTime @default(now())
@@ -241,6 +247,8 @@ model Notification {
   type      NotificationType @default(SYSTEM)
   read      Boolean          @default(false)
   createdAt DateTime         @default(now())
+
+  @@index([user_id, read])
 }
 
 model SystemConfig {

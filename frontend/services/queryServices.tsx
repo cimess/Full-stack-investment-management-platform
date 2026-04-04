@@ -85,8 +85,8 @@ export const restrictManager = async (restrictData: any) => {
   return response.data
 }
 
-export const getMarketQuotes = async () => {
-  const response = await api.get("/market/quotes")
+export const getMarketQuotes = async (page: number = 1, limit: number = 20) => {
+  const response = await api.get(`/market/quotes?page=${page}&limit=${limit}`)
   return response.data
 }
 

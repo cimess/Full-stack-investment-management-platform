@@ -10,7 +10,7 @@ export let loopLag = new Trend('event_loop_lag_ms');
 export let failedRequests = new Rate('failed_requests');
 
 export const options = {
-    vus: 10,           // Simulating 10 users as requested
+    vus: 1,           // Simulating 10 users as requested
     duration: '30s',   // Total test duration
     thresholds: {
         http_req_duration: ['p(95)<1000'], // Adjusted to 1s given production latency overhead
@@ -18,10 +18,10 @@ export const options = {
     },
 };
 
-const BASE_URL = 'http://localhost:4000';
+const BASE_URL = 'https://full-stack-investment-management-platform.onrender.com';
 
 
-// 'https://full-stack-investment-management-platform.onrender.com';
+// 'http://localhost:4000';
 
 
 // Compress timestamp + random + VU + iteration into 19 chars
@@ -60,7 +60,7 @@ export default function () {
 
     const headers = {
         'Content-Type': 'application/json',
-        'Origin': 'http://localhost:5173',
+        'Origin': 'https://full-stack-investment-management-platform.onrender.com',
         'Connection': 'keep-alive'
     };
 

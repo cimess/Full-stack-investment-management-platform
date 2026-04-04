@@ -13,7 +13,10 @@ const TradeModal = React.memo(({
   onConfirm,
   isPending,
   initialSelectedStockId,
-  initialSelectedStock
+  initialSelectedStock,
+  fetchNextPage,
+  hasNextPage,
+  isFetchingNextPage
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -23,6 +26,9 @@ const TradeModal = React.memo(({
   isPending: boolean;
   initialSelectedStockId?: string | null;
   initialSelectedStock?: string | null;
+  fetchNextPage?: () => void;
+  hasNextPage?: boolean;
+  isFetchingNextPage?: boolean;
 }) => {
   const [selectedStockId, setSelectedStockId] = React.useState(initialSelectedStockId || '');
   const [quantity, setQuantity] = React.useState(0);
@@ -93,7 +99,16 @@ const TradeModal = React.memo(({
           </div>
 
           {/* Persistent List Container */}
-          <div className="flex-1 overflow-y-auto min-h-[250px] scrollbar-hide py-1 space-y-1.5 rounded-2xl">
+          <div 
+             onScroll={(e) => {
+               const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+               if (scrollHeight - scrollTop <= clientHeight + 50) {
+                 if (hasNextPage && !isFetchingNextPage && fetchNextPage) {
+                   fetchNextPage();
+                 }
+               }
+             }}
+             className="flex-1 overflow-y-auto min-h-[250px] scrollbar-hide py-1 space-y-1.5 rounded-2xl">
             {filteredStocks.length > 0 ? (
               filteredStocks.map((s: any) => {
                 const isSelected = selectedStockId === s.id;
@@ -169,6 +184,11 @@ const TradeModal = React.memo(({
                   <X className="w-6 h-6 opacity-20" />
                 </div>
                 <p className="text-xs font-medium">No results found for "{searchTerm}"</p>
+              </div>
+            )}
+            {isFetchingNextPage && (
+              <div className="py-4 flex justify-center">
+                <Loader2 className="w-5 h-5 animate-spin text-emerald-500" />
               </div>
             )}
           </div>
@@ -251,7 +271,7 @@ const TradeModal = React.memo(({
 
 const PortfolioView: React.FC = () => {
   const { data, isLoading, isError, refetch } = getUserDashboard();
-  const { data: marketData } = useGetMarketQuotes();
+  const { data: marketDataPages, fetchNextPage, hasNextPage, isFetchingNextPage } = useGetMarketQuotes();
 
   const [tradeType, setTradeType] = React.useState<'BUY' | 'SELL' | null>(null);
   const [isTradeModalOpen, setIsTradeModalOpen] = React.useState(false);
@@ -269,8 +289,9 @@ const PortfolioView: React.FC = () => {
 
   useEffect(() => {
     const state = location.state as { symbol?: string; mode?: 'BUY' | 'SELL' } | null;
-    if (state?.symbol && marketData?.data) {
-      const stock = marketData.data.find((s: any) => s.symbol === state.symbol);
+    if (state?.symbol && marketDataPages?.pages) {
+      const allStocks = marketDataPages.pages.flatMap((p: any) => p.data || []);
+      const stock = allStocks.find((s: any) => s.symbol === state.symbol);
       if (stock) {
         setTradeType(state.mode || 'BUY');
         setInitialStockId(stock.id);
@@ -280,7 +301,7 @@ const PortfolioView: React.FC = () => {
         window.history.replaceState({}, document.title);
       }
     }
-  }, [location.state, marketData]);
+  }, [location.state, marketDataPages]);
 
   const buyMutation = useBuyStock();
   const sellMutation = useSellStock();
@@ -469,7 +490,10 @@ const PortfolioView: React.FC = () => {
           isOpen={isTradeModalOpen}
           onClose={() => setIsTradeModalOpen(false)}
           type={tradeType || 'BUY'}
-          stocks={tradeType === 'SELL' ? (data?.data?.investments?.map((v: any) => v.stock) || []) : (marketData?.data || [])}
+          stocks={tradeType === 'SELL' ? (data?.data?.investments?.map((v: any) => v.stock) || []) : (marketDataPages?.pages?.flatMap?.((p: any) => p.data || []) || [])}
+          fetchNextPage={fetchNextPage}
+          hasNextPage={hasNextPage}
+          isFetchingNextPage={isFetchingNextPage}
           isPending={buyMutation.isPending || sellMutation.isPending}
           initialSelectedStockId={initialStockId}
           initialSelectedStock={initialSelectedStock}

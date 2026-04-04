@@ -2,6 +2,54 @@
 
 This document outlines the roadmap for maturing the NovaInvest backend to handle more users, real-time data, and complex financial analytics.
 
+Aside from Registration (hashing) and Market Quotes, there are three "Silent Killers" in a financial app like NovaInvest that can eat up your CPU and Database connections:
+
+1. The Portfolio View (Calculation Heavy) 📊
+If you are calculating a user's total balance, profit/loss, and portfolio value every time they refresh the page, that’s a massive amount of "Math" the server has to do.
+
+The Bottleneck: Your server has to:
+Fetch all trades.
+Sum the buy prices.
+Fetch current prices for every stock they own.
+Calculate the percentage change.
+2. The Market Worker (Background Heavy) 🕰️
+Check your services/marketWorker.ts. If this worker is fetching prices every 1 second and updating 100s of rows in the database, it is "competing" with your users for database connections.
+
+The Bottleneck: It might be locking database tables while it's updating, causing your users' register or login requests to wait even longer.
+3. Transaction History (Search Heavy) 📜
+Fetching long lists of trade history or searching for specific stocks can be very slow if you have thousands of records and haven't set up Database Indexes properly.
+
+real bottle neck 
+
+'ve completed my audit, and I found the "Golden Bottleneck." You were right to suspect other areas—your market_data.ts is actually doing a lot more work than we thought.
+
+1. The "Latency Monster" (getMarketCategories) 👾
+This one function is likely responsible for that 1s+ baseline latency. When this endpoint is called, your server performs 8 separate database queries one after another:
+
+Top Gainers
+Top Losers
+Crypto Gainers
+Crypto Losers
+Most Active Stocks
+Most Active Crypto
+All Equities
+All Cryptos
+The Problem: Each of these queries asks the database to Sort thousands of rows (by Market Cap or Change Percent). Without specific "Indexes," the database has to read every single row in the table 8 times just to find the top 20. This is a CPU killer.
+
+2. The "Payload Heavy" Quotes (getMarketQuotes) 📦
+Your getMarketQuotes function (which the load test hits) calls prisma.stockTable.findMany().
+
+The Problem: It fetches every single stock in your database without a limit. If you have 500 stocks, it's fine. If you have 5,000, the JSON response becomes massive, slowing down both the database and the network.
+3. The "Database Hammer" (Market Worker) 🔨
+As I mentioned, your background worker sends 150 update queries in a single burst. If a user tries to register while these 150 updates are running, the database is too "busy" to start the registration transaction, leading to those P2028 errors.
+
+The "Scaling" Solution Plan:
+To get your 10-user load test to be sub-second, I recommend these 3 fixes:
+
+Strategic Indexing: We add "Indexes" to your database on the marketCap and changePercent columns. This makes the "Top 10" queries 100x faster.
+Redis Caching: We cache those 8 categories (Gainers, Losers, etc.) in Redis for 2–5 minutes. This reduces the work for your server from 8 queries down to Zero for most users.
+Query Limits: We add a .take(20) to the quotes fetcher so we aren't sending thousands of rows of data unnecessarily.
+
 ## 1. Database & Persistence (Prisma/Postgres)
 - [/] **Connection Pooling**: Implement `Prisma Accelerate` or `PgBouncer` (on Render) to prevent "Too many connections" errors during traffic spikes.
 - [ ] **Strategic Indexing**: 

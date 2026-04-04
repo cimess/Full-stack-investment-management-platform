@@ -8,6 +8,9 @@ import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is re
 
 
 
+import { getCache, setCache } from "../lib/redis.js";
+
+
 /**
  * Get historical data for a stock or crypto.
  * Range can be '1d', '5d', '1mo', '3mo', '6mo', '1y', '2y', '5y', '10y', 'ytd', 'max'
@@ -138,12 +141,18 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
   const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
 
   try {
+    const page = parseInt(req.query.page as string) || 1;
+    const limit = parseInt(req.query.limit as string) || 20;
+    const skip = (page - 1) * limit;
+
     let stocks = await prisma.stockTable.findMany({
-      orderBy: { symbol: 'asc' }
+      orderBy: { symbol: 'asc' },
+      skip,
+      take: limit
     });
 
     // If DB is empty, fetch from Yahoo Finance and seed it
-    if (stocks.length === 0) {
+    if (stocks.length === 0 && page === 1) {
       logger.info("[Market] DB is empty, seeding from Yahoo Finance...");
       const result = await getQuotes(DEFAULT_SYMBOLS);
 
@@ -168,7 +177,7 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
           });
         }));
         logger.info("[Market] DB seeded successfully.");
-        stocks = await prisma.stockTable.findMany({ orderBy: { symbol: 'asc' } });
+        stocks = await prisma.stockTable.findMany({ orderBy: { symbol: 'asc' }, skip, take: limit });
       } else {
         logger.error("[Market] Failed to seed DB from Yahoo Finance (rate limited or error).");
       }
@@ -230,6 +239,14 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
     const page = parseInt(req.query.page as string) || 1;
     const pageSize = 20;
     const skip = (page - 1) * pageSize;
+    const cacheKey = `marketCategories:page:${page}`;
+
+    // 1. Try to get cached response
+    const cachedData = await getCache(cacheKey);
+    if (cachedData) {
+      logger.info("[Market] Serving categories from Redis cache");
+      return res.status(200).json(JSON.parse(cachedData));
+    }
 
     // equity
     const equity = await prisma.stockTable.findMany({
@@ -295,7 +312,8 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
       marketCap: stock.marketCap ? stock.marketCap.toString() : null,
       price: Number(stock.price)
     });
-    return res.status(200).json({
+
+    const responsePayload = {
       success: true,
       data: {
         gainers: gainers.map(formatStock),
@@ -307,7 +325,12 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
         cryptoGainers: cryptoGainers.map(formatStock),
         cryptoLosers: cryptoLosers.map(formatStock),
       }
-    });
+    };
+
+    // 2. Cache response payload for 5 minutes (300 seconds)
+    await setCache(cacheKey, JSON.stringify(responsePayload), 300);
+
+    return res.status(200).json(responsePayload);
 
   } catch (err: any) {
     logger.error("Error in getMarketCategories controller:", err);

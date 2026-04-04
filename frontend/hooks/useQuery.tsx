@@ -115,9 +115,14 @@ export const getUserDashboard = () => {
 }
 
 export const useGetMarketQuotes = () => {
-  return useQuery({
+  return useInfiniteQuery({
     queryKey: ["marketQuotes"],
-    queryFn: getMarketQuotes
+    queryFn: ({ pageParam = 1 }) => getMarketQuotes(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      // If the last page returned exactly 20 items, we might have more.
+      return lastPage?.data?.length === 20 ? allPages.length + 1 : undefined;
+    }
   })
 }
 
