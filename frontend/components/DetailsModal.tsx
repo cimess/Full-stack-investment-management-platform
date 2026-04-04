@@ -237,7 +237,7 @@ const DetailsModal = React.memo(({
                </button>
             ) : (
                <button
-                  onClick={() => navigate(targetPath)}
+                  onClick={() => navigate(targetPath, { state: { symbol: item.symbol, mode: 'BUY' } })}
                   className="flex-[2] px-8 py-4 rounded-2xl font-bold text-[10px] uppercase tracking-[0.2em] text-black bg-white hover:bg-gray-200 shadow-xl shadow-white/10 transition-all active:scale-[0.98]"
                >
                   Invest In {item.symbol}

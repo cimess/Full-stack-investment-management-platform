@@ -58,6 +58,9 @@ if (process.env.NODE_ENV === "production") {
 const pool = new Pool({
   connectionString,
   ssl: sslConfig,
+  max: process.env.NODE_ENV === "production" ? 15 : 10, // Aiven free tier limit is 20, leave a few for dashboard/migrations
+  connectionTimeoutMillis: 15000, // Wait up to 15 seconds for a connection instead of crashing immediately under load
+  idleTimeoutMillis: 30000 // Close idle connections after 30 seconds to free up Aiven slots
 });
 
 const adapter = new PrismaPg(pool);

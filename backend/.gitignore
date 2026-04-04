@@ -2,3 +2,9 @@ dist/
 node_modules/
 .env
 winstonlog/
+
+# Clinic.js & Profiling
+.clinic/
+*.log
+isolate-*.log
+clinic-*.html

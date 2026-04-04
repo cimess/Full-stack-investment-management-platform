@@ -1,4 +1,5 @@
-import React from 'react';
+import React, { useEffect, useState, useMemo } from 'react';
+import { useLocation } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Loader2, X } from 'lucide-react';
 import { getUserDashboard, useGetMarketQuotes, useBuyStock, useSellStock } from "../../../hooks/useQuery";
 import { toast } from 'react-toastify';
@@ -10,7 +11,9 @@ const TradeModal = React.memo(({
   type,
   stocks = [],
   onConfirm,
-  isPending
+  isPending,
+  initialSelectedStockId,
+  initialSelectedStock
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -18,20 +21,23 @@ const TradeModal = React.memo(({
   stocks: any[];
   onConfirm: (stockId: string, quantity: number) => void;
   isPending: boolean;
+  initialSelectedStockId?: string | null;
+  initialSelectedStock?: string | null;
 }) => {
-  const [selectedStockId, setSelectedStockId] = React.useState('');
-  const [quantity, setQuantity] = React.useState(1);
+  const [selectedStockId, setSelectedStockId] = React.useState(initialSelectedStockId || '');
+  const [quantity, setQuantity] = React.useState(0);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [detailedStock, setDetailedStock] = React.useState<any>(null);
+  const [showDetailsBtn, setShowDetailsBtn] = React.useState(false);
 
   React.useEffect(() => {
     if (isOpen) {
-      setSelectedStockId('');
-      setQuantity(1);
-      setSearchTerm('');
-      setDetailedStock(null);
+      setSearchTerm(initialSelectedStock || '');
+      setSelectedStockId(initialSelectedStockId || '');
+      setQuantity(0);
+      setDetailedStock("");
     }
-  }, [isOpen]);
+  }, [isOpen, initialSelectedStockId, initialSelectedStock]);
 
   const sortedStocks = React.useMemo(() => {
     return [...stocks].sort((a, b) => (a.symbol || '').localeCompare(b.symbol || ''));
@@ -40,8 +46,8 @@ const TradeModal = React.memo(({
   const filteredStocks = React.useMemo(() => {
     if (!searchTerm) return sortedStocks;
     const term = searchTerm.toLowerCase();
-    return sortedStocks.filter(s => 
-      s?.symbol?.toLowerCase().includes(term) || 
+    return sortedStocks.filter(s =>
+      s?.symbol?.toLowerCase().includes(term) ||
       s?.company?.toLowerCase().includes(term)
     );
   }, [sortedStocks, searchTerm]);
@@ -67,7 +73,7 @@ const TradeModal = React.memo(({
           <div className="relative shrink-0">
             <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">Search Markets</label>
             <div className="relative group">
-              <input 
+              <input
                 type="text"
                 placeholder="Search symbol or name..."
                 value={searchTerm}
@@ -76,7 +82,7 @@ const TradeModal = React.memo(({
               />
               <TrendingUp className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
               {searchTerm && (
-                <button 
+                <button
                   onClick={() => setSearchTerm('')}
                   className="absolute right-3.5 top-1/2 -translate-y-1/2 p-1 rounded-full bg-white/10 text-slate-400 hover:text-white transition-colors"
                 >
@@ -92,54 +98,69 @@ const TradeModal = React.memo(({
               filteredStocks.map((s: any) => {
                 const isSelected = selectedStockId === s.id;
                 return (
-                  <button
-                    key={s.id}
-                    onClick={() => {
-                      setSelectedStockId(s.id);
-                      // Map backend stock to DetailsModal format
-                      setDetailedStock({
-                        id: s.id,
-                        label: s.company || s.symbol,
-                        symbol: s.symbol,
-                        image: s.image || `https://api.lineicons.com/v1/icons/investment/stock-${s.symbol.toLowerCase()}`,
-                        type: s.assetType || 'STOCK',
-                        financial: s.financialSummary || 'No financial summary available.',
-                        about: s.about || `Learn more about ${s.company || s.symbol} performance and market trends.`,
-                        stats: {
-                          industry: s.industry || 'Financial Services',
-                          hq: s.hq || 'Global',
-                          founded: s.founded || 'N/A',
-                          ceo: s.ceo || 'N/A',
-                          more: s.assetType === 'CRYPTO' ? 'Crypto Market Data provided by Yahoo Finance' : 'Stock Market Data provided by Yahoo Finance'
-                        }
-                      });
-                    }}
-                    className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between ${
-                      isSelected 
-                      ? 'bg-emerald-500/10 border-emerald-500/40 ring-1 ring-emerald-500/20' 
-                      : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10'
-                    }`}
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border transition-colors ${
-                        isSelected ? 'bg-emerald-500 text-black border-emerald-400' : 'bg-white/5 text-white border-white/10'
-                      }`}>
-                        {s.symbol?.charAt(0)}
+                  <div key={s.id}
+                    className="flex flex-col items-center justify-between">
+                    <button
+                      key={s.id}
+                      onClick={() => {
+                        setSelectedStockId(s.id);
+                      }}
+                      className={`w-full text-left p-4 rounded-2xl border transition-all duration-300 flex items-center justify-between ${isSelected
+                        ? 'bg-emerald-500/10 border-emerald-500/40 ring-1 ring-emerald-500/20'
+                        : 'bg-white/[0.02] border-white/5 hover:bg-white/[0.05] hover:border-white/10'
+                        }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center font-bold text-xs shrink-0 border transition-colors ${isSelected ? 'bg-emerald-500 text-black border-emerald-400' : 'bg-white/5 text-white border-white/10'
+                          }`}>
+                          {s.symbol?.charAt(0)}
+                        </div>
+                        <div className="min-w-0 pr-2">
+                          <span className={`font-bold text-sm block tracking-tight ${isSelected ? 'text-white' : 'text-slate-200'}`}>{s.symbol}</span>
+                          <span className="text-slate-500 text-[9px] uppercase font-bold tracking-widest truncate block">{s.company}</span>
+                        </div>
                       </div>
-                      <div className="min-w-0 pr-2">
-                        <span className={`font-bold text-sm block tracking-tight ${isSelected ? 'text-white' : 'text-slate-200'}`}>{s.symbol}</span>
-                        <span className="text-slate-500 text-[9px] uppercase font-bold tracking-widest truncate block">{s.company}</span>
+                      <div className="text-right shrink-0">
+                        <span className={`font-mono text-sm font-bold block ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
+                          ${Number(s.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                        </span>
+                        {isSelected && (
+                          <span className="text-[8px] font-bold text-emerald-500/80 uppercase tracking-widest">Reviewing</span>
+                        )}
                       </div>
-                    </div>
-                    <div className="text-right shrink-0">
-                      <span className={`font-mono text-sm font-bold block ${isSelected ? 'text-emerald-400' : 'text-white'}`}>
-                        ${Number(s.price || 0).toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </span>
-                      {isSelected && (
-                        <span className="text-[8px] font-bold text-emerald-500/80 uppercase tracking-widest">Reviewing</span>
-                      )}
-                    </div>
-                  </button>
+                    </button>
+                    {isSelected && (
+                    <button
+                      onClick={() => {
+
+                        
+                        // Map backend stock to DetailsModal format
+                        setDetailedStock({
+                          id: s.id,
+                          label: s.company || s.symbol,
+                          symbol: s.symbol,
+                          image: s.image || `https://api.lineicons.com/v1/icons/investment/stock-${s.symbol.toLowerCase()}`,
+                          type: s.assetType || 'STOCK',
+                          financial: s.financialSummary || 'No financial summary available.',
+                          about: s.about || `Learn more about ${s.company || s.symbol} performance and market trends.`,
+                          stats: {
+                            industry: s.industry || 'Financial Services',
+                            hq: s.hq || 'Global',
+                            founded: s.founded || 'N/A',
+                            ceo: s.ceo || 'N/A',
+                            more: s.assetType === 'CRYPTO' ? 'Crypto Market Data provided by Yahoo Finance' : 'Stock Market Data provided by Yahoo Finance'
+                          }
+                        });
+                      }
+                      }
+                      className="w-[40%] text-center p-2 rounded-xl border border-white/5
+                  transition-all duration-300 flex items-center  justify-center
+                  hover:bg-white/[0.05] hover:border-white/10 
+                  font-bold text-xs text-gray-500 mt-2">
+                      view details
+                    </button>
+                    )}
+                  </div>
                 );
               })
             ) : (
@@ -157,11 +178,14 @@ const TradeModal = React.memo(({
             <div className="flex items-center justify-between gap-4">
               <div className="flex-1">
                 <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-2 px-1">Set Quantity</label>
-                <input 
-                  type="number" 
-                  min="1"
+                <input
+                  type="number"
+                  step={'any'}
                   value={quantity}
-                  onChange={(e) => setQuantity(Math.max(1, parseInt(e.target.value) || 0))}
+                  onChange={(e) => {
+                    const value = parseFloat(e.target.value);
+                    setQuantity(Math.max(0, isNaN(value) ? 0 : value));
+                  }}
                   className="w-full bg-white/[0.03] border border-white/10 rounded-2xl px-4 py-3.5 text-white text-sm font-mono focus:outline-none focus:border-emerald-500/50 transition-all"
                 />
               </div>
@@ -177,30 +201,31 @@ const TradeModal = React.memo(({
           </div>
 
           <div className="flex gap-3 pt-2">
-            <button 
+            <button
               onClick={onClose}
               className="flex-1 px-4 py-3 rounded-xl border border-white/10 text-white font-bold hover:bg-white/5 transition-colors"
             >
               Cancel
             </button>
-            <button 
-              disabled={!selectedStockId || quantity < 1 || isPending}
+            <button
+              disabled={!selectedStockId || quantity <= 0 || isPending||selectedStock.price<=0}
               onClick={() => {
                 // Clicking this button ensures the DetailsModal is open for confirmation
-                if (selectedStockId && detailedStock) {
-                   // Modal is already open or will be triggered by click in list
-                }
+               
+                  // Modal is already open or will be triggered by click in list
+                  onConfirm(selectedStockId, quantity);
+                  setDetailedStock(null);
+                
               }}
-              className={`flex-1 px-4 py-2.5 sm:py-3 rounded-xl font-bold text-white text-sm sm:text-base transition-all ${
-                type === 'BUY' 
-                  ? 'bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
-                  : 'bg-red-500 hover:bg-red-600 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
-              } disabled:opacity-50 disabled:shadow-none`}
+              className={`flex-1 px-4 py-2.5 sm:py-3 rounded-xl font-bold text-white text-sm sm:text-base transition-all ${type === 'BUY'
+                ? 'bg-emerald-500 hover:bg-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)]'
+                : 'bg-red-500 hover:bg-red-600 shadow-[0_0_20px_rgba(239,68,68,0.3)]'
+                } disabled:opacity-50 disabled:shadow-none`}
             >
               {isPending ? (
                 <Loader2 className="w-5 h-5 animate-spin mx-auto" />
               ) : (
-                `Review & ${type === 'BUY' ? 'Buy' : 'Sell'}`
+                `${type === 'BUY' ? 'Buy' : 'Sell'}`
               )}
             </button>
           </div>
@@ -208,10 +233,10 @@ const TradeModal = React.memo(({
       </div>
 
       {/* Details Review Overlay */}
-      {detailedStock && (
-        <DetailsModal 
-          item={detailedStock} 
-          onClose={() => setDetailedStock(null)} 
+      {detailedStock  && (
+        <DetailsModal
+          item={detailedStock}
+          onClose={() => setDetailedStock(null)}
           onConfirm={() => {
             onConfirm(selectedStockId, quantity);
             setDetailedStock(null);
@@ -227,9 +252,35 @@ const TradeModal = React.memo(({
 const PortfolioView: React.FC = () => {
   const { data, isLoading, isError, refetch } = getUserDashboard();
   const { data: marketData } = useGetMarketQuotes();
-  
-  const [tradeType, setTradeType] = React.useState<'BUY'|'SELL'|null>(null);
+
+  const [tradeType, setTradeType] = React.useState<'BUY' | 'SELL' | null>(null);
   const [isTradeModalOpen, setIsTradeModalOpen] = React.useState(false);
+  const [initialStockId, setInitialStockId] = React.useState<string | null>(null);
+  const [initialSelectedStock, setInitialSelectedStock] = React.useState<string| null>(null);
+  const location = useLocation();
+
+  // Reset initialStockId when modal closes
+  useEffect(() => {
+    if (!isTradeModalOpen) {
+      setInitialStockId(null);
+      setInitialSelectedStock(null);
+    }
+  }, [isTradeModalOpen]);
+
+  useEffect(() => {
+    const state = location.state as { symbol?: string; mode?: 'BUY' | 'SELL' } | null;
+    if (state?.symbol && marketData?.data) {
+      const stock = marketData.data.find((s: any) => s.symbol === state.symbol);
+      if (stock) {
+        setTradeType(state.mode || 'BUY');
+        setInitialStockId(stock.id);
+        setInitialSelectedStock(stock.symbol );
+        setIsTradeModalOpen(true);
+        // Clear location state to prevent re-opening on refresh
+        window.history.replaceState({}, document.title);
+      }
+    }
+  }, [location.state, marketData]);
 
   const buyMutation = useBuyStock();
   const sellMutation = useSellStock();
@@ -286,15 +337,15 @@ const PortfolioView: React.FC = () => {
         {/* TRIGGER BUTTONS FOR TRADE MODAL */}
         <div className="flex gap-2">
           {/* This button opens the Buy Stock modal */}
-          <button 
+          <button
             onClick={() => { setTradeType('BUY'); setIsTradeModalOpen(true); }}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs lg:text-sm font-medium hover:bg-emerald-500/20 transition-colors"
           >
             <TrendingUp className="w-4 h-4" /> Buy Stock
           </button>
-          
+
           {/* This button opens the Sell Stock modal */}
-          <button 
+          <button
             onClick={() => { setTradeType('SELL'); setIsTradeModalOpen(true); }}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs lg:text-sm font-medium hover:bg-red-500/20 transition-colors"
           >
@@ -314,9 +365,9 @@ const PortfolioView: React.FC = () => {
               <h3 className="text-white font-bold text-lg">Empty Portfolio</h3>
               <p className="text-slate-400 text-sm">You haven't made any investments yet. Ready to start your financial journey?</p>
             </div>
-            
+
             {/* THIS BUTTON TRIGGERS THE FIRST BUY ACTION */}
-            <button 
+            <button
               onClick={() => { setTradeType('BUY'); setIsTradeModalOpen(true); }}
               className="px-8 py-3 rounded-xl font-bold text-white bg-emerald-500 hover:bg-emerald-600 transition-all shadow-[0_0_20px_rgba(16,185,129,0.2)] hover:shadow-[0_0_30px_rgba(16,185,129,0.4)]"
             >
@@ -414,12 +465,14 @@ const PortfolioView: React.FC = () => {
       </div>
 
       {isTradeModalOpen && (
-        <TradeModal 
+        <TradeModal
           isOpen={isTradeModalOpen}
           onClose={() => setIsTradeModalOpen(false)}
           type={tradeType || 'BUY'}
-          stocks={tradeType === 'SELL' ? (data?.data?.investments?.map((v:any) => v.stock) || []) : (marketData?.data || [])}
+          stocks={tradeType === 'SELL' ? (data?.data?.investments?.map((v: any) => v.stock) || []) : (marketData?.data || [])}
           isPending={buyMutation.isPending || sellMutation.isPending}
+          initialSelectedStockId={initialStockId}
+          initialSelectedStock={initialSelectedStock}
           onConfirm={(stockId, quantity) => {
             const mutation = tradeType === 'BUY' ? buyMutation : sellMutation;
             mutation.mutate({ stock_id: stockId, quantity }, {

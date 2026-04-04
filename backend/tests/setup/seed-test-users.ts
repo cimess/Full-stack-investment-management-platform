@@ -11,7 +11,7 @@
  */
 
 import { prisma } from '../../lib/prisma.js';
-import bcrypt from 'bcryptjs';
+import argon2 from 'argon2';
 
 export const TEST_CREDENTIALS = {
   client: {
@@ -30,7 +30,7 @@ export const TEST_CREDENTIALS = {
 };
 
 async function seedTestUsers() {
-  const hashedPassword = await bcrypt.hash('TestPass123!', 10);
+  const hashedPassword = await argon2.hash('TestPass123!');
 
   console.log('🌱 Clearing existing test data...');
   // Order matters due to foreign keys

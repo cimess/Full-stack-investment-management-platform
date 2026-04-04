@@ -3,6 +3,7 @@ import type { Request, Response, NextFunction } from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
+import argon2 from "argon2";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
@@ -20,7 +21,7 @@ export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=
       }
       try{
 
-        const hashedPassword=await bcrypt.hash(manager_access_key,10);
+        const hashedPassword=await argon2.hash(manager_access_key);
         const number_slot=parseInt(slot);
     const user=await prisma.admin.findUnique({
       where:{
@@ -51,6 +52,8 @@ export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=
 
 
   }
+  }, {
+    timeout: 30000
   })
     return res.status(200).json({success:true,message:"manager access granted successfully",key:hashedPassword})
   }catch(err:any){
@@ -169,7 +172,7 @@ export const addSuperAdmin = async (req: Request, res: Response, next: NextFunct
         throw (createError(400, "Super Admin already exists pls who are you ??"));
       }
       // 3. Create Admin profile
-      const hashedPassword = await bcrypt.hash(super_admin_access, 10);
+      const hashedPassword = await argon2.hash(super_admin_access);
       await tx.admin.create({
         data: {
           user_id: user_id,
@@ -190,6 +193,8 @@ export const addSuperAdmin = async (req: Request, res: Response, next: NextFunct
       });
 
       return { accessToken, refreshToken };
+    }, {
+      timeout: 30000
     });
 
     // 5. Send tokens in cookies
@@ -313,7 +318,12 @@ export const addAdmin = async (req: Request, res: Response, next: NextFunction) 
         throw createError(401, "No pending admin approval found for this user");
       }
 
-      const isMatch = await bcrypt.compare(access_key, approval.approval_code);
+      let isMatch = false;
+      if (approval.approval_code.startsWith("$2")) {
+        isMatch = await bcrypt.compare(access_key, approval.approval_code);
+      } else {
+        isMatch = await argon2.verify(approval.approval_code, access_key);
+      }
       if (!isMatch) {
         throw createError(401, "Invalid admin access key");
       }
@@ -353,6 +363,8 @@ export const addAdmin = async (req: Request, res: Response, next: NextFunction) 
       });
 
       return { accessToken, refreshToken };
+    }, {
+      timeout: 30000
     });
 
     // 6. Set cookies

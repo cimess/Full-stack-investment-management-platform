@@ -3,6 +3,7 @@ import { loginSchema, registerSchema, verifyEmailSchema } from "../zodschema/reg
 import { prisma } from "../lib/prisma.js"
 import logger from "../winstonlog/logger.js";
 import type { Request, Response } from "express";
+import argon2 from "argon2";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { sendEmail } from "../services/emailService.js";
@@ -94,12 +95,13 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   const result = registerSchema.safeParse(req.body);
 
   if (!result.success) {
+    logger.warn(`Validation failed for ${req.originalUrl}: ${result.error.issues[0]?.message}`);
     return next(createError(400, result.error.issues[0]?.message as string));
   }
   const { username, name, password, email, role } = result.data;
   const userRole = role === "CLIENT" ? "USER" : 'MANAGER';
 
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashedPassword = await argon2.hash(password);
   const otp = crypto.randomInt(100000, 999999).toString();
   const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
   const testCode = '123456'
@@ -199,6 +201,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
         data: { id, roles, fullname, username: user_name, email: user_email, manager_id }
       });
 
+    }, {
+      timeout: 30000
     })
 
 
@@ -293,7 +297,23 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));
       }
 
-      const isPasswordValid = await bcrypt.compare(password, user.password);
+      let isPasswordValid = false;
+      if (user.password.startsWith("$2")) {
+        // Handle legacy bcrypt hash
+        isPasswordValid = await bcrypt.compare(password, user.password);
+        if (isPasswordValid) {
+          // Upgrade to Argon2 immediately
+          const newHash = await argon2.hash(password);
+          await tx.user.update({
+            where: { id: user.id },
+            data: { password: newHash }
+          });
+          logger.info(`Upgraded password hash to Argon2 for user: ${user.email}`);
+        }
+      } else {
+        // Handle Argon2 verify
+        isPasswordValid = await argon2.verify(user.password, password);
+      }
 
       if (!isPasswordValid) {
         return next(createError(401, "invalid credentials"));

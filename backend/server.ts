@@ -8,11 +8,11 @@ import rateLimit from "express-rate-limit";
 import type { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
-import { startMarketWorker} from "./services/marketWorker.js";
+import { startMarketWorker } from "./services/marketWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
-import { monitorEventLoopDelay,performance, PerformanceObserver } from "perf_hooks";
+import { monitorEventLoopDelay, performance, PerformanceObserver } from "perf_hooks";
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {
   (BigInt.prototype as any).toJSON = function () {
@@ -48,7 +48,7 @@ app.use(helmet({
 }));
 app.use(rateLimit({
   windowMs: 15 * 60 * 1000,
-  max: process.env.NODE_ENV === "production" ? 100 : 10000, 
+  max: process.env.NODE_ENV === "production" ? 100 : 10000,
   skip: (req) => req.path === "/api/health" || req.path === "/health",
 }));
 
@@ -56,16 +56,16 @@ app.use(rateLimit({
 if (process.env.NODE_ENV === "production") {
   app.use((req, res, next) => {
     const host = req.get("host");
-    const allowedHosts = ["api.cimessinvest.com","full-stack-investment-management-platform.onrender.com"];
-    
+    const allowedHosts = ["api.cimessinvest.com", "full-stack-investment-management-platform.onrender.com"];
+
     // Allow the health check or local requests if needed, but enforce custom domain for all else
     const isHealthCheck = req.path === "/api/health" || req.path === "/health";
 
     if (host && !allowedHosts.includes(host) && !host.includes("localhost") && !isHealthCheck) {
       logger.warn(`Security: Request to unauthorized host ${host} from ${req.ip}. Blocking.`);
-      return res.status(403).json({ 
-        success: false, 
-        message: "Unauthorized domain. Please use the official API domain." 
+      return res.status(403).json({
+        success: false,
+        message: "Unauthorized domain. Please use the official API domain."
       });
     }
     next();
@@ -102,7 +102,7 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = (performance.now() - start).toFixed(2);
     const loopLag = (h.mean / 1e6).toFixed(2);
-    console.log(`[${req.ip}] ${req.method} ${req.url} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`);
+    console.log(`[${req.ip}] ${req.method} ${req.originalUrl} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`);
 
     // update headers if needed before response is sent
     // actually, cannot do here
@@ -162,8 +162,8 @@ if (process.env.NODE_ENV !== "test") {
   try {
     // Run the market worker in both development and production
     // to ensure live data is fetched across all environments.
-       startMarketWorker();
-  
+    startMarketWorker();
+
 
     if (process.env.NODE_ENV === "production") {
       // Database Keep-alive Ping (Prevents Render DB Sleep)

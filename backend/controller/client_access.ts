@@ -60,6 +60,8 @@ if(req.user?.roles!==Roles.USER){
       throw createError(500,"Internal Server Error");
     }
 
+    }, {
+      timeout: 30000
     })
 
 
@@ -137,6 +139,8 @@ try {
       throw createError(500,"Internal Server Error");
     }
 
+    }, {
+      timeout: 30000
     })
 
      res.status(200).json({success:true,message:"manager removed from client successfully"})
@@ -222,6 +226,8 @@ if(!stock){
       });
     }
 
+}, {
+  timeout: 30000
 })
 
 
@@ -304,6 +310,8 @@ if(!stock){
       });
     }
 
+}, {
+  timeout: 30000
 })
 
 

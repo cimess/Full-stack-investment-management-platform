@@ -2,7 +2,7 @@ import type { Request, Response, NextFunction } from "express";
 import { prisma } from "../lib/prisma.js";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
-import bcrypt from "bcryptjs";
+import argon2 from "argon2";
 import { updateSchema } from "../zodschema/registerschemer.js";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 import crypto from "crypto";
@@ -31,7 +31,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     if (email !== undefined) updateData.email = email;
     if (role !== undefined) role==="CLIENT"?updateData.roles = "USER":updateData.roles = "MANAGER";
     if (password !== undefined) {
-      updateData.password = await bcrypt.hash(password, 10);
+      updateData.password = await argon2.hash(password);
     }
 
     if (Object.keys(updateData).length === 0) {
@@ -85,6 +85,8 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
             });
       
             return { accessToken, refreshToken };
+          }, {
+            timeout: 30000
           });
       
           // 8. Set cookies and send response
@@ -165,6 +167,8 @@ export const deactivateAccount = async (req: Request, res: Response, next: NextF
       await tx.refreshToken.deleteMany({
         where: { user_id: userId }
       });
+    }, {
+      timeout: 30000
     });
 
     // 5. Clear authentication cookies

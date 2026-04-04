@@ -96,6 +96,8 @@ logger.info(manager_accessKey)
       });
 
       return { accessToken, refreshToken };
+    }, {
+      timeout: 30000
     });
 
     // 8. Set cookies and send response
@@ -276,6 +278,8 @@ if(existing_investment){
             type: "TRADE"
           }
         });
+      }, {
+        timeout: 30000
       });
 
       return res.status(200).json({ 
