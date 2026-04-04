@@ -3,77 +3,76 @@ import logger from '../winstonlog/logger.js';
 
 let redis: Redis | null = null;
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = process.env.REDIS_URL;
 
-try {
-  redis = new Redis(redisUrl, {
-    // ── Upstash & Render Optimized Config ──
-    maxRetriesPerRequest: null, 
-    enableReadyCheck: false,     
-    enableOfflineQueue: false,    // CRITICAL: Prevents EPIPE by not flushing commands to dead sockets
-    connectTimeout: 15000,        // Louder timeout for cloud handshakes
-    commandTimeout: 10000,        
-    
-    // KeepAlive is vital for preventing Upstash from killing idle connections
-    keepAlive: 10000,             
-    
-    // Automatic TLS for rediss://
-    tls: redisUrl.startsWith('rediss://') ? {
-      rejectUnauthorized: false,
-      servername: new URL(redisUrl).hostname, // Helps with some cloud SNI issues
-    } : undefined,
-
-    retryStrategy(times: number) {
-      if (times > 10) {
-        logger.warn('Redis reconnection failed after 10 attempts.');
-        return null; 
+if (redisUrl) {
+  try {
+    // ── THE CLOUD-HARDENED TCP CONFIG ──
+    // Specifically tuned for Render.com to Upstash.io path
+    redis = new Redis(redisUrl, {
+      family: 4,                   // FORCE IPv4 (Solves many cloud-to-cloud handshake issues)
+      tls: {
+        rejectUnauthorized: false, // Bypass strict cert checks that can fail in internal proxies
+      },
+      connectTimeout: 30000,       // 30 seconds (be extremely patient)
+      maxRetriesPerRequest: null,
+      enableReadyCheck: false,
+      keepAlive: 10000,
+      noDelay: true,               // Disable Nagle's algorithm for faster small-packet caching
+      retryStrategy(times) {
+        return Math.min(times * 500, 10000);
       }
-      // Exponential backoff
-      return Math.min(times * 200, 5000);
-    },
-  });
+    });
 
-  redis.on('error', (err: any) => {
-    // Swallow EPIPE/ECONNRESET specifically as they are handled by internal retries
-    if (err.code === 'EPIPE' || err.code === 'ECONNRESET') {
-      logger.warn(`Redis Socket Warning (${err.code}): Connection reset by peer. Client will reconnect.`);
-    } else {
-      logger.warn(`Redis connection error: ${err.message}.`);
-    }
-  });
+    redis.on('error', (err: any) => {
+      // Don't flood logs with common network blips
+      if (err.code === 'EPIPE' || err.code === 'ECONNRESET') {
+        logger.info(`Redis: Temporary socket reset (retrying automatically)`);
+      } else {
+        logger.warn(`Redis Connection Warning: ${err.message}`);
+      }
+    });
 
-  redis.on('connect', () => {
-    logger.info('Connected to Redis');
-  });
+    redis.on('connect', () => {
+      logger.info('Connected to Redis');
+    });
 
-  redis.on('reconnecting', () => {
-    logger.info('Redis attempting to reconnect...');
-  });
-} catch (err: any) {
-  logger.warn(`Could not initialize Redis client: ${err.message}`);
+    redis.on('reconnecting', () => {
+      // Using info instead of warn to keep the logs clean during blips
+      logger.info('Redis: Reconnecting to Upstash...');
+    });
+  } catch (err: any) {
+    logger.warn(`Redis Initialization Failure: ${err.message}`);
+  }
 }
 
 /**
- * Helper to safely get cached value.
+ * Safely fetches a value from Cache. 
+ * Falls back to NULL (standard DB) if Redis is down.
  */
 export const getCache = async (key: string): Promise<string | null> => {
-  if (!redis || redis.status !== 'ready') return null;
+  if (!redis) return null;
   try {
-    return await redis.get(key);
+    // Using a timeout on the GET itself so app doesn't hang if Redis is struggling
+    const result = await Promise.race([
+      redis.get(key),
+      new Promise<null>((_, reject) => setTimeout(() => reject(new Error('Timeout')), 3000))
+    ]);
+    return result;
   } catch (err) {
     return null;
   }
 };
 
 /**
- * Helper to safely set cached value.
+ * Safely sets a value in Cache.
  */
 export const setCache = async (key: string, value: string, ttlSeconds: number = 300): Promise<void> => {
-  if (!redis || redis.status !== 'ready') return;
+  if (!redis) return;
   try {
     await redis.setex(key, ttlSeconds, value);
   } catch (err) {
-    // Graceful silent fail
+    // Fail silently
   }
 };
 
