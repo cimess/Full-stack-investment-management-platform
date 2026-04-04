@@ -7,6 +7,7 @@ import argon2 from "argon2";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
+import redisClient from "../lib/redis.js";
 
 
 export const managerAccessKey=async(req:Request,res:Response,next:NextFunction)=>{
@@ -68,6 +69,13 @@ export const getAdminDashboard=async(req:Request,res:Response,next:NextFunction)
 
 
   try {
+    const cacheKey = "admin_dashboard_cache";
+    if (redisClient) {
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        return res.status(200).json(JSON.parse(cached));
+      }
+    }
     const results = await Promise.allSettled([
       prisma.user.findMany({
         where: { roles: Roles.USER },
@@ -126,11 +134,17 @@ export const getAdminDashboard=async(req:Request,res:Response,next:NextFunction)
       }
     });
 
-    return res.status(200).json({
+    const responseData = {
       success: true,
       message: "Admin dashboard data fetched",
       data
-    });
+    };
+
+    if (redisClient) {
+      await redisClient.set(cacheKey, JSON.stringify(responseData, (key, value) => typeof value === 'bigint' ? value.toString() : value), "EX", 300); // 5 minutes TTL
+    }
+
+    return res.status(200).json(responseData);
   } catch (err: any) {
     logger.error("Unexpected error in getAdminDashboard:", err);
     return next(createError(500, "Internal Server Error"));

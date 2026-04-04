@@ -4,6 +4,7 @@ import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js";
+import redisClient from "../lib/redis.js";
 
 
 export const add_manager_to_client=async(req:Request,res:Response,next:NextFunction)=>{
@@ -231,6 +232,10 @@ if(!stock){
 })
 
 
+if (redisClient) {
+  await redisClient.del(`dashboard:${client_id}`);
+}
+
 res.status(200).json({success:true,message:"trade request sent successfully"})
 }catch(err:any){
       logger.error(err);
@@ -315,6 +320,10 @@ if(!stock){
 })
 
 
+if (redisClient) {
+  await redisClient.del(`dashboard:${client_id}`);
+}
+
 res.status(200).json({success:true,message:"trade request sent successfully"})
 }catch(err:any){
       logger.error(err);
@@ -335,6 +344,14 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
 
 
   try{
+      const cacheKey = `dashboard:${client_id}`;
+      if (redisClient) {
+        const cached = await redisClient.get(cacheKey);
+        if (cached) {
+          return res.status(200).json(JSON.parse(cached));
+        }
+      }
+
       let portfolio = await prisma.portfolio.findFirst({
         where: { user_id: client_id }
       })
@@ -362,7 +379,7 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
 
       if (!portfolio) {
         // Return a successful but empty dashboard state for new users
-        return res.status(200).json({
+        const responseData = {
           success: true,
           data: {
             user,
@@ -370,7 +387,13 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
             trade_requests: [],
             investments: []
           }
-        });
+        };
+        
+        if (redisClient) {
+          await redisClient.set(cacheKey, JSON.stringify(responseData, (key, value) => typeof value === 'bigint' ? value.toString() : value), "EX", 120);
+        }
+        
+        return res.status(200).json(responseData);
       }
 
       //  Fetch Actual Transactions (History of executed trades)
@@ -422,7 +445,7 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
 
 
 
-      res.status(200).json({
+      const responseData = {
         success: true,
         data: {
           user,
@@ -430,7 +453,13 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
           trade_requests,
           investments
         }
-      })
+      };
+
+      if (redisClient) {
+        await redisClient.set(cacheKey, JSON.stringify(responseData, (key, value) => typeof value === 'bigint' ? value.toString() : value), "EX", 120);
+      }
+
+      res.status(200).json(responseData);
 
 
   }catch(err:any){

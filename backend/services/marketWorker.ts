@@ -126,29 +126,26 @@ export const refreshMarketData = async () => {
         existingStocks.map(s => [s.symbol, s])
       );
 
-      await Promise.all(
-        result.data.map(stock =>
-          limit(async () => {
-            try {
-              const fullMapped = mapToPrismaStock(stock);
-              // Clean out nulls or match exactly what marketWorker wants
-              const fields: Record<string, any> = { ...fullMapped } as any;
+      for (const stock of result.data) {
+        try {
+          const fullMapped = mapToPrismaStock(stock);
+          const fields: Record<string, any> = { ...fullMapped } as any;
 
-              const existing = existingMap.get(stock.symbol);
+          const existing = existingMap.get(stock.symbol);
 
-              if (!isDifferent(existing, fields)) return;
+          if (!isDifferent(existing, fields)) continue;
 
-              await prisma.stockTable.update({
-                where: { symbol: stock.symbol },
-                data: fields,
-              });
+          await prisma.stockTable.update({
+            where: { symbol: stock.symbol },
+            data: fields,
+          });
 
-            } catch (err) {
-              logger.error(`Update failed for ${stock.symbol}`, err);
-            }
-          })
-        )
-      );
+          // Prevent Database Hammer by yielding event loop and resting between single row DB locks
+          await sleep(20); 
+        } catch (err) {
+          logger.error(`Update failed for ${stock.symbol}`, err);
+        }
+      }
 
       logger.info(`Worker: Batch ${batch.length} done`);
 

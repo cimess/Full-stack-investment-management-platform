@@ -6,7 +6,7 @@ let redis: Redis | null = null;
 try {
   redis = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
     maxRetriesPerRequest: 1, // Fail fast if Redis is down
-    retryStrategy(times) {
+    retryStrategy(times: number) {
       if (times > 3) {
         logger.warn('Redis retry stopped (attempted 3 times).');
         return null; // Stop retrying
@@ -15,7 +15,7 @@ try {
     },
   });
 
-  redis.on('error', (err) => {
+  redis.on('error', (err: Error) => {
     logger.warn(`Redis connection error: ${err.message}. Caching gracefully falling back to origin.`);
   });
 

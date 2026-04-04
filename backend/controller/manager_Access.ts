@@ -4,6 +4,7 @@ import logger from "../winstonlog/logger.js";
 import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
+import redisClient from "../lib/redis.js";
 
 
 
@@ -300,6 +301,14 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
   }
 
   try {
+    const cacheKey = `manager_dashboard:${managerId}`;
+    if (redisClient) {
+      const cached = await redisClient.get(cacheKey);
+      if (cached) {
+        return res.status(200).json(JSON.parse(cached));
+      }
+    }
+
     // Step 0: Fetch the actual Manager record to get its ID
     const manager = await prisma.manager.findUnique({
       where: { manager_id: managerId }
@@ -376,11 +385,17 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
       })
     );
 
-    return res.status(200).json({
+    const responseData = {
       success: true,
       data: clients,
       message: 'success',
-    });
+    };
+
+    if (redisClient) {
+      await redisClient.set(cacheKey, JSON.stringify(responseData, (key, value) => typeof value === 'bigint' ? value.toString() : value), "EX", 600); // 10 minutes TTL
+    }
+
+    return res.status(200).json(responseData);
   } catch (err: any) {
     logger.error('Failed fetching clients:', err);
     return next(createError(500, 'Internal Server Error'));
