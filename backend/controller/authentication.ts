@@ -101,7 +101,14 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   const { username, name, password, email, role } = result.data;
   const userRole = role === "CLIENT" ? "USER" : 'MANAGER';
 
-  const hashedPassword = await argon2.hash(password);
+  console.time("argon2_hash");
+  const hashedPassword = await argon2.hash(password, {
+    timeCost: 2,
+    memoryCost: 2 ** 12, // 4MB
+    parallelism: 1,
+  });
+  console.timeEnd("argon2_hash");
+  
   const otp = crypto.randomInt(100000, 999999).toString();
   const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
   const testCode = '123456'

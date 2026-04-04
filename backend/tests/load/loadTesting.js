@@ -20,7 +20,10 @@ export const options = {
 
 const BASE_URL = 'http://localhost:4000';
 
+
 // 'https://full-stack-investment-management-platform.onrender.com';
+
+
 // Compress timestamp + random + VU + iteration into 19 chars
 function generateUniqueId() {
     // Get current timestamp in ms and convert to base36 (shorter)
