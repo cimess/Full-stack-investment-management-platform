@@ -6,9 +6,10 @@ import type { Request, Response } from "express";
 import argon2 from "argon2";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { sendEmail } from "../services/emailService.js";
+import { sendEmail } from "../workers/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
+import { getCache, setCache } from "../lib/redis.js";
 
 
 
@@ -308,7 +309,11 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         // Handle legacy bcrypt hash
         isPasswordValid = await bcrypt.compare(password, user.password);
         if(isPasswordValid){
-          password_hash = await argon2.hash(password);
+          password_hash = await argon2.hash(password, {
+            timeCost: 2,
+            memoryCost: 2 ** 12, // 4MB
+            parallelism: 1,
+          });
         }
       } else {
         // Handle Argon2 verify
@@ -441,6 +446,17 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   if (!user_logged_in) {
     return next(createError(401, "Unauthorized"));
   }
+
+  const cacheKey = `user:profile:${user_logged_in.id}`;
+  try {
+    const cachedProfile = await getCache(cacheKey);
+    if (cachedProfile) {
+      logger.info(`[Auth] Serving profile from cache for user: ${user_logged_in.id}`);
+      return res.json(JSON.parse(cachedProfile));
+    }
+  } catch (err) {
+    logger.warn(`[Auth] Redis error in getMe: ${err}`);
+  }
   const user = await prisma.user.findUnique({
     where: { id: user_logged_in.id },
     select: {
@@ -494,7 +510,16 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     } : null
   };
 
-  return res.json({ success: true, data: serializedUser })
+  const responsePayload = { success: true, data: serializedUser };
+  
+  // Cache for 5 minutes
+  try {
+    await setCache(cacheKey, JSON.stringify(responsePayload), 300);
+  } catch (err) {
+    logger.warn(`[Auth] Failed to cache profile: ${err}`);
+  }
+
+  return res.json(responsePayload)
 }
 
 

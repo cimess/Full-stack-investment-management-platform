@@ -139,12 +139,37 @@ export const postMarketQuotes = async (req: Request, res: Response, next: NextFu
 };
 export const getMarketQuotes = async (req: Request, res: Response, next: NextFunction) => {
   const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
+  const CACHE_KEY = "global:market:quotes:all";
 
   try {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 20;
     const skip = (page - 1) * limit;
 
+    // 1. Try to fetch from GLOBAL REDIS CACHE (populated by background worker)
+    try {
+      const cachedData = await getCache(CACHE_KEY);
+      if (cachedData) {
+        const allStocks = JSON.parse(cachedData);
+        if (Array.isArray(allStocks) && allStocks.length > 0) {
+          logger.info(`[Market] Serving ${limit} stocks from Global Cache (Page: ${page})`);
+          
+          // Slice the pre-computed array for pagination
+          const paginatedStocks = allStocks.slice(skip, skip + limit);
+          
+          return res.status(200).json({
+            success: true,
+            message: "Data fetched from cache",
+            data: paginatedStocks
+          });
+        }
+      }
+    } catch (cacheErr) {
+      logger.warn(`[Market] Cache lookup failed: ${cacheErr}`);
+    }
+
+    // 2. FALLBACK: Hit Database if Cache is missing or failed
+    logger.info("[Market] Cache miss/empty. Falling back to Database...");
     let stocks = await prisma.stockTable.findMany({
       orderBy: { symbol: 'asc' },
       skip,
@@ -178,8 +203,6 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
         }));
         logger.info("[Market] DB seeded successfully.");
         stocks = await prisma.stockTable.findMany({ orderBy: { symbol: 'asc' }, skip, take: limit });
-      } else {
-        logger.error("[Market] Failed to seed DB from Yahoo Finance (rate limited or error).");
       }
     }
 
@@ -192,7 +215,7 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
 
     return res.status(200).json({
       success: true,
-      message: "Data fetched successfully",
+      message: "Data fetched successfully (Database Fallback)",
       data: formattedData
     });
 

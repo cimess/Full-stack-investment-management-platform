@@ -8,7 +8,8 @@ import rateLimit from "express-rate-limit";
 import type { ErrorRequestHandler } from "express";
 import cookieParser from "cookie-parser";
 import router from "./routes/router.js";
-import { startMarketWorker } from "./services/marketWorker.js";
+import { startMarketWorker } from "./workers/marketWorker.js";
+import { startMarketCacheWorker } from "./workers/marketCacheWorker.js";
 import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
@@ -163,6 +164,7 @@ if (process.env.NODE_ENV !== "test") {
     // Run the market worker in both development and production
     // to ensure live data is fetched across all environments.
     startMarketWorker();
+    startMarketCacheWorker();
 
 
     if (process.env.NODE_ENV === "production") {

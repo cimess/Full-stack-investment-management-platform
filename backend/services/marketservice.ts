@@ -190,17 +190,11 @@ export const getQuotes = async (symbols: string | string[]) => {
     } catch (yahooError: any) {
       logger.warn(`Yahoo Finance batch fetch failed: ${yahooError.message}, falling back to Alpha Vantage...`);
       
-      // Fallback to Alpha Vantage with individual Promise.all fetches
-      logger.info(`Fetching ${symbolList.length} stocks from Alpha Vantage (individual)...`);
-      const alphaVantageQuotes = await Promise.all(
-        symbolList.map(symbol => getAlphaVantageQuote(symbol))
-      );
-      
       return {
-        success: true,
-        message: "Data fetched successfully (Alpha Vantage fallback)",
-        data: alphaVantageQuotes
-      };
+        success: false,
+        message: "Failed to fetch market data",
+        data: []
+      }
     }
 
   } catch (error: any) {
