@@ -1,5 +1,5 @@
 import { metrics, diag, DiagConsoleLogger, DiagLogLevel } from '@opentelemetry/api';
-import 'dotenv/config';
+import * as dotenv from 'dotenv';
 import { NodeSDK } from '@opentelemetry/sdk-node';
 import { getNodeAutoInstrumentations } from '@opentelemetry/auto-instrumentations-node';
 import { OTLPTraceExporter } from '@opentelemetry/exporter-trace-otlp-http';
@@ -9,14 +9,27 @@ import { Resource } from '@opentelemetry/resources';
 import { HostMetrics } from '@opentelemetry/host-metrics';
 import logger from './winstonlog/logger.js';
 
-// Optional: Enable internal OTel diagnostics to see errors in the console
+// 0. HARD-LOAD Environment variables before anything else
+dotenv.config();
+
+// Enable diagnostics for now to troubleshoot the "Unauthorized" issue
 diag.setLogger(new DiagConsoleLogger(), DiagLogLevel.INFO);
 
-// 1. Define the Identity (Environment / Version)
+const API_KEY = process.env.HONEYCOMB_API_KEY || "";
+const SERVICE_NAME = process.env.OTEL_SERVICE_NAME || "cimessinvest-backend-dev";
+const ENV = process.env.NODE_ENV || "development";
+
+if (!API_KEY) {
+  logger.warn("⚠️ HONEYCOMB_API_KEY missing from environment. Monitoring will be limited.");
+} else {
+  logger.info(`🔍 OTel Auth: Found key starting with "${API_KEY.substring(0, 4)}..."`);
+}
+
+// 1. Define the Identity
 const resource = new Resource({
-  'service.name': process.env.OTEL_SERVICE_NAME || "cimessinvest-backend",
+  'service.name': SERVICE_NAME,
   'service.version': "1.0.0",
-  'deployment.environment': process.env.NODE_ENV || "development"
+  'deployment.environment': ENV
 });
 
 // 2. The All-in-One Monitoring SDK
@@ -25,32 +38,35 @@ const sdk = new NodeSDK({
   traceExporter: new OTLPTraceExporter({
     url: 'https://api.honeycomb.io/v1/traces',
     headers: {
-      'x-honeycomb-team': process.env.HONEYCOMB_API_KEY || ""
+      'x-honeycomb-team': API_KEY
     }
   }),
-  metricReader: new PeriodicExportingMetricReader({
+  // ONLY start the MetricReader if the Key exists, to avoid 'Unauthorized' spam
+  metricReader: API_KEY ? new PeriodicExportingMetricReader({
     exporter: new OTLPMetricExporter({
       url: 'https://api.honeycomb.io/v1/metrics',
       headers: {
-        'x-honeycomb-team': process.env.HONEYCOMB_API_KEY || ""
+        'x-honeycomb-team': API_KEY
       }
     }),
     exportIntervalMillis: 60000 
-  }) as any,
+  }) as any : undefined,
   instrumentations: [getNodeAutoInstrumentations()]
 });
 
 // 3. Start the Engine
 sdk.start();
 
-// 4. Start the Hardware Sensors (CPU, RAM, etc.)
-// Using the global metrics provider to ensure 100% compatibility
-const hostMetrics = new HostMetrics({ 
-  meterProvider: metrics.getMeterProvider(),
-  name: 'cimess-host-stats'
-});
-hostMetrics.start();
-
-logger.info("🚀 All-in-One Tracing & Metrics initialized (Direct to Honeycomb)");
+// 4. Start the Hardware Sensors ONLY if metrics are enabled
+if (API_KEY) {
+  const hostMetrics = new HostMetrics({ 
+    meterProvider: metrics.getMeterProvider(),
+    name: 'cimess-host-stats'
+  });
+  hostMetrics.start();
+  logger.info("🚀 All-in-One Tracing & Metrics initialized (Direct to Honeycomb)");
+} else {
+  logger.info("🚀 Tracing only (Metrics disabled due to missing Key)");
+}
 
 export default sdk;
