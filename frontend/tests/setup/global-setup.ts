@@ -47,7 +47,7 @@ async function globalSetup(config: FullConfig) {
   await page.goto('/login');
 
   // Fill in login form using the seeded client credentials
-  await page.getByPlaceholder(/Email/i).fill('testclient@novainvest.test');
+  await page.getByPlaceholder(/Email/i).fill('testclient@cimessinvest.test');
   await page.getByPlaceholder(/Password/i).fill('TestPass123!');
   await page.getByRole('button', { name: /Sign In/i }).click();
 

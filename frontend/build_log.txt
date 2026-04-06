@@ -1,5 +1,5 @@
 
-> novainvest@0.0.0 build
+> cimessinvest@0.0.0 build
 > vite build
 
 vite v6.4.1 building for production...

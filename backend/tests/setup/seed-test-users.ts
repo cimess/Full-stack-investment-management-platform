@@ -5,9 +5,9 @@
  * This script is run automatically before tests.
  * 
  * TEST ACCOUNTS CREATED:
- *  - Client  — testclient@novainvest.test  / TestPass123!
- *  - Manager — testmanager@novainvest.test / TestPass123!  (has approval_code: TEST-MGR-001)
- *  - Admin   — testadmin@novainvest.test   / TestPass123!
+ *  - Client  — testclient@cimessinvest.test  / TestPass123!
+ *  - Manager — testmanager@cimessinvest.test / TestPass123!  (has approval_code: TEST-MGR-001)
+ *  - Admin   — testadmin@cimessinvest.test   / TestPass123!
  */
 
 import { prisma } from '../../lib/prisma.js';
@@ -15,16 +15,16 @@ import argon2 from 'argon2';
 
 export const TEST_CREDENTIALS = {
   client: {
-    email: 'testclient@novainvest.test',
+    email: 'testclient@cimessinvest.test',
     password: 'TestPass123!',
   },
   manager: {
-    email: 'testmanager@novainvest.test',
+    email: 'testmanager@cimessinvest.test',
     password: 'TestPass123!',
     approvalCode: 'TEST-MGR-001',
   },
   admin: {
-    email: 'testadmin@novainvest.test',
+    email: 'testadmin@cimessinvest.test',
     password: 'TestPass123!',
   },
 };

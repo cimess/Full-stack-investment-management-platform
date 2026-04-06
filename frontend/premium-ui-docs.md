@@ -1,4 +1,4 @@
-# NovaInvest Premium UI Guide
+# CimessInvest Premium UI Guide
 
 This document explains how to use the **Premium Theme System** defined in `premium-theme.css`. This theme is designed to mirror the high-end aesthetics of platforms like Vercel and Linear.
 

@@ -15,7 +15,7 @@ import { test, expect } from '@playwright/test';
 
 // Test with the real seeded user — no registration needed
 const CLIENT = {
-  email: 'testclient@novainvest.test',
+  email: 'testclient@cimessinvest.test',
   password: 'TestPass123!',
 };
 

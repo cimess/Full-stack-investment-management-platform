@@ -58,8 +58,8 @@ function ContactUs() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-400 mb-1">Email Us</p>
-                    <p className="text-white font-medium">support@novainvest.com</p>
-                    <p className="text-white font-medium">invest@novainvest.com</p>
+                    <p className="text-white font-medium">support@cimessinvest.com</p>
+                    <p className="text-white font-medium">invest@cimessinvest.com</p>
                   </div>
                 </div>
 

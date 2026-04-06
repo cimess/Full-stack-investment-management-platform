@@ -1,8 +1,8 @@
-# NovaInvest Backend Scaling & Optimization Checklist
+# CimessInvest Backend Scaling & Optimization Checklist
 
-This document outlines the roadmap for maturing the NovaInvest backend to handle more users, real-time data, and complex financial analytics.
+This document outlines the roadmap for maturing the CimessInvest backend to handle more users, real-time data, and complex financial analytics.
 
-Aside from Registration (hashing) and Market Quotes, there are three "Silent Killers" in a financial app like NovaInvest that can eat up your CPU and Database connections:
+Aside from Registration (hashing) and Market Quotes, there are three "Silent Killers" in a financial app like CimessInvest that can eat up your CPU and Database connections:
 
 1. The Portfolio View (Calculation Heavy) 📊
 If you are calculating a user's total balance, profit/loss, and portfolio value every time they refresh the page, that’s a massive amount of "Math" the server has to do.
@@ -115,7 +115,7 @@ What it is: We set up a Queue. The API says "Success!" instantly, while a backgr
 *   **Horizontal (Scaling Out)**: Adding **more servers** and putting a **Load Balancer** (like Nginx or AWS ALB) in front of them. This is how Google/Netflix scale infinitely.
 
 ### 2. Database Scaling Strategies
-*   **Read Replicas**: You have one master DB for writing data, and multiple "follower" DBs for reading. Great for apps like NovaInvest where users read their dashboard more than they trade.
+*   **Read Replicas**: You have one master DB for writing data, and multiple "follower" DBs for reading. Great for apps like CimessInvest where users read their dashboard more than they trade.
 *   **Database Sharding**: Splitting your database by user ID (e.g., Users A-M on Server 1, N-Z on Server 2).
 *   **Connection Pooling**: Using a "Manager" (like PgBouncer) to share a few DB connections among hundreds of API requests.
 

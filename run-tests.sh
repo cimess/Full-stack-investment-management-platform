@@ -1,6 +1,6 @@
 #!/bin/bash
 # ============================================================
-# RUN ALL TESTS — NovaInvest
+# RUN ALL TESTS — CimessInvest
 # ============================================================
 # Runs BOTH layers of the test suite:
 #   1. Backend API tests (Vitest + Supertest)
@@ -23,7 +23,7 @@ FRONTEND="$ROOT/frontend"
 
 echo ""
 echo "╔══════════════════════════════════════════════╗"
-echo "║       NovaInvest Test Suite Runner           ║"
+echo "║       CimessInvest Test Suite Runner           ║"
 echo "╚══════════════════════════════════════════════╝"
 echo ""
 

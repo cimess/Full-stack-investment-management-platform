@@ -135,7 +135,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         </div>
         {!collapsed && (
           <div className="flex flex-col">
-            <span className="text-white font-bold text-lg leading-tight tracking-tight">NovaInvest</span>
+            <span className="text-white font-bold text-lg leading-tight tracking-tight">CimessInvest</span>
             <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em] -mt-0.5">Wealth Management</span>
           </div>
         )}

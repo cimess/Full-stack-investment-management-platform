@@ -1,8 +1,8 @@
-# 🧪 NovaInvest — Test Guide
+# 🧪 CimessInvest — Test Guide
 
 ## Overview
 
-NovaInvest has a **production-grade two-layer testing suite** that covers:
+CimessInvest has a **production-grade two-layer testing suite** that covers:
 
 | Layer | Tool | What it tests |
 |---|---|---|
@@ -134,9 +134,9 @@ test('your new page loads', async ({ page }) => {
 
 | Role | Email | Password |
 |---|---|---|
-| Client | `testclient@novainvest.test` | `TestPass123!` |
-| Manager | `testmanager@novainvest.test` | `TestPass123!` |
-| Admin | `testadmin@novainvest.test` | `TestPass123!` |
+| Client | `testclient@cimessinvest.test` | `TestPass123!` |
+| Manager | `testmanager@cimessinvest.test` | `TestPass123!` |
+| Admin | `testadmin@cimessinvest.test` | `TestPass123!` |
 
 **Manager approval code:** `TEST-MGR-001`
 

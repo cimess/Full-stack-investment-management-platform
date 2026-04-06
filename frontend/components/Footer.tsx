@@ -52,7 +52,7 @@ const Footer: React.FC = () => {
         
         <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
             <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] text-center md:text-left">
-                © {new Date().getFullYear()} NovaInvest Inc. <br className="md:hidden" /> All rights reserved.
+                © {new Date().getFullYear()} CimessInvest Inc. <br className="md:hidden" /> All rights reserved.
             </p>
             <div className="flex gap-6">
                 <a href="#" className="text-slate-500 hover:text-white transition-colors"><Twitter className="w-5 h-5" strokeWidth={1.5} /></a>

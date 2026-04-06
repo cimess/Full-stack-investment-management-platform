@@ -279,8 +279,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   const { email, password } = result.data;
 
   try {
-    await prisma.$transaction(async (tx) => {
-      const user = await tx.user.findUnique({
+      const user = await prisma.user.findUnique({
         where: {
           email: email
         }
@@ -304,26 +303,34 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       }
 
       let isPasswordValid = false;
+      let password_hash: string | null = null;
       if (user.password.startsWith("$2")) {
         // Handle legacy bcrypt hash
         isPasswordValid = await bcrypt.compare(password, user.password);
-        if (isPasswordValid) {
-          // Upgrade to Argon2 immediately
-          const newHash = await argon2.hash(password);
-          await tx.user.update({
-            where: { id: user.id },
-            data: { password: newHash }
-          });
-          logger.info(`Upgraded password hash to Argon2 for user: ${user.email}`);
+        if(isPasswordValid){
+          password_hash = await argon2.hash(password);
         }
       } else {
         // Handle Argon2 verify
         isPasswordValid = await argon2.verify(user.password, password);
+        if(isPasswordValid){
+          password_hash = user.password;
+        }
       }
 
       if (!isPasswordValid) {
         return next(createError(401, "invalid credentials"));
       }
+    await prisma.$transaction(async (tx) => {
+    
+      if (password_hash) {
+          // Upgrade to Argon2 immediately
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { password: password_hash }
+          });
+          logger.info(`Upgraded password hash to Argon2 for user: ${user.email}`);
+        }
 
       const checked_token = token_refresh ? verifyTokenSecret(token_refresh) : null;
       if (checked_token) {
@@ -365,6 +372,8 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         success: true, message: "user logged in successfully",
         data: { id, roles, fullname, email_user, username, manager_id }
       })
+    },{
+      timeout: 15000
     })
   } catch (err: any) {
     logger.error(err);

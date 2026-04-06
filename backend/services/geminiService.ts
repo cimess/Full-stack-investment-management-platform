@@ -36,6 +36,6 @@ export const getInvestmentInsights = async (query: string): Promise<string> => {
             stack: error.stack,
         });
 
-        throw new Error(error.message || "Failed to connect to NovaInvest AI.");
+        throw new Error(error.message || "Failed to connect to CimessInvest AI.");
     }
 };

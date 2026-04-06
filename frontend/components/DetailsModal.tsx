@@ -213,7 +213,7 @@ const DetailsModal = React.memo(({
 
           {/* Disclaimer */}
           <div className="p-6 text-[10px] text-gray-600 leading-normal mb-6">
-             <p>NovaInvest provided market data is for informational purposes only. Trading involves significant risk. Technical charts are powered by high-performance data streams.</p>
+             <p>CimessInvest provided market data is for informational purposes only. Trading involves significant risk. Technical charts are powered by high-performance data streams.</p>
           </div>
         </div>
 

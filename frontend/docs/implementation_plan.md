@@ -1,7 +1,7 @@
 # Implementation Plan - UI/UX Premium Upgrade
 
 # Goal Description
-Elevate the **NovaInvest** application design to match "Awwwards" premium fintech standards. This involves upgrading typography, implementing a Bento Grid layout, adding dynamic background textures, and polishing data visualizations.
+Elevate the **CimessInvest** application design to match "Awwwards" premium fintech standards. This involves upgrading typography, implementing a Bento Grid layout, adding dynamic background textures, and polishing data visualizations.
 
 ## User Review Required
 > [!IMPORTANT]
@@ -11,29 +11,29 @@ Elevate the **NovaInvest** application design to match "Awwwards" premium fintec
 ## Proposed Changes
 
 ### Global Styles & Assets
-#### [MODIFY] [index.html](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/index.html)
+#### [MODIFY] [index.html](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/index.html)
 - Add `Outfit` font from Google Fonts.
 - Add global CSS variables for noise texture.
 
-#### [MODIFY] [index.css](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/index.css) (or create if missing/inline)
+#### [MODIFY] [index.css](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/index.css) (or create if missing/inline)
 - Define `.font-display` utility.
 - Add `.bg-noise` class with SVG noise pattern.
 - Add `.spotlight` utility for card hover effects.
 
 ### Components
 
-#### [MODIFY] [App.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/App.tsx)
+#### [MODIFY] [App.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/App.tsx)
 - Add background "Orb" elements for ambient lighting.
 
-#### [MODIFY] [Features.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/components/Features.tsx)
+#### [MODIFY] [Features.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/components/Features.tsx)
 - Refactor into a CSS Grid (Bento style).
 - Implement "Spotlight" hover effect on cards.
 
-#### [MODIFY] [MarketChart.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/components/MarketChart.tsx)
+#### [MODIFY] [MarketChart.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/components/MarketChart.tsx)
 - Add Gradient definitions to Recharts.
 - Add drop-shadow filter to lines for "glow" effect.
 
-#### [MODIFY] [Hero.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/novainvest/components/Hero.tsx)
+#### [MODIFY] [Hero.tsx](file:///c:/Users/USER/Dev/myPersonalPortfolio/cimessinvest/components/Hero.tsx)
 - Update typography classes to use new Display font.
 - Enhance entrance animations.
 

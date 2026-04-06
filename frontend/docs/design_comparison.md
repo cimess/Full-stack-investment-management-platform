@@ -1,7 +1,7 @@
 # Design Comparison & Improvement Report
 
 ## Executive Summary
-The current **NovaInvest** application has a solid foundation using **React, Tailwind CSS, and GSAP**. It effectively uses a dark mode aesthetic with glassmorphism, which is on-trend. However, to reach "Awwwards" or "Site of the Day" status, it lacks the **distinctive character, advanced micro-interactions, and rich textures** found in premium fintech portfolios.
+The current **CimessInvest** application has a solid foundation using **React, Tailwind CSS, and GSAP**. It effectively uses a dark mode aesthetic with glassmorphism, which is on-trend. However, to reach "Awwwards" or "Site of the Day" status, it lacks the **distinctive character, advanced micro-interactions, and rich textures** found in premium fintech portfolios.
 
 ## Detailed Comparison
 
