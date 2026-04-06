@@ -1,16 +1,16 @@
 import jwt from "jsonwebtoken";
-import type { Request, Response, NextFunction ,RequestHandler} from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import createError from "http-errors";
 import type { VerifyErrors } from "jsonwebtoken";
 
-export interface AuthRequest extends Request{
+export interface AuthRequest extends Request {
   user?: {
     id: string;
     roles: string;
   }
 }
 
-export const verifyToken:RequestHandler = (req,  res: Response, next: NextFunction) => {
+export const verifyToken: RequestHandler = (req, res: Response, next: NextFunction) => {
 
   // 2. Extract the token from the Authorization header
   // Format: "Bearer <token>"
@@ -28,12 +28,12 @@ export const verifyToken:RequestHandler = (req,  res: Response, next: NextFuncti
     if (err) {
       return next(createError(401, "TOKEN_EXPIRED_OR_INVALID"));
     }
-   
+
 
     // 6. If successful, attach the user data to the request object
     // Now the next function (the controller) can see who "req.user" is
-    const auth=req as AuthRequest
-    
+    const auth = req as AuthRequest
+
     auth.user = {
       id: decodedPayload.id,
       roles: decodedPayload.roles

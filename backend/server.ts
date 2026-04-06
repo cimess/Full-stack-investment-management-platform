@@ -1,3 +1,4 @@
+import "./tracing.js";
 import dotenv from "dotenv";
 dotenv.config();
 import logger from "./winstonlog/logger.js";
@@ -24,6 +25,13 @@ if (!BigInt.prototype.hasOwnProperty('toJSON')) {
 
 const app = express();
 app.set("trust proxy", 1);
+
+// Increase MaxListeners for each response object to handle OTel + multiple custom loggers
+app.use((req, res, next) => {
+  res.setMaxListeners(20);
+  next();
+});
+
 export { app };
 
 app.use(cookieParser());

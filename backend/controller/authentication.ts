@@ -10,6 +10,7 @@ import { sendEmail } from "../workers/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
 import { getCache, setCache } from "../lib/redis.js";
+import { trace } from "@opentelemetry/api";
 
 
 
@@ -107,8 +108,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     memoryCost: 2 ** 12, // 4MB
     parallelism: 1,
   });
- 
-  
+
+
   const otp = crypto.randomInt(100000, 999999).toString();
   const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
   const testCode = '123456'
@@ -280,59 +281,59 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
   const { email, password } = result.data;
 
   try {
-      const user = await prisma.user.findUnique({
-        where: {
-          email: email
-        }
-      })
+    const user = await prisma.user.findUnique({
+      where: {
+        email: email
+      }
+    })
 
-      if (!user) {
-        return next(createError(401, "invalid credentials"));
-      }
-      if (user.restricted) {
-        return next(createError(401, "user is currently restricted"));
-      }
-      if (user.disabled) {
-        return next(createError(401, "This account has been deactivated. Please contact support to reactivate."));
-      }
+    if (!user) {
+      return next(createError(401, "invalid credentials"));
+    }
+    if (user.restricted) {
+      return next(createError(401, "user is currently restricted"));
+    }
+    if (user.disabled) {
+      return next(createError(401, "This account has been deactivated. Please contact support to reactivate."));
+    }
 
-      // if (!user.isVerified) {
-      //   return next(createError(403, "Please verify your email address to log in"));
-      // }
-      if (!user.password) {
-        return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));
-      }
+    // if (!user.isVerified) {
+    //   return next(createError(403, "Please verify your email address to log in"));
+    // }
+    if (!user.password) {
+      return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));
+    }
 
-      let isPasswordValid = false;
-      let password_hash: string | null = null;
-      if (user.password.startsWith("$2")) {
-        // Handle legacy bcrypt hash
-        isPasswordValid = await bcrypt.compare(password, user.password);
-        if(isPasswordValid){
-          password_hash = await argon2.hash(password, {
-            timeCost: 2,
-            memoryCost: 2 ** 12, // 4MB
-            parallelism: 1,
-          });
-        }
-      } else {
-        // Handle Argon2 verify
-        isPasswordValid = await argon2.verify(user.password, password);
+    let isPasswordValid = false;
+    let password_hash: string | null = null;
+    if (user.password.startsWith("$2")) {
+      // Handle legacy bcrypt hash
+      isPasswordValid = await bcrypt.compare(password, user.password);
+      if (isPasswordValid) {
+        password_hash = await argon2.hash(password, {
+          timeCost: 2,
+          memoryCost: 2 ** 12, // 4MB
+          parallelism: 1,
+        });
       }
+    } else {
+      // Handle Argon2 verify
+      isPasswordValid = await argon2.verify(user.password, password);
+    }
 
-      if (!isPasswordValid) {
-        return next(createError(401, "invalid credentials"));
-      }
+    if (!isPasswordValid) {
+      return next(createError(401, "invalid credentials"));
+    }
     await prisma.$transaction(async (tx) => {
-    
+
       if (password_hash) {
-          // Upgrade to Argon2 immediately
-          await prisma.user.update({
-            where: { id: user.id },
-            data: { password: password_hash }
-          });
-          logger.info(`Upgraded password hash to Argon2 for user: ${user.email}`);
-        }
+        // Upgrade to Argon2 immediately
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { password: password_hash }
+        });
+        logger.info(`Upgraded password hash to Argon2 for user: ${user.email}`);
+      }
 
       const checked_token = token_refresh ? verifyTokenSecret(token_refresh) : null;
       if (checked_token) {
@@ -374,7 +375,7 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
         success: true, message: "user logged in successfully",
         data: { id, roles, fullname, email_user, username, manager_id }
       })
-    },{
+    }, {
       timeout: 15000
     })
   } catch (err: any) {
@@ -451,9 +452,11 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const cachedProfile = await getCache(cacheKey);
     if (cachedProfile) {
+      trace.getActiveSpan()?.setAttribute("app.cache_hit", true);
       logger.info(`[Auth] Serving profile from cache for user: ${user_logged_in.id}`);
       return res.json(JSON.parse(cachedProfile));
     }
+    trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
   } catch (err) {
     logger.warn(`[Auth] Redis error in getMe: ${err}`);
   }
@@ -511,7 +514,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   };
 
   const responsePayload = { success: true, data: serializedUser };
-  
+
   // Cache for 5 minutes
   try {
     await setCache(cacheKey, JSON.stringify(responsePayload), 300);

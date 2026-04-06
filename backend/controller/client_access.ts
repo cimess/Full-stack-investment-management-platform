@@ -5,6 +5,7 @@ import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js";
 import redisClient from "../lib/redis.js";
+import { trace } from "@opentelemetry/api";
 
 
 export const add_manager_to_client=async(req:Request,res:Response,next:NextFunction)=>{
@@ -348,9 +349,11 @@ export const getAll=async(req:Request,res:Response,next:NextFunction)=>{
       if (redisClient) {
         const cached = await redisClient.get(cacheKey);
         if (cached) {
+          trace.getActiveSpan()?.setAttribute("app.cache_hit", true);
           return res.status(200).json(JSON.parse(cached));
         }
       }
+      trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
 
       let portfolio = await prisma.portfolio.findFirst({
         where: { user_id: client_id }

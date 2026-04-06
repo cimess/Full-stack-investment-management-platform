@@ -5,6 +5,7 @@ import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 import redisClient from "../lib/redis.js";
+import { trace } from "@opentelemetry/api";
 
 
 
@@ -305,9 +306,11 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
     if (redisClient) {
       const cached = await redisClient.get(cacheKey);
       if (cached) {
+        trace.getActiveSpan()?.setAttribute("app.cache_hit", true);
         return res.status(200).json(JSON.parse(cached));
       }
     }
+    trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
 
     // Step 0: Fetch the actual Manager record to get its ID
     const manager = await prisma.manager.findUnique({
