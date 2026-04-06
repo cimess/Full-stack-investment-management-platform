@@ -8,11 +8,11 @@ Copy these directly into the **Honeycomb Query Builder** to see exactly how your
 
 | What you want to see | VISUALIZE (Query) | GROUP BY | FILTER |
 | :--- | :--- | :--- | :--- |
-| **Slowest Endpoints (P99)** | `P99(duration_ms)` | `url.path` | `url.path` exists |
-| **Request Counts** | `COUNT` | `url.path` | *None* |
+| **Slowest Endpoints (P99)** | `P99(duration_ms)` | `http.route` | `http.route` exists |
+| **Request Counts** | `COUNT` | `http.route` | *None* |
 | **Error Rates (4xx/5xx)** | `COUNT` | `http.response.status_code` | `http.response.status_code >= 400` |
 | **Cache Hit vs Miss** | `COUNT` | `app.cache_hit` | `app.cache_hit` exists |
-| **Average Latency** | `AVG(duration_ms)` | `url.path` | *None* |
+| **Average Latency** | `AVG(duration_ms)` | `http.route` | *None* |
 
 ---
 

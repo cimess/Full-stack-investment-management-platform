@@ -1,8 +1,10 @@
 import "./tracing.js";
 import dotenv from "dotenv";
 dotenv.config();
+import { trace } from '@opentelemetry/api';
 import logger from "./winstonlog/logger.js";
 import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import cors from "cors";
 import helmet from "helmet";
 import rateLimit from "express-rate-limit";
@@ -27,8 +29,20 @@ const app = express();
 app.set("trust proxy", 1);
 
 // Increase MaxListeners for each response object to handle OTel + multiple custom loggers
-app.use((req, res, next) => {
+app.use((req: Request, res: Response, next: NextFunction) => {
   res.setMaxListeners(20);
+  
+  // Tag spans as errors if status code is >= 400
+  res.on('finish', () => {
+    if (res.statusCode >= 400) {
+      const span = trace.getActiveSpan();
+      if (span) {
+        span.setAttribute('error', true);
+        span.setAttribute('http.status_code', res.statusCode);
+      }
+    }
+  });
+  
   next();
 });
 

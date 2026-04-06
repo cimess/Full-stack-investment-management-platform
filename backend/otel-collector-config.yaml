@@ -1,0 +1,58 @@
+# 🍯 NovaInvest Unified OTel Collector Config
+# Uses environment variables to toggle between Dev and Prod.
+
+receivers:
+  # 1. Scrape Metrics from Redis (Local or Upstash)
+  redis:
+    endpoint: "${env:REDIS_ENDPOINT}" 
+    password: "${env:REDIS_PASSWORD}"
+    collection_interval: 10s
+    tls:
+      # Set REDIS_TLS_INSECURE=true for local, false for Upstash
+      insecure: ${env:REDIS_TLS_INSECURE}
+
+  # 2. Scrape Server Health (CPU, RAM, Disk)
+  hostmetrics:
+    scrapers:
+      cpu:
+      memory:
+      load:
+      disk:
+
+processors:
+  batch:
+  # Stamping data with service name and the environment (dev/prod)
+  resource:
+    attributes:
+      - key: service.name
+        value: "cimessinvest-backend"
+        action: upsert
+      - key: deployment.environment
+        value: "${env:NODE_ENV:-development}"
+        action: upsert
+
+  # Map paths to routes for better dashboards
+  transform:
+    metric_statements:
+      - context: datapoint
+        statements:
+          - set(attributes["http.route"], attributes["url.path"]) where attributes["url.path"] != nil
+
+exporters:
+  # 1. Export to Honeycomb
+  otlp/honeycomb:
+    endpoint: "api.honeycomb.io:443"
+    headers:
+      "x-honeycomb-team": "${env:HONEYCOMB_API_KEY}"
+
+  # 2. Export to Debug Logs (only on terminal)
+  debug:
+    verbosity: normal
+
+service:
+  pipelines:
+    metrics:
+      receivers: [redis, hostmetrics]
+      processors: [resource, transform, batch]
+      # We only use 'debug' in development. Removing it in prod is automatic if you don't run -debug mode.
+      exporters: [otlp/honeycomb, debug]
