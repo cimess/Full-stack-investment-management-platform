@@ -313,9 +313,6 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       } else {
         // Handle Argon2 verify
         isPasswordValid = await argon2.verify(user.password, password);
-        if(isPasswordValid){
-          password_hash = user.password;
-        }
       }
 
       if (!isPasswordValid) {
