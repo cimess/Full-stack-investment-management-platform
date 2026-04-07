@@ -9,7 +9,7 @@ export let loopLag = new Trend('event_loop_lag_ms');
 export let failedRequests = new Rate('failed_requests');
 
 export const options = {
-    vus: 5,           // 3 Concurrent users as requested
+    vus: 4,           // 3 Concurrent users as requested
     duration: '30s',   // 30 Seconds duration
     thresholds: {
         http_req_duration: ['p(95)<1000'], // 95% of requests should be < 1s
@@ -17,15 +17,14 @@ export const options = {
     },
 };
 
-const BASE_URL = 'https://full-stack-investment-management-platform.onrender.com'; // Default to local, user can override
+const BASE_URL = 'http://localhost:4000'; // Default to local, user can override
 
 // Test users from seed-test-users.ts
 const USERS = [
     { email: 'cimessthemanofvalor@gmail.com', password: 'Password25825800.', role: 'ADMIN' },
-    { email: 'cmhous@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
-    { email: 'cimess258258@gmail.com', password: 'Password25825800.', role: 'MANAGER' },
-    { email: 'cimesstttttt@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
-    { email: 'cmhousdds@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
+    { email: 'cmhousing.ng.com@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
+    { email: 'cimess@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
+    { email: 'cimessdev@gmail.com', password: 'Password25825800.', role: 'CLIENT' },
 ];
 
 export default function () {

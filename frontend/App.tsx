@@ -1,5 +1,5 @@
-import React, { Suspense, lazy } from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import React, { Suspense, lazy, useEffect } from 'react';
+import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -15,14 +15,29 @@ const CompleteRegistration = lazy(() => import('./pages/CompleteRegistration'));
 const ClientDashboard = lazy(() => import('./dashboard/client/ClientDashboard'));
 const ManagerDashboard = lazy(() => import('./dashboard/manager/ManagerDashboard'));
 const AdminDashboard = lazy(() => import('./dashboard/admin/AdminDashboard'));
-
+const ConditionPage = lazy(() => import('./pages/terms/conditionPage'));
+const PrivacyPage = lazy(() => import('./pages/terms/privacyPage'));
+const RiskPage = lazy(() => import('./pages/terms/riskPage'));
+const ConsentPreferencesPage = lazy(() => import('./pages/terms/consent-preference'));
 // 3. A simple loading fallback to show while the chunk is downloading
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
     <div className="animate-spin h-10 w-10 border-4 border-blue-600 rounded-full border-t-transparent"></div>
   </div>
 );
+ function ScrollToTop():any {
+  const { pathname } = useLocation();
 
+  useEffect(() => {
+    window.scrollTo({
+      top: 0,
+      left: 0,
+      behavior: "smooth", // optional
+    });
+  }, [pathname]);
+
+  return null;
+}
 
 const App = () => {
   return (
@@ -40,7 +55,9 @@ const App = () => {
         draggablePercent={10}
         theme="dark"
       />
+     
       <Router>
+        <ScrollToTop />
      <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Public Routes */}
@@ -49,7 +66,10 @@ const App = () => {
         <Route path="/signup" element={<SignUp />} />
         <Route path="/verify" element={<VerifyEmailPage />} />
         <Route path="/complete-registration" element={<CompleteRegistration />} />
-
+        <Route path="/terms" element={<ConditionPage />} />
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/risk" element={<RiskPage />} />
+        <Route path="/cookies" element={<ConsentPreferencesPage />} />
         {/* Client Dashboard */}
 
         <Route path="/dashboard/client" element={

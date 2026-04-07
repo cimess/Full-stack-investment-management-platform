@@ -7,7 +7,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import {isEmail,isPassword,isName} from '../hooks/validator';
 import {Eye,EyeOff, User, ChevronDown, AlertCircle} from "lucide-react"
 
-import {  useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import Loader from './loadericon/loader';
 import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
@@ -30,9 +30,9 @@ export default function Login({loginUi}:{loginUi:boolean}){
   const [shake, setShake] = useState<boolean>(false);
   const [googleAuthData, setGoogleAuthData] = useState<any>(null);
 
-
+const [termsAccepted, setTermsAccepted] = useState(false);
 const [showPassword,setShowPassword]=useState<boolean>(false);
-const [role, setRole] = useState<"CLIENT" | "MANAGER">("CLIENT");
+const [role, setRole] = useState<"CLIENT" | "MANAGER" | null>(null);
 const [showRoleDropdown, setShowRoleDropdown] = useState(false);
 const [showConfirm, setShowConfirm] = useState(false);
 const queryClient=useQueryClient();
@@ -173,12 +173,32 @@ if(loginSuccess||registerSuccess){
 
      if (!loginUi && (firstName.length<1 || lastName.length<1 || email.length<1)) {
       setMessage("input field cant be empty!");
+      toast.error("input field cant be empty!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
     if (!email || !password) {
       setMessage("Please fill all fields!");
+      toast.error("Please fill all fields!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -188,12 +208,32 @@ if(loginSuccess||registerSuccess){
    if(!loginUi){
     if(!isName(firstName)){
       setMessage("Please enter a valid first name!");
+      toast.error("Please enter a valid first name!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
     }
     if(!isName(lastName)){
       setMessage("Please enter a valid last name!");
+      toast.error("Please enter a valid last name!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -202,6 +242,16 @@ if(loginSuccess||registerSuccess){
 
     if(!isEmail(email)){
       setMessage("Please enter a valid email address!");
+      toast.error("Please enter a valid email address!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -209,6 +259,66 @@ if(loginSuccess||registerSuccess){
 
     if(!isPassword(password)){
       setMessage("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character");
+      toast.error("Password must contain at least one lowercase letter, one uppercase letter, one number, and one special character",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+    if(!termsAccepted){
+      setMessage("Please read and accept the terms and policies!");
+      toast.error("Please read and accept the terms and policies!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if(role==="CLIENT"||role==="MANAGER"){
+      setMessage("Please select a role!");
+      toast.error("Please select a role!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if(username.length<3){
+      setMessage("Please enter a valid username!");
+      toast.error("Please enter a valid username!",{
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -383,7 +493,7 @@ const passwordFeedback = () => {
               >
                 <User className="text-gray-400 shrink-0" size={18} />
                 <span className="flex-grow text-sm font-medium text-gray-400">
-                  {role === "CLIENT" ? "Client" : "Manager"}
+                  {role === "CLIENT" ? "Client" : role === "MANAGER" ? "Manager" : "Please select your role"}
                 </span>
                 <ChevronDown 
                   className={`text-gray-400 transition-transform duration-300 ${showRoleDropdown ? 'rotate-180 text-cyan-400' : ''}`} 
@@ -448,6 +558,15 @@ const passwordFeedback = () => {
               : loginUi ? "Sign in" : "Create account"}
 
           </button>
+          <div className="flex items-center justify-center mt-6 gap-2">
+            <input type="checkbox" className="accent-black" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
+          <p className="text-center text-gray-400 text-sm mt-0">
+            By signing up, you agree to our{" "}
+            <Link to="/terms" className="text-cyan-400 hover:underline">
+              Terms & Policies
+            </Link>
+          </p>
+          </div>
         </form>
 
        {loginUi?<p className="text-center text-gray-400 text-sm mt-6">

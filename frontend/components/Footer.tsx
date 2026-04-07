@@ -1,6 +1,5 @@
-import React from 'react';
+import { Link } from 'react-router-dom';
 import { TrendingUp, Twitter, Linkedin, Instagram } from 'lucide-react';
-
 const Footer: React.FC = () => {
   return (
     <footer className="bg-black border-t border-white/5 pt-32 pb-16">
@@ -43,17 +42,22 @@ const Footer: React.FC = () => {
           <div>
             <h4 className="font-bold text-white text-xs uppercase tracking-widest mb-6">Legal</h4>
             <ul className="space-y-4 text-xs font-bold uppercase tracking-widest text-slate-500">
-              <li><a href="#" className="hover:text-white transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Terms of Service</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Risk Disclosure</a></li>
+              <li><Link to="/privacy" className="hover:text-white transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-white transition-colors">Terms of Service</Link></li>
+              <li><Link to="/risk" className="hover:text-white transition-colors">Risk Disclosure</Link></li>
             </ul>
           </div>
         </div>
         
         <div className="border-t border-white/5 pt-12 flex flex-col md:flex-row justify-between items-center gap-8">
-            <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] text-center md:text-left">
-                © {new Date().getFullYear()} CimessInvest Inc. <br className="md:hidden" /> All rights reserved.
-            </p>
+            <div className="flex items-center gap-6">
+                <p className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.2em] text-center md:text-left">
+                    © {new Date().getFullYear()} CimessInvest Inc. <br className="md:hidden" /> All rights reserved.
+                </p>
+                <Link to="/consent" className="text-slate-500 hover:text-white text-[10px] font-bold uppercase tracking-[0.2em] transition-colors border-l border-white/10 pl-6 h-4 flex items-center">
+                    Consent Preferences
+                </Link>
+            </div>
             <div className="flex gap-6">
                 <a href="#" className="text-slate-500 hover:text-white transition-colors"><Twitter className="w-5 h-5" strokeWidth={1.5} /></a>
                 <a href="#" className="text-slate-500 hover:text-white transition-colors"><Linkedin className="w-5 h-5" strokeWidth={1.5} /></a>
