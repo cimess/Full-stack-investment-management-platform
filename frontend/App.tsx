@@ -2,6 +2,7 @@ import React, { Suspense, lazy, useEffect } from 'react';
 import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import {ErrorBoundary} from 'react-error-boundary';
 
 // 1. Critical component that needs to load immediately
 import ProtectedRoute from './components/protectedRoute';
@@ -19,6 +20,8 @@ const ConditionPage = lazy(() => import('./pages/terms/conditionPage'));
 const PrivacyPage = lazy(() => import('./pages/terms/privacyPage'));
 const RiskPage = lazy(() => import('./pages/terms/riskPage'));
 const ConsentPreferencesPage = lazy(() => import('./pages/terms/consent-preference'));
+const ErrorPage = lazy(() => import('./pages/errorPages/errorPage'));
+
 // 3. A simple loading fallback to show while the chunk is downloading
 const PageLoader = () => (
   <div className="flex items-center justify-center min-h-screen">
@@ -38,10 +41,16 @@ const PageLoader = () => (
 
   return null;
 }
+const Bomb = ():any => {
+  throw new Error("💥 Error Boundary Test Success!");
+
+};
 
 const App = () => {
   return (
     <>
+    < ErrorBoundary fallback={<ErrorPage errorPage={true} />}>
+ 
       <ToastContainer 
         position="top-center"
         autoClose={3000}
@@ -113,9 +122,11 @@ const App = () => {
         <ClientDashboard />
       </ProtectedRoute>
         } />
+        <Route path="*" element={<ErrorPage errorPage={false} />} />
       </Routes>
       </Suspense>
     </Router>
+    </ErrorBoundary>
     </>
   );
 };

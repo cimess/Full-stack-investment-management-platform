@@ -359,15 +359,15 @@ const passwordFeedback = () => {
     {showLoader && <Loader message={redirectMessage} />}
     {!showLoader && <><Header/><div className="min-h-screen overflow-y-auto flex items-center justify-center py-20 bg-black">
       <div
-        className={`relative w-[95%] sm:w-[85%] md:w-[70%] lg:w-[45%] rounded-[2.5rem] p-8 sm:p-12 premium-card transition-all duration-500
+        className={`relative w-[92%] sm:w-[85%] md:w-[70%] lg:w-[45%] rounded-3xl p-6 sm:p-12 premium-card transition-all duration-500
         ${shake ? "animate-shake" : ""}`}
       >
         {/* Badge */}
         <div
           onMouseEnter={() => setHoverBadge(true)}
           onMouseLeave={() => setHoverBadge(false)}
-          className={`absolute -top-10 left-1/2 -translate-x-1/2 w-20 h-20 rounded-2xl
-          flex items-center justify-center text-white text-3xl shadow-2xl border border-white/10
+          className={`absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-2xl
+          flex items-center justify-center text-white text-2xl shadow-2xl border border-white/10
           transition-all duration-500
           ${redirectSuccess
             ? "bg-emerald-500 shadow-emerald-500/20"
@@ -385,23 +385,23 @@ const passwordFeedback = () => {
           />
         </div>
 
-        <h1 className="text-center text-white text-3xl font-bold mb-3 tracking-tighter">
+        <h1 className="text-center text-white text-2xl sm:text-3xl font-bold mb-2 tracking-tighter">
           {loginUi ? "Welcome back" : "Create your account"}
         </h1>
 
-        <p className="text-center text-slate-500 text-sm mb-10 font-medium">
+        <p className="text-center text-slate-500 text-xs sm:text-sm mb-8 font-medium">
           { message }
         </p>
 
         {/* Google Button */}
-        <div className="flex justify-center mb-8">
+        <div className="flex justify-center mb-6">
           <button
             type="button"
-            className="flex items-center justify-center gap-3 w-full py-4 rounded-xl bg-white text-black font-bold border border-white hover:bg-slate-100 transition-all active:scale-[0.98]"
+            className="flex items-center justify-center gap-3 w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-slate-100 transition-all active:scale-[0.98]"
             onClick={() => (window.location.href = "/api/auth/google")}
           >
             <SiGoogle size={18} />
-            <span>Continue with Google</span>
+            <span className="text-sm">Continue with Google</span>
           </button>
         </div>
 
@@ -542,7 +542,7 @@ const passwordFeedback = () => {
           {/* Button */}
           <button
             disabled={loginPending||loginSuccess||registerPending||registerSuccess}
-            className={`w-full py-4 rounded-xl font-bold tracking-tight transition-all active:scale-[0.98] disabled:opacity-50
+            className={`w-full py-3.5 rounded-xl font-bold tracking-tight transition-all active:scale-[0.98] disabled:opacity-50
             ${
               success
                 ? "bg-emerald-500 text-white"
@@ -559,9 +559,9 @@ const passwordFeedback = () => {
               : loginUi ? "Sign in" : "Create account"}
 
           </button>
-          <div className="flex items-center justify-center mt-6 gap-2">
+          <div className="flex items-center justify-center mt-4 gap-2">
             <input type="checkbox" className="accent-black" checked={termsAccepted} onChange={(e) => setTermsAccepted(e.target.checked)} />
-          <p className="text-center text-gray-400 text-sm mt-0">
+          <p className="text-center text-gray-400 text-xs sm:text-sm mt-0">
             By signing up, you agree to our{" "}
             <Link to="/terms" className="text-cyan-400 hover:underline">
               Terms & Policies
@@ -570,12 +570,12 @@ const passwordFeedback = () => {
           </div>
         </form>
 
-       {loginUi?<p className="text-center text-gray-400 text-sm mt-6">
+       {loginUi?<p className="text-center text-gray-400 text-xs sm:text-sm mt-6">
           Don’t have an account?
           <a href="/signup" className="text-cyan-400 ml-1 hover:underline">
             Sign up
           </a>
-        </p>:<p className="text-center text-gray-400 text-sm mt-6">
+        </p>:<p className="text-center text-gray-400 text-xs sm:text-sm mt-6">
           Already have an account?
           <a href="/login" className="text-cyan-400 ml-1 hover:underline">
             Login

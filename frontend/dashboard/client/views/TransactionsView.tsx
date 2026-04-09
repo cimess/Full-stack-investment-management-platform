@@ -32,8 +32,8 @@ const TransactionsView: React.FC = () => {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-white font-bold text-2xl">Transaction History</h2>
-        <p className="text-slate-500 text-sm">Review your past trades and pending requests</p>
+        <h2 className="text-white font-bold text-xl lg:text-2xl">Transaction History</h2>
+        <p className="text-slate-500 text-xs lg:text-sm">Review your past trades and pending requests</p>
       </div>
 
       <div className="glass-panel rounded-2xl border border-white/5 overflow-hidden">
@@ -53,15 +53,15 @@ const TransactionsView: React.FC = () => {
                 const date = new Date(act.createdAt).toLocaleDateString();
 
                 return (
-                  <div key={act.id} className="p-4 space-y-4">
+                  <div key={act.id} className="p-3.5 space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-3">
                         <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} border border-white/5`}>
                           {isBuy ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownRight className="w-5 h-5" />}
                         </div>
                         <div>
-                          <p className="text-white font-bold">{act.type} {act.stock.symbol}</p>
-                          <p className="text-slate-500 text-[10px] uppercase tracking-wider">{act.stock.company}</p>
+                          <p className="text-white font-bold text-sm tracking-tight">{act.type} {act.stock.symbol}</p>
+                          <p className="text-slate-500 text-[9px] uppercase tracking-wider font-bold">{act.stock.company}</p>
                         </div>
                       </div>
                       <div className="text-right">

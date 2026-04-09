@@ -31,9 +31,11 @@ interface TopBarProps {
   userAvatar?: string;
   onToggleSidebar?: () => void;
   handleLogout?: () => void;
+  role?:"CLIENT"|"MANAGER"|"ADMIN"
+  managerSlot?:number
 }
 
-const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout}) => {
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout,role,managerSlot}) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
 
@@ -44,10 +46,10 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
   const notifications = (notificationsResponse as any)?.data?.notifications || [];
   const unread = (notificationsResponse as any)?.data?.unreadCount || 0;
 
-  const { data } = getUserDashboard();
+  const { data } = role==="CLIENT"&&getUserDashboard()
 const investments = data?.data?.investments || [];
 const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
-
+const insertValue=role==="MANAGER"?managerSlot:portfolioValue;
 
   const handleReadMsg = (id: string) => {
     // If it's already a bulk mark-as-read API, run it for all when clicked anywhere unread
@@ -65,7 +67,7 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
   };
 
   return (
-    <header className="flex items-center justify-between px-3 md:px-8 py-3 border-b border-white/[0.05] bg-black/80 backdrop-blur-md sticky top-0 z-20">
+    <header className="flex items-center justify-between px-3 md:px-8 py-2 md:py-3 border-b border-white/[0.05] bg-black/80 backdrop-blur-md sticky top-0 z-20">
       <div className="flex items-center gap-4">
         {/* Mobile Menu Toggle */}
         <button
@@ -85,13 +87,13 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
       </div>
 
 
-      {typeof portfolioValue === 'number' && (
+      {role && typeof insertValue === 'number' && (
         <div className="flex flex-col items-center justify-center text-center">
           <h2 className="hidden sm:block text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-0.5">
-            Total Portfolio
+            {role==="MANAGER"?"Total Manager Slots":"Total Portfolio"}
           </h2>
-          <p className="text-base md:text-lg font-bold text-white tracking-tighter font-mono">
-            ${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role==="CLIENT"?"topbar-portfolio-value":role==="MANAGER"?"topbar-manager-slots":role==="ADMIN"?"topbar-admin-slots":null}>
+            {role==="MANAGER"?managerSlot:"$" + insertValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
           </p>
         </div>
       )}
@@ -113,6 +115,7 @@ const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.qu
           <button
             onClick={() => { setShowNotifs(!showNotifs); setShowProfile(false); }}
             className="relative p-2 rounded-xl text-slate-400 hover:text-white hover:bg-white/5 transition-all"
+            data-tour="topbar-notifications"
           >
             <Bell className="w-4 h-4" strokeWidth={1.5} />
             {unread > 0 && (

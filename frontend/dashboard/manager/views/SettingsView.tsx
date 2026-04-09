@@ -160,10 +160,10 @@ const SettingsView: React.FC = () => {
                 <Bell className="w-5 h-5 text-amber-400" />
                 <span className="text-white text-sm font-medium">Trade Notifications</span>
              </div>
-             <button className='relative w-8 h-4 bg-white/10 rounded-full ' onClick={handleTradeNotificationState}>
+             <div className='relative w-8 h-4 bg-white/10 rounded-full ' onClick={handleTradeNotificationState}>
              <Switch state={tradeNotification}
              />
-             </button>
+             </div>
           </div>
         </div>
       </div>

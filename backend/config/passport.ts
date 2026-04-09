@@ -9,6 +9,7 @@ import https from "https";
 dotenv.config();
 
 const strategy = new GoogleStrategy(
+  
   {
     clientID: process.env.GOOGLE_CLIENT_ID!,
     clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
@@ -103,7 +104,8 @@ const strategy = new GoogleStrategy(
 // Inject custom HTTPS Agent with 60s timeout to resolve ETIMEDOUT on slow networks
 (strategy as any)._oauth2.setAgent(new https.Agent({ 
   keepAlive: true, 
-  timeout: 60000 
+  timeout: 60000,
+  family: 4 // Force IPv4 to prevent IPv6 blackhole timeouts
 }));
 
 export default passport.use(strategy);

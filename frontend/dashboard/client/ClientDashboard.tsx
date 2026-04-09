@@ -16,15 +16,26 @@ import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { SiGoogle } from 'react-icons/si';
-
+import { useState } from 'react';
+import AppTour from '../../components/ui/AppTour';
 const ClientDashboard: React.FC = () => {
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isWelcomeToastShown, setIsWelcomeToastShown] = React.useState(false);
   const navigate = useNavigate();
+  const [runTour,setRunTour]=useState(false)
 
 
+  useEffect(() => {
+  const done = localStorage.getItem("tour_done");
+  if (!done) setRunTour(true);
+}, []);
+
+const handleFinish = () => {
+  localStorage.setItem("tour_done", "true");
+  setRunTour(false);
+};
   const handleLogout = () => {
     performLogout();
     queryClient.clear();
@@ -33,6 +44,7 @@ const ClientDashboard: React.FC = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
+ 
     useEffect(()=>{
    toast.success("Welcome to CimessInvestment Management Platform .", {
         position:"top-center",
@@ -49,6 +61,13 @@ const ClientDashboard: React.FC = () => {
 
   return (
     <div className="flex h-screen bg-black overflow-hidden">
+      <AppTour
+        run={runTour}
+        onFinish={handleFinish}
+        role="CLIENT"
+        mobileOpen={isMobileMenuOpen}
+        setMobileOpen={setIsMobileMenuOpen}
+      />
       <DashboardSidebar 
         role="client" 
         userName={firstName || "Investor"} 
@@ -63,6 +82,7 @@ const ClientDashboard: React.FC = () => {
           userName={firstName || "Investor"} 
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
+          role="CLIENT"
         />
            {/* Google Verify Banner - shown when user is NOT verified */}
                  {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center gap-2 text-sm text-amber-400 md:text-base mt-2 underline">

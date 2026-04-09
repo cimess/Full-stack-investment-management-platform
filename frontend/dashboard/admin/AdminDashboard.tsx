@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import {
   Users,
@@ -7,7 +7,7 @@ import {
 } from 'lucide-react';
 import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
-
+import AppTour from '../../components/ui/AppTour';
 // Views
 import Overview from './views/Overview';
 import UsersView from './views/UsersView';
@@ -25,7 +25,18 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
+  const [runTour,setRunTour]=useState(false)
 
+
+  useEffect(() => {
+  const done = localStorage.getItem("tour_done");
+  if (!done) setRunTour(true);
+}, []);
+
+const handleFinish = () => {
+  localStorage.setItem("tour_done", "true");
+  setRunTour(false);
+};
   const handleLogout = () => {
     performLogout();
     queryClient.clear();
@@ -36,11 +47,15 @@ const AdminDashboard: React.FC = () => {
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
 
-
-
-
   return (
     <div className="flex h-screen bg-black overflow-hidden">
+      <AppTour
+        run={runTour}
+        onFinish={handleFinish}
+        role="ADMIN"
+        mobileOpen={isMobileMenuOpen}
+        setMobileOpen={setIsMobileMenuOpen}
+      />
       <DashboardSidebar 
         role={"admin"} 
         userName={firstName || "Admin"} 

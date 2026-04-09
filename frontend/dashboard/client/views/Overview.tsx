@@ -132,11 +132,11 @@ const ClientOverview: React.FC = () => {
 
   return (
     <div className="space-y-4 lg:space-y-6">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4">
         <StatCard
           title="Portfolio Value"
           value={`$${portfolioValue.toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
-          icon={<DollarSign className="w-5 h-5 text-emerald-400" />}
+          icon={<DollarSign className="w-4 h-4 text-emerald-400" />}
           iconBg="bg-emerald-500/10"
         />
         <StatCard
@@ -144,19 +144,19 @@ const ClientOverview: React.FC = () => {
           value={`${totalProfit >= 0 ? '+' : ''}$${Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
           change={`${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(2)}%`}
           changeType={totalProfit >= 0 ? "up" : "down"}
-          icon={<TrendingUp className="w-5 h-5 text-blue-400" />}
+          icon={<TrendingUp className="w-4 h-4 text-blue-400" />}
           iconBg="bg-blue-500/10"
         />
         <StatCard
           title="Active Positions"
           value={activePositions}
-          icon={<Briefcase className="w-5 h-5 text-purple-400" />}
+          icon={<Briefcase className="w-4 h-4 text-purple-400" />}
           iconBg="bg-purple-500/10"
         />
         <StatCard
           title="Risk Level"
           value="Moderate"
-          icon={<TrendingUp className="w-5 h-5 text-amber-400" />}
+          icon={<TrendingUp className="w-4 h-4 text-amber-400" />}
           iconBg="bg-amber-500/10"
           subtitle="Based on holdings"
         />
@@ -164,10 +164,10 @@ const ClientOverview: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 glass-panel rounded-2xl p-4 lg:p-6 border border-white/5">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4 lg:mb-6">
             <div>
-              <h2 className="text-white font-bold text-base lg:text-lg tracking-tight">Portfolio Performance</h2>
-              <p className="text-slate-500 text-[10px] sm:text-xs uppercase tracking-widest font-bold mt-1">Last 7 Days</p>
+              <h2 className="text-white font-bold text-sm lg:text-lg tracking-tight">Portfolio Performance</h2>
+              <p className="text-slate-500 text-[9px] sm:text-xs uppercase tracking-widest font-bold mt-0.5">Last 7 Days</p>
             </div>
           </div>
           <div className="relative">
@@ -180,8 +180,8 @@ const ClientOverview: React.FC = () => {
         </div>
  
         <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-white/5 space-y-4 lg:space-y-6">
-          <h2 className="text-white font-bold text-base lg:text-lg">Quick Actions</h2>
-          <div className="grid grid-cols-2 gap-3">
+          <h2 className="text-white font-bold text-sm lg:text-lg">Quick Actions</h2>
+        <div className="grid grid-cols-2 gap-3">
             {[{name:'Market',nav:"/dashboard/client/market" }, {name: 'Portfolio', nav:"/dashboard/client/portfolio" },
              {name: 'Transactions', nav:"/dashboard/client/transactions" },
              {name: 'Manager', nav:"/dashboard/client/manager" }].map((item) => (

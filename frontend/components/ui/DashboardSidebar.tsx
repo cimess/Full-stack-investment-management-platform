@@ -26,34 +26,35 @@ interface NavItem {
   label: string;
   icon: React.ReactNode;
   path: string;
+  dataTour?: string;
 }
 
 const clientNav: NavItem[] = [
-  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client' },
-  { label: 'Portfolio', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/client/portfolio' },
-  { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/client/transactions' },
-  { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/client/market' },
-  { label: 'My Manager', icon: <UserCheck className="w-5 h-5" />, path: '/dashboard/client/manager' },
-  { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/client/settings' },
+  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client', dataTour: 'sidebar-overview' },
+  { label: 'Portfolio', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/client/portfolio', dataTour: 'sidebar-portfolio' },
+  { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/client/transactions', dataTour: 'sidebar-transactions' },
+  { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/client/market', dataTour: 'sidebar-market' },
+  { label: 'My Manager', icon: <UserCheck className="w-5 h-5" />, path: '/dashboard/client/manager', dataTour: 'sidebar-manager' },
+  { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/client/settings', dataTour: 'sidebar-settings' },
 ];
 
 const managerNav: NavItem[] = [
-  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager' },
-  { label: 'My Clients', icon: <Users className="w-5 h-5" />, path: '/dashboard/manager/clients' },
-  { label: 'Requests', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/manager/requests' },
-  { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/manager/analytics' },
-  { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/settings' },
+  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager', dataTour: 'sidebar-overview' },
+  { label: 'My Clients', icon: <Users className="w-5 h-5" />, path: '/dashboard/manager/clients', dataTour: 'sidebar-clients' },
+  { label: 'Requests', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/manager/requests', dataTour: 'sidebar-requests' },
+  { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/manager/analytics', dataTour: 'sidebar-analytics' },
+  { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/settings', dataTour: 'sidebar-settings' },
 ];
 
 const adminNav: NavItem[] = [
-  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/admin' },
-  { label: 'Users', icon: <Users className="w-5 h-5" />, path: '/dashboard/admin/users' },
-  { label: 'Managers', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/admin/managers' },
-  { label: 'Portfolios', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/admin/portfolios' },
-  { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/admin/transactions' },
-  { label: 'Trade Requests', icon: <FileText className="w-5 h-5" />, path: '/dashboard/admin/trade-requests' },
-  { label: 'Stocks', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/admin/stocks' },
-  { label: 'Security', icon: <ShieldCheck className="w-5 h-5" />, path: '/dashboard/admin/security' },
+  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/admin', dataTour: 'sidebar-overview' },
+  { label: 'Users', icon: <Users className="w-5 h-5" />, path: '/dashboard/admin/users', dataTour: 'sidebar-users' },
+  { label: 'Managers', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/admin/managers', dataTour: 'sidebar-managers' },
+  { label: 'Portfolios', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/admin/portfolios', dataTour: 'sidebar-portfolios' },
+  { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/admin/transactions', dataTour: 'sidebar-transactions' },
+  { label: 'Trade Requests', icon: <FileText className="w-5 h-5" />, path: '/dashboard/admin/trade-requests', dataTour: 'sidebar-trade-requests' },
+  { label: 'Stocks', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/admin/stocks', dataTour: 'sidebar-stocks' },
+  { label: 'Security', icon: <ShieldCheck className="w-5 h-5" />, path: '/dashboard/admin/security', dataTour: 'sidebar-security' },
 ];
 
 const navByRole: Record<UserRole, NavItem[]> = {
@@ -98,7 +99,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
   const handlePrefetch = (path: string) => {
     // Determine which query to prefetch based on path
     if (path.includes('/market')) {
-      queryClient.prefetchQuery({ queryKey: ["marketQuotes"], queryFn: getMarketQuotes });
+      queryClient.prefetchQuery({ queryKey: ["marketQuotes"], queryFn: () => getMarketQuotes(1) });
     } else if (path.includes('/transactions')) {
       queryClient.prefetchQuery({ queryKey: ["userDashboard"], queryFn: getClientAll });
     } else if (path === '/dashboard/client' || path === '/dashboard/manager' || path === '/dashboard/admin') {
@@ -124,6 +125,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
       )}
 
       <aside
+        data-tour="sidebar"
         className={`fixed inset-y-0 left-0 z-50 flex flex-col h-screen bg-black border-r border-white/5 transition-all duration-300 transform
         ${mobileOpen ? 'translate-x-0 w-64' : '-translate-x-full w-64'}
         lg:relative lg:translate-x-0 ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
@@ -173,6 +175,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
           return (
             <button
               key={item.path}
+              data-tour={item.dataTour}
               onClick={() => handleNavClick(item.path)}
               onMouseEnter={() => handlePrefetch(item.path)}
               className={`w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 group ${

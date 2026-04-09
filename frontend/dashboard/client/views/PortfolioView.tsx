@@ -398,9 +398,9 @@ const PortfolioView: React.FC = () => {
         ) : (
           <>
             {/* Mobile Card View */}
-            <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden glass-panel">
+            <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden glass-panel rounded-2xl">
               {holdings.map((h: any) => (
-                <div key={h.id} className="p-4 space-y-4 border-b border-white/10 rounded-xl mb-3 ">
+                <div key={h.id} className="p-3.5 space-y-3">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center">
