@@ -290,7 +290,8 @@ if(loginSuccess||registerSuccess){
       return;
     }
 
-    if(role==="CLIENT"||role==="MANAGER"){
+    if(role!=="CLIENT"&&role!=="MANAGER"){
+      console.log(role)
       setMessage("Please select a role!");
       toast.error("Please select a role!",{
         position: "top-center",

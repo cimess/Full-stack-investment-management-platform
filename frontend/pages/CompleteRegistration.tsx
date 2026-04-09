@@ -17,7 +17,7 @@ export default function CompleteRegistration() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [shake, setShake] = useState(false);
-  const [role, setRole] = useState<"CLIENT" | "MANAGER">("CLIENT");
+  const [role, setRole] = useState<"CLIENT" | "MANAGER"|"">("");
   const [showRoleDropdown, setShowRoleDropdown] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
@@ -58,6 +58,13 @@ export default function CompleteRegistration() {
 
     if (!isPassword(password)) {
       toast.error("Password must contain at least one lowercase, one uppercase, one number, and one special character");
+      setShake(true);
+      setTimeout(() => setShake(false), 500);
+      return;
+    }
+
+    if (!role || role !== "MANAGER" && role !== "CLIENT")  {
+      toast.error("Please select a role");
       setShake(true);
       setTimeout(() => setShake(false), 500);
       return;
@@ -159,7 +166,7 @@ export default function CompleteRegistration() {
                   >
                     <User className="text-gray-400 shrink-0" size={18} />
                     <span className="flex-grow text-sm lg:text-base font-medium text-gray-400">
-                      {role === "CLIENT" ? "Client" : "Manager"}
+                      {role === "CLIENT" ? "Client" :role === "MANAGER" ? "Manager" : "Please Select Role"}
                     </span>
                     <ChevronDown 
                       className={`text-gray-400 transition-transform duration-300 ${showRoleDropdown ? 'rotate-180 text-cyan-400' : ''}`} 

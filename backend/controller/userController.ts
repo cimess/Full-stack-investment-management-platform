@@ -70,6 +70,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
             await tx.manager.create({
               data:{
                 manager_id:userId,
+                manager_slot: 10,
                 approval_code:approval_code,
               }
             })

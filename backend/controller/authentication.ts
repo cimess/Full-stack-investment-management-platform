@@ -167,6 +167,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           await tx.manager.create({
             data: {
               manager_id: user.id,
+              manager_slot: 10,
               approval_code: approval_code,
             }
           })
