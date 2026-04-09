@@ -261,7 +261,7 @@ const joyrideOptions = {
   primaryColor: '#ffffff', // High contrast white for main actions
   textColor: '#ffffff',
   zIndex: 10000,
-  spotlightRadius: 1,
+  spotlightRadius: 10,
 
   // Behavior & Layout
   showProgress: true,
@@ -359,8 +359,6 @@ export default function AppTour({ role, run, onFinish, mobileOpen, setMobileOpen
     const isStepInSidebar = target.includes('sidebar');
     const isStepInTopBar = target.includes('topbar-') || target.includes('notifications');
     
-    console.log(`[Tour Event] Type: ${type}, Index: ${index}, Sidebar: ${isStepInSidebar}, TopBar: ${isStepInTopBar}, Status: ${status}`);
-
     // Proactive sidebar control on mobile using step:before
     if (isMobile && setMobileOpen && (type === 'step:before' || type === 'tour:start')) {
       const activeStep = type === 'tour:start' ? steps[0] : step;
