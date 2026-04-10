@@ -114,17 +114,18 @@ export const getUserDashboard = () => {
   })
 }
 
-export const useGetMarketQuotes = () => {
-  return useInfiniteQuery({
-    queryKey: ["marketQuotes"],
-    queryFn: ({ pageParam = 1 }) => getMarketQuotes(pageParam),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      // If the last page returned exactly 20 items, we might have more.
-      return lastPage?.data?.length === 20 ? allPages.length + 1 : undefined;
-    }
+// frontend/hooks/useQuery.tsx
+
+
+
+export const useGetMarketQuotes = (enabled: boolean = false, limit: number = 2000) => {
+  return useQuery({
+    queryKey: ["marketQuotes", limit],
+    queryFn: () => getMarketQuotes(1, limit),
+    enabled 
   })
 }
+
 
 export const useGetMarketCategories = () => {
   return useInfiniteQuery({
@@ -132,13 +133,20 @@ export const useGetMarketCategories = () => {
     queryFn: ({ pageParam = 1 }) => getMarketCategories(pageParam),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
-      // If the last page has data, assume there's a next page
-      // In a real app, we'd check if lastPage.data.equity.length < pageSize
-      const hasData = Object.values(lastPage.data).some((arr: any) => arr && arr.length > 0);
-      return hasData ? allPages.length + 1 : undefined;
+      if (!allPages || !Array.isArray(allPages)) return undefined;
+      const pages = Array.isArray(allPages) ? allPages : [];
+      const data = lastPage?.data;
+
+      // FIX: The category API returns an OBJECT, not an array.
+      if (!data || typeof data !== 'object') return undefined;
+
+      // Check if any of the arrays inside the object have data
+      const hasData = Object.values(data).some((arr: any) => Array.isArray(arr) && arr.length > 0);
+      return hasData ? pages.length + 1 : undefined;
     }
   })
 }
+
 
 export const useSearchStock = () => {
   return useMutation({

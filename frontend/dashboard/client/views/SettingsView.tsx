@@ -9,6 +9,8 @@ import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 
 const SettingsView: React.FC = () => {
+
+
   const queryClient = useQueryClient();
   const { data: meData } = useGetMe();
   const user = meData?.data;

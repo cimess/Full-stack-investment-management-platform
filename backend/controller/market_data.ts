@@ -1,6 +1,5 @@
 import type { Request, Response, NextFunction ,RequestHandler} from "express";
 import createError from "http-errors";
-import { trace } from "@opentelemetry/api";
 import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails, getHistoricalData } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
@@ -153,13 +152,6 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
       if (cachedData) {
         const allStocks = JSON.parse(cachedData);
         if (Array.isArray(allStocks) && allStocks.length > 0) {
-          const span = trace.getActiveSpan();
-          span?.setAttributes({
-            "app.cache_hit": true,
-            "market.page": page,
-            "market.limit": limit,
-            "market.total_cached": allStocks.length
-          });
           logger.info(`[Market] Serving ${limit} stocks from Global Cache (Page: ${page})`);
           
           // Slice the pre-computed array for pagination
@@ -172,7 +164,6 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
           });
         }
       }
-      trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
     } catch (cacheErr) {
       logger.warn(`[Market] Cache lookup failed: ${cacheErr}`);
     }

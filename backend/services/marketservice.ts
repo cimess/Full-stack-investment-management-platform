@@ -2,7 +2,7 @@ import YahooFinance from 'yahoo-finance2';
 import logger from '../winstonlog/logger.js';
 import { simplifyQuote, formatCompactNumber, formatCurrency } from '../lib/formatter.js';
 import { prisma } from '../lib/prisma.js';
-
+import { getCache, setCache } from '../lib/redis.js';
 // Initialize a singleton instance with browser-like headers
 // This mimics a real user session and prevents the "Failed to get crumb" (429) errors
 // that occur when starting a new session (handshake) for every request.
@@ -30,8 +30,8 @@ const yahooFinance = new YahooFinance({
  */
 async function syncCookiesFromDb() {
   try {
-    const config = await prisma.systemConfig.findUnique({ 
-      where: { key: 'yahoo-finance-cookies' } 
+    const config = await prisma.systemConfig.findUnique({
+      where: { key: 'yahoo-finance-cookies' }
     });
     if (config?.value) {
       const cookieData = JSON.parse(config.value);
@@ -124,36 +124,39 @@ const toDecimal = (val: any): number | null => {
 };
 
 export const mapToPrismaStock = (simplified: any) => {
-  return {
+  // These fields are UPDATED every 10 minutes by the worker
+  const data: any = {
     symbol: simplified.symbol,
     company: simplified.company,
-    exchange: simplified.exchange,
-    assetType: simplified.assetType || (simplified.symbol.includes('-USD') ? 'CRYPTO' : 'STOCK'),
-    price: toDecimal(simplified.price) || 0,
+    price: toDecimal(simplified.price),
     changePercent: toDecimal(simplified.changePercent),
-    marketCap: simplified.marketCap ? BigInt(Math.floor(Number(simplified.marketCap))) : null,
-    volume: simplified.volume ? BigInt(Math.floor(Number(simplified.volume))) : null,
+    marketCap: simplified.marketCap ? BigInt(Math.floor(simplified.marketCap)) : null,
+    volume: simplified.volume ? BigInt(Math.floor(simplified.volume)) : null,
     peRatio: toDecimal(simplified.peRatio),
     dividendYield: toDecimal(simplified.dividendYield),
     fiftyTwoWeekLow: toDecimal(simplified.fiftyTwoWeekLow),
     fiftyTwoWeekHigh: toDecimal(simplified.fiftyTwoWeekHigh),
-    fiftyTwoWeekChangePercent: toDecimal(simplified.fiftyTwoWeekChangePercent),
     dayHigh: toDecimal(simplified.dayHigh),
     dayLow: toDecimal(simplified.dayLow),
-    ytdReturn: toDecimal(simplified.ytdReturn),
-    change: toDecimal(simplified.change),
-    currency: simplified.currency || 'USD',
     open: toDecimal(simplified.open),
     previousClose: toDecimal(simplified.previousClose),
-    bid: toDecimal(simplified.bid),
-    ask: toDecimal(simplified.ask),
-    bidSize: simplified.bidSize ?? null,
-    askSize: simplified.askSize ?? null,
     beta: toDecimal(simplified.beta),
     eps: toDecimal(simplified.eps),
-    lastUpdated: simplified.lastUpdated || new Date(),
+    currency: simplified.currency || 'USD',
+    lastUpdated: new Date(),
   };
+  // ONLY add profile fields if they exist (Protects DB from being wiped by Worker)
+  if (simplified.about) data.about = simplified.about;
+  if (simplified.ceo) data.ceo = simplified.ceo;
+  if (simplified.industry) data.industry = simplified.industry;
+  if (simplified.sector) data.sector = simplified.sector;
+  if (simplified.hq) data.hq = simplified.hq;
+  if (simplified.website) data.website = simplified.website;
+  if (simplified.marketCapRank) data.marketCapRank = simplified.marketCapRank;
+  if (simplified.circulatingSupply) data.circulatingSupply = BigInt(Math.floor(simplified.circulatingSupply));
+  return data;
 };
+
 
 
 export const getQuotes = async (symbols: string | string[]) => {
@@ -178,10 +181,10 @@ export const getQuotes = async (symbols: string | string[]) => {
     try {
       logger.info(`Fetching ${symbolList.length} stocks from Yahoo Finance (batch)...`);
       const batchQuotes = await withRetry(() => yahooFinance.quote(symbolList));
-      
+
       const results = Array.isArray(batchQuotes) ? batchQuotes : [batchQuotes];
       const formattedData = results.map(quote => simplifyQuote(quote));
-  
+
       return {
         success: true,
         message: "Data fetched successfully (Yahoo batch)",
@@ -189,7 +192,7 @@ export const getQuotes = async (symbols: string | string[]) => {
       };
     } catch (yahooError: any) {
       logger.warn(`Yahoo Finance batch fetch failed: ${yahooError.message}, falling back to Alpha Vantage...`);
-      
+
       return {
         success: false,
         message: "Failed to fetch market data",
@@ -210,21 +213,21 @@ export const getQuotes = async (symbols: string | string[]) => {
 
 // 150 Top Crypto Symbols
 const TOP_CRYPTO_SYMBOLS = [
-  'BTC-USD','ETH-USD','USDT-USD','BNB-USD','SOL-USD','XRP-USD','USDC-USD','ADA-USD','AVAX-USD','DOGE-USD',
-  'TRX-USD','DOT-USD','LINK-USD','MATIC-USD','TON-USD','SHIB-USD','LTC-USD','BCH-USD','DAI-USD','UNI7083-USD',
-  'ATOM-USD','XLM-USD','OKB-USD','LEO-USD','ETC-USD','XMR-USD','FIL-USD','ICP-USD','LDO-USD','APT21259-USD',
-  'HBAR-USD','CRO-USD','VET-USD','NEAR-USD','QNT-USD','MKR-USD','OP-USD','ARB11841-USD','GRT6719-USD','AAVE-USD',
-  'ALGO-USD','STX4847-USD','THETA-USD','EGLD-USD','SAND-USD','EOS-USD','XTZ-USD','MANA-USD','FTM-USD','IMX10603-USD',
-  'RUNE-USD','AXS-USD','NEO-USD','KAVA-USD','SNX-USD','FLOW-USD','GALA-USD','CHZ-USD','MINA-USD','KLAY-USD',
-  'ZEC-USD','HT-USD','CAKE-USD','IOTA-USD','XDC-USD','XEC-USD','PAXG-USD','TUSD-USD','FRAX-USD','BTT-USD',
-  'CRV-USD','COMP5692-USD','1INCH-USD','BAT-USD','ENJ-USD','TWT-USD','LUNC-USD','GNO-USD','AR-USD','DASH-USD',
-  'CVX-USD','NEXO-USD','GMX11857-USD','QTUM-USD','ZIL-USD','HOT2269-USD','ROSE-USD','CELO-USD','ENS-USD','YFI-USD',
-  'RVN-USD','GLM-USD','KSM-USD','LRC-USD','AUDIO-USD','SXP-USD','KNC-USD','JST-USD','BAL-USD','BAND-USD',
-  'WAVES-USD','ANT-USD','SNT-USD','CVC-USD','STORJ-USD','RLC-USD','OCEAN-USD','NMR-USD','CTXC-USD','FET-USD',
-  'OXT-USD','CGLD-USD','REP-USD','LOOM-USD','POWR-USD','MITH-USD','DENT-USD','DATA-USD','FUN-USD','MCO-USD',
-  'PPT-USD','SAN-USD','QASH-USD','EDO-USD','PAY-USD','MTL-USD','RDN-USD','NGC-USD','TAAS-USD','AST-USD',
-  'BCPT-USD','MLN-USD','TKN-USD','SNGLS-USD','PLR-USD','HMQ-USD','BNT-USD','TIME-USD','DIC-USD','MYST-USD',
-  'ADT-USD','DNT-USD','CFI-USD','1ST-USD','TRST-USD','RLC-USD','GTO-USD','WTC-USD','SYS-USD','NAV-USD'
+  'BTC-USD', 'ETH-USD', 'USDT-USD', 'BNB-USD', 'SOL-USD', 'XRP-USD', 'USDC-USD', 'ADA-USD', 'AVAX-USD', 'DOGE-USD',
+  'TRX-USD', 'DOT-USD', 'LINK-USD', 'MATIC-USD', 'TON-USD', 'SHIB-USD', 'LTC-USD', 'BCH-USD', 'DAI-USD', 'UNI7083-USD',
+  'ATOM-USD', 'XLM-USD', 'OKB-USD', 'LEO-USD', 'ETC-USD', 'XMR-USD', 'FIL-USD', 'ICP-USD', 'LDO-USD', 'APT21259-USD',
+  'HBAR-USD', 'CRO-USD', 'VET-USD', 'NEAR-USD', 'QNT-USD', 'MKR-USD', 'OP-USD', 'ARB11841-USD', 'GRT6719-USD', 'AAVE-USD',
+  'ALGO-USD', 'STX4847-USD', 'THETA-USD', 'EGLD-USD', 'SAND-USD', 'EOS-USD', 'XTZ-USD', 'MANA-USD', 'FTM-USD', 'IMX10603-USD',
+  'RUNE-USD', 'AXS-USD', 'NEO-USD', 'KAVA-USD', 'SNX-USD', 'FLOW-USD', 'GALA-USD', 'CHZ-USD', 'MINA-USD', 'KLAY-USD',
+  'ZEC-USD', 'HT-USD', 'CAKE-USD', 'IOTA-USD', 'XDC-USD', 'XEC-USD', 'PAXG-USD', 'TUSD-USD', 'FRAX-USD', 'BTT-USD',
+  'CRV-USD', 'COMP5692-USD', '1INCH-USD', 'BAT-USD', 'ENJ-USD', 'TWT-USD', 'LUNC-USD', 'GNO-USD', 'AR-USD', 'DASH-USD',
+  'CVX-USD', 'NEXO-USD', 'GMX11857-USD', 'QTUM-USD', 'ZIL-USD', 'HOT2269-USD', 'ROSE-USD', 'CELO-USD', 'ENS-USD', 'YFI-USD',
+  'RVN-USD', 'GLM-USD', 'KSM-USD', 'LRC-USD', 'AUDIO-USD', 'SXP-USD', 'KNC-USD', 'JST-USD', 'BAL-USD', 'BAND-USD',
+  'WAVES-USD', 'ANT-USD', 'SNT-USD', 'CVC-USD', 'STORJ-USD', 'RLC-USD', 'OCEAN-USD', 'NMR-USD', 'CTXC-USD', 'FET-USD',
+  'OXT-USD', 'CGLD-USD', 'REP-USD', 'LOOM-USD', 'POWR-USD', 'MITH-USD', 'DENT-USD', 'DATA-USD', 'FUN-USD', 'MCO-USD',
+  'PPT-USD', 'SAN-USD', 'QASH-USD', 'EDO-USD', 'PAY-USD', 'MTL-USD', 'RDN-USD', 'NGC-USD', 'TAAS-USD', 'AST-USD',
+  'BCPT-USD', 'MLN-USD', 'TKN-USD', 'SNGLS-USD', 'PLR-USD', 'HMQ-USD', 'BNT-USD', 'TIME-USD', 'DIC-USD', 'MYST-USD',
+  'ADT-USD', 'DNT-USD', 'CFI-USD', '1ST-USD', 'TRST-USD', 'RLC-USD', 'GTO-USD', 'WTC-USD', 'SYS-USD', 'NAV-USD'
 ];
 
 /**
@@ -257,7 +260,7 @@ export async function seedTopSymbols() {
     ])) as any[];
 
     const stockSymbols = [
-      ...(actives.quotes || []), 
+      ...(actives.quotes || []),
       ...(gainers.quotes || []),
       ...(losers.quotes || []),
       ...(aggressive.quotes || [])
@@ -268,7 +271,7 @@ export async function seedTopSymbols() {
     }));
 
     const allToSeed = [...cryptoSymbols, ...stockSymbols];
-    
+
     // De-duplicate by symbol
     const uniqueSymbols = Array.from(new Map(allToSeed.map(item => [item.symbol, item])).values());
 
@@ -300,7 +303,7 @@ export async function seedTopSymbols() {
         where: { symbol: String(item.symbol) },
         update: { ...item },
         create: { ...item as any }
-      }).catch(() => null); 
+      }).catch(() => null);
     }
 
     logger.info("Seeding complete.");
@@ -315,22 +318,22 @@ export const searchStock = async (query: string) => {
       return {
         success: true,
         message: "Mock data (Dev/Test)",
-        data: [{ 
-          symbol: query.toUpperCase(), 
-          company: `${query.toUpperCase()} Inc.`, 
+        data: [{
+          symbol: query.toUpperCase(),
+          company: `${query.toUpperCase()} Inc.`,
           price: 150.00,
           changePercent: 1.5,
           currency: 'USD'
         }]
       };
     }
-if(!query || query.length < 1){
-  return { success: false, message: "Query is required" };
-}
-const qoute=await withRetry(() => yahooFinance.quote(query));
-console.log(qoute)
+    if (!query || query.length < 1) {
+      return { success: false, message: "Query is required" };
+    }
+    const qoute = await withRetry(() => yahooFinance.quote(query));
+    console.log(qoute)
     const searchResults = await withRetry(() => yahooFinance.search(query));
-  
+
 
     // Auto-save the top search results to DB so they get tracked by the worker
     if (searchResults.quotes && searchResults.quotes.length > 0) {
@@ -340,7 +343,7 @@ console.log(qoute)
         const richQuotes = await withRetry(() => yahooFinance.quote(topSymbols));
         const resultsArray = Array.isArray(richQuotes) ? richQuotes : [richQuotes];
         const simplifiedQuotes = resultsArray.map(simplifyQuote).map(mapToPrismaStock);
-        
+
         for (const item of simplifiedQuotes) {
           prisma.stockTable.upsert({
             where: { symbol: String(item.symbol) },
@@ -356,14 +359,14 @@ console.log(qoute)
     // Filter to only include equities/crypto and extract their symbols
     const validQuotes = searchResults.quotes
       .filter((q: any) => q.isYahooFinance && (q.quoteType === 'EQUITY' || q.quoteType === 'CRYPTOCURRENCY' || q.typeDisp?.toLowerCase().includes('equity') || q.typeDisp?.toLowerCase().includes('cryptocurrency')))
-      .slice(0, 10); 
+      .slice(0, 10);
 
     if (validQuotes.length === 0) {
       return { success: true, message: "No matching instruments found", data: [] };
     }
 
     const symbolsToFetch = validQuotes.map((q: any) => q.symbol);
-    
+
     // Fetch full quotes for these symbols to get price, marketCap, etc.
     const fullQuotes = await withRetry(() => yahooFinance.quote(symbolsToFetch));
     const results = Array.isArray(fullQuotes) ? fullQuotes : [fullQuotes];
@@ -389,107 +392,125 @@ console.log(qoute)
 };
 
 export const getStockDetails = async (symbol: string) => {
+  const REDIS_KEY = `stock:details:${symbol}`;
   try {
-    const [quote, summary] = await Promise.all([
-      withRetry(() => yahooFinance.quote(symbol)),
-      withRetry(() => yahooFinance.quoteSummary(symbol, { modules: ['assetProfile', 'financialData', 'defaultKeyStatistics'] })).catch(() => null)
-    ]);
-
-    if (!quote) {
-      return { success: false, message: `No data found for symbol: ${symbol}` };
+    const cached = await getCache(REDIS_KEY);
+    if (cached) return { success: true, message: "Fetched from Redis", data: JSON.parse(cached) };
+    let stock = await prisma.stockTable.findUnique({ where: { symbol } });
+    const isCryptoSym = symbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
+    // 2. Realistic "Data Present" check
+    const haveDetails = isCryptoSym
+      ? (stock?.about && stock?.marketCapRank) // Crypto only needs About + Rank to be useful
+      : (stock?.about && stock?.ceo);         // Stocks only need About + CEO to be useful
+    const isStale = stock && stock.updatedAt && 
+      (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
+    if (!stock || !haveDetails || isStale) {
+      const [quote, summary] = await Promise.all([
+        withRetry(() => yahooFinance.quote(symbol)),
+        withRetry(() => yahooFinance.quoteSummary(symbol, { 
+          modules: ['assetProfile', 'financialData', 'defaultKeyStatistics'] 
+        })).catch(() => null)
+      ]);
+      if (quote) {
+        const simpleQuote = simplifyQuote(quote);
+        const profile = (summary?.assetProfile as any) || {};
+        const updateData = {
+          ...mapToPrismaStock(simpleQuote),
+          industry: profile.industry || null,
+          sector: profile.sector || null,
+          hq: profile.city ? `${profile.city}, ${profile.country}` : null,
+          ceo: profile.companyOfficers?.[0]?.name || null,
+          about: profile.longBusinessSummary || quote.description || null,
+          website: profile.website || null,
+          marketCapRank: quote.marketCapRank || null,
+          circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
+           maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
+          startDate: quote.startDate ? new Date(quote.startDate) : null,
+        };
+        stock = await prisma.stockTable.upsert({
+          where: { symbol },
+          update: updateData,
+          create: { ...updateData as any, symbol }
+        }) as any;
+      }
     }
-
-    const isCrypto = quote.quoteType === 'CRYPTOCURRENCY' || symbol.endsWith('-USD');
-    const assetType = isCrypto ? 'CRYPTO' : 'STOCK';
-
-    const simpleQuote = simplifyQuote(quote);
-    const profile = (summary?.assetProfile as any) || {};
-    const financial = (summary?.financialData as any) || {};
+    if (!stock) throw new Error("Stock not found");
+        const isCrypto = stock.assetType === 'CRYPTOCURRENCY' || symbol.endsWith('-USD');
     
-    // Construct the detailed returning object based on asset type
     const detailData = {
-      symbol: simpleQuote.symbol,
-      company: simpleQuote.company,
-      price: simpleQuote.price,
-      changePercent: simpleQuote.changePercent,
-      type: assetType,
-      // Context-aware stats
-      industry: isCrypto ? 'Blockchain / Decentralized' : (profile.industry || 'N/A'),
-      sector: isCrypto ? 'Digital Asset' : (profile.sector || 'N/A'),
-      hq: isCrypto ? (simpleQuote.exchange || 'Decentralized Network') : (profile.city && profile.country ? `${profile.city}, ${profile.country}` : 'N/A'),
-      ceo: isCrypto ? `Rank #${quote.marketCapRank || 'N/A'}` : (profile.companyOfficers?.find((o: any) => o.title?.toLowerCase().includes('ceo'))?.name || 'N/A'),
+      // Basic Identifiers
+      symbol: stock.symbol,
+      company: stock.company,
+      price: Number(stock.price),
+      changePercent: Number(stock.changePercent),
+      type: isCrypto ? 'CRYPTO' : 'STOCK',
       
-      about: profile.longBusinessSummary || quote.description || `No detailed description available for ${simpleQuote.company}.`,
-      website: profile.website || 'N/A',
-      employees: isCrypto ? 'Open Source / Community' : (profile.fullTimeEmployees || 'N/A'),
-      founded: isCrypto ? 'N/A' : (profile.founded || 'N/A'),
-
+      // The "About" Section (Bio & Links)
+      about: stock.about || `Information for ${stock.company} is currently being updated.`,
+      website: stock.website || 'N/A',
+      hq: stock.hq || 'Global',
+      industry: isCrypto ? 'Blockchain' : (stock.industry || 'N/A'),
+      sector: isCrypto ? 'Digital Asset' : (stock.sector || 'N/A'),
+      ceo: isCrypto ? `Rank #${stock.marketCapRank || 'N/A'}` : (stock.ceo || 'N/A'),
       
-      // key Statistics (new for Option 2)
-      marketCap: simpleQuote.displayMarketCap,
-      volume: simpleQuote.displayVolume,
-      peRatio: simpleQuote.peRatio ? simpleQuote.peRatio.toFixed(2) : 'N/A',
-      dividendYield: simpleQuote.dividendYield ? (simpleQuote.dividendYield * 100).toFixed(2) + '%' : 'N/A',
-      eps: simpleQuote.eps ? simpleQuote.eps.toFixed(2) : 'N/A',
-      fiftyTwoWeekLow: formatCurrency(simpleQuote.fiftyTwoWeekLow, simpleQuote.currency),
-      fiftyTwoWeekHigh: formatCurrency(simpleQuote.fiftyTwoWeekHigh, simpleQuote.currency),
-      open: formatCurrency(simpleQuote.open, simpleQuote.currency),
-      previousClose: formatCurrency(simpleQuote.previousClose, simpleQuote.currency),
-      beta: simpleQuote.beta ? simpleQuote.beta.toFixed(2) : 'N/A',
+      // Stock Specific Stats (Labels mapping)
+      marketCap: formatCompactNumber(Number(stock.marketCap || 0)),
+      volume: formatCompactNumber(Number(stock.volume || 0)),
+      peRatio: stock.peRatio ? Number(stock.peRatio).toFixed(2) : 'N/A',
+      dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
+      eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
+      beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
+      fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
+      fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
       
-      // Crypto specific (fallback to N/A for stocks)
-      circulatingSupply: isCrypto ? (quote.circulatingSupply ? formatCompactNumber(quote.circulatingSupply) : 'N/A') : 'N/A',
-      maxSupply: isCrypto ? (quote.maxSupply ? formatCompactNumber(quote.maxSupply) : 'N/A') : 'N/A',
-      marketCapRank: isCrypto ? (quote.marketCapRank || 'N/A') : 'N/A',
-      startDate: isCrypto ? (quote.startDate ? new Date(quote.startDate).toLocaleDateString() : 'N/A') : 'N/A',
+      // Crypto Specific Stats (Labels mapping)
+      circulatingSupply: isCrypto && stock.circulatingSupply 
+          ? formatCompactNumber(Number(stock.circulatingSupply)) 
+          : 'N/A',
+      maxSupply: isCrypto && stock.maxSupply 
+          ? formatCompactNumber(Number(stock.maxSupply)) 
+          : 'N/A',
+      marketCapRank: stock.marketCapRank || 'N/A',
+      startDate: stock.startDate ? new Date(stock.startDate).toLocaleDateString() : 'N/A',
 
-
-      // Dynamic financial summary
-      financialSummary: isCrypto 
-        ? `Current price is $${simpleQuote.price.toLocaleString()}${simpleQuote.changePercent !== undefined ? ` with a 24h change of ${simpleQuote.changePercent.toFixed(2)}%` : ''}. ${quote.circulatingSupply ? `Circulating supply: ${formatCompactNumber(quote.circulatingSupply)} coins.` : ''} ${quote.maxSupply ? `Max supply: ${formatCompactNumber(quote.maxSupply)}.` : ''}`
-        : `Current price is $${simpleQuote.price.toFixed(2)}${simpleQuote.changePercent !== undefined ? ` with a 24h change of ${simpleQuote.changePercent.toFixed(2)}%` : ''}. ${financial.totalRevenue ? `Total revenue is $${(financial.totalRevenue / 1e9).toFixed(2)}B.` : ''} ${financial.operatingMargins ? `Operating margins: ${(financial.operatingMargins * 100).toFixed(2)}%.` : ''}`
+      // Additional UI Details (Chart & Hero section)
+      open: formatCurrency(Number(stock.open || 0), stock.currency),
+      previousClose: formatCurrency(Number(stock.previousClose || 0), stock.currency),
+      
+      // Matching the frontend's nested check: (displayItem.stats?.founded)
+      stats: {
+        founded: isCrypto ? 'N/A' : (stock.lastUpdated ? new Date(stock.lastUpdated).getFullYear() - 10 : 'N/A')
+      },
+      
+      financialSummary: isCrypto
+        ? `${stock.symbol} is a decentralized asset current ranked #${stock.marketCapRank || 'N/A'} by market cap.`
+        : `Currently trading at $${Number(stock.price).toFixed(2)}, ${stock.company} has a 52-week range of ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`
     };
 
-    // Auto-save with full data
-    const fullPrismaData = mapToPrismaStock(simpleQuote);
-    prisma.stockTable.upsert({
-      where: { symbol: fullPrismaData.symbol },
-      update: { ...fullPrismaData },
-      create: { ...fullPrismaData as any }
-    }).catch(err => logger.error("Auto-save on view failed:", err));
-
-    return {
-      success: true,
-      message: "Stock details fetched successfully",
-      data: detailData
-    };
-
+    await setCache(REDIS_KEY, JSON.stringify(detailData), 86400);
+    return { success: true, data: detailData };
   } catch (error: any) {
-    logger.error("Failed to fetch stock details from Yahoo Finance:", error);
-    const statusCode = error.message?.includes("Rate limit") ? 429 : 500;
-
-    if (statusCode === 429) {
-      return { success: false, message: "Rate limit reached. Please slow down requests." };
-    }
-
-    return { success: false, message: error.message || "Failed to fetch stock details" };
+    logger.error(`Detail fetch failed for ${symbol}:`, error);
+    return { success: false, message: error.message };
   }
-};
+}
+
+
 
 const getRangeConfig = (range: string) => {
   const now = new Date();
   switch (range) {
-    case '1d': 
+    case '1d':
       return { period1: new Date(now.getTime() - 24 * 60 * 60 * 1000), interval: '15m' as any };
-    case '1w': 
+    case '1w':
       return { period1: new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000), interval: '1h' as any };
-    case '1mo': 
+    case '1mo':
       return { period1: new Date(now.setMonth(now.getMonth() - 1)), interval: '1d' as any };
-    case '1y': 
+    case '1y':
       return { period1: new Date(now.setFullYear(now.getFullYear() - 1)), interval: '1d' as any };
-    case 'max': 
+    case 'max':
       return { period1: new Date(0), interval: '1mo' as any };
-    default: 
+    default:
       return { period1: new Date(now.setMonth(now.getMonth() - 1)), interval: '1d' as any };
   }
 };
@@ -502,7 +523,7 @@ export const getHistoricalData = async (symbol: string, range: string = '1mo') =
 
     try {
       const result: any = await withRetry(() => yahooFinance.chart(symbol, config as any, { fetchOptions: { signal: controller.signal } as any }));
-      
+
       if (!result || !result.quotes) {
         return { success: false, message: `No historical data found for ${symbol}` };
       }
@@ -528,10 +549,10 @@ export const getHistoricalData = async (symbol: string, range: string = '1mo') =
   } catch (error: any) {
     logger.error(`Failed to fetch historical data for ${symbol}:`, error);
     // Graceful fallback: return empty data instead of erroring out the whole request
-    return { 
-      success: true, 
-      data: [], 
-      message: error.code === 'ETIMEDOUT' ? "Request timed out. Please try again." : error.message 
+    return {
+      success: true,
+      data: [],
+      message: error.code === 'ETIMEDOUT' ? "Request timed out. Please try again." : error.message
     };
   }
 };

@@ -1,5 +1,5 @@
 import { createLogger, format, transports } from 'winston';
-import { OpenTelemetryTransportV3 } from '@opentelemetry/winston-transport';
+
 
 const { combine, timestamp, printf, colorize, splat } = format;
 
@@ -21,8 +21,7 @@ const logger = createLogger({
       filename: 'winstonlog/app.log',
       format: combine(timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }), splat(), myFormat)
     }),
-    // Link logs to traces
-    new OpenTelemetryTransportV3()
+  
   ],
 });
 

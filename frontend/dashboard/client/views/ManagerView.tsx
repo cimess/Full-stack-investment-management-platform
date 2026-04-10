@@ -5,6 +5,8 @@ import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
 
 const ManagerView: React.FC = () => {
+
+
   const queryClient = useQueryClient();
   const { data, isLoading: isDashboardLoading } = getUserDashboard();
   const { data: meData, isLoading: isMeLoading } = useGetMe();

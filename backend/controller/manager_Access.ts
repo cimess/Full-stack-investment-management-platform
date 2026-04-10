@@ -26,10 +26,10 @@ export const getManagerAccess = async (req: Request, res: Response, next: NextFu
     const result = await prisma.$transaction(async (tx) => {
       // 1. Check user eligibility
       const user = await tx.user.findUnique({
-        where: { id: userId, roles: Roles.USER}
+        where: { id: userId, roles: Roles.USER }
       });
-      if(!user?.isVerified){
-        throw createError(401,"User not verified");
+      if (!user?.isVerified) {
+        throw createError(401, "User not verified");
       }
 
       if (!user) {
@@ -38,7 +38,7 @@ export const getManagerAccess = async (req: Request, res: Response, next: NextFu
       if (user.restricted) {
         throw createError(401, "User is currently restricted");
       }
-logger.info(access_key)
+      logger.info(access_key)
       // 2. Verify approval code
       const manager_accessKey = await tx.approved_Manager.findUnique({
         where: {
@@ -47,12 +47,12 @@ logger.info(access_key)
           approval_code: access_key
         }
       });
-logger.info(manager_accessKey)
+      logger.info(manager_accessKey)
       if (!manager_accessKey) {
         throw createError(409, "Invalid manager approval code");
       }
-      if(manager_accessKey.is_used){
-        throw createError(409,"already used manager approval code");
+      if (manager_accessKey.is_used) {
+        throw createError(409, "already used manager approval code");
       }
 
       // 3. Clear existing tokens (force fresh session)
@@ -117,9 +117,9 @@ logger.info(manager_accessKey)
       maxAge: 7 * 24 * 60 * 60 * 1000
     });
 
-    return res.status(200).json({ 
-      success: true, 
-      message: "Manager access granted successfully. Session updated." 
+    return res.status(200).json({
+      success: true,
+      message: "Manager access granted successfully. Session updated."
     });
 
   } catch (err: any) {
@@ -128,13 +128,13 @@ logger.info(manager_accessKey)
   }
 }
 
-export const handleRequest=async(req:Request,res:Response,next:NextFunction)=>{
+export const handleRequest = async (req: Request, res: Response, next: NextFunction) => {
 
-  const {requestId,status,response,price}=req.body;
-  const managerId=req.user?.id;
-if (!managerId){
-  return next(createError(401,"unauthorized"));
-}
+  const { requestId, status, response, price } = req.body;
+  const managerId = req.user?.id;
+  if (!managerId) {
+    return next(createError(401, "unauthorized"));
+  }
 
   if (status === "APPROVED" || status === "SUCCESS") {
     if (!requestId || !response || price === undefined) {
@@ -150,17 +150,17 @@ if (!managerId){
 
   try {
 
-await prisma.$transaction(async(tx)=>{
-const request=await tx.trade_request.findUnique({
-  where:{
-    id:requestId,
-    status:"PENDING"
-  },include:{
-    portfolio:true,
-    stock: true
-  }
-})
-console.log(request,"request")
+    await prisma.$transaction(async (tx) => {
+      const request = await tx.trade_request.findUnique({
+        where: {
+          id: requestId,
+          status: "PENDING"
+        }, include: {
+          portfolio: true,
+          stock: true
+        }
+      })
+      console.log(request, "request")
       if (!request) {
         throw createError(401, "invalid request id");
       }
@@ -206,91 +206,91 @@ console.log(request,"request")
           }
         }
       });
-console.log(existing_investment,"existing investment")
+      console.log(existing_investment, "existing investment")
 
-if(request.type==='BUY'){
-if(existing_investment){
-              const oldQty = existing_investment.quantity;
-            const newQty = request.quantity;
-            const oldAvgPrice = Number(existing_investment.avgPrice);
-            const newPrice = Number(price);
+      if (request.type === 'BUY') {
+        if (existing_investment) {
+          const oldQty = existing_investment.quantity;
+          const newQty = request.quantity;
+          const oldAvgPrice = Number(existing_investment.avgPrice);
+          const newPrice = Number(price);
 
-            const newAvgPrice = (oldQty * oldAvgPrice + newQty * newPrice) / (oldQty + newQty);
+          const newAvgPrice = (oldQty * oldAvgPrice + newQty * newPrice) / (oldQty + newQty);
 
-            await tx.investment.update({
-              where: { id: existing_investment.id },
-              data: {
-                quantity: oldQty + newQty,
-                avgPrice: newAvgPrice
-              }
-            });
-          } else {
-            await tx.investment.create({
-              data: {
-                portfolio_id: request.portfolio_id,
-                stock_id: request.stock_id,
-                quantity: request.quantity,
-                avgPrice: numericPrice
-              }
-            });
-          }
-        } else if (request.type === 'SELL') {
-          if (!existing_investment || existing_investment.quantity < request.quantity) {
-            throw createError(400, "Insufficient stock quantity to sell");
-          }
-
-          const remaining_stock = existing_investment.quantity - request.quantity;
-
-          if (remaining_stock <= 0) {
-            await tx.investment.delete({
-              where: { id: existing_investment.id }
-            });
-          } else {
-            await tx.investment.update({
-              where: { id: existing_investment.id },
-              data: { quantity: remaining_stock }
-            });
-          }
+          await tx.investment.update({
+            where: { id: existing_investment.id },
+            data: {
+              quantity: oldQty + newQty,
+              avgPrice: newAvgPrice
+            }
+          });
+        } else {
+          await tx.investment.create({
+            data: {
+              portfolio_id: request.portfolio_id,
+              stock_id: request.stock_id,
+              quantity: request.quantity,
+              avgPrice: numericPrice
+            }
+          });
+        }
+      } else if (request.type === 'SELL') {
+        if (!existing_investment || existing_investment.quantity < request.quantity) {
+          throw createError(400, "Insufficient stock quantity to sell");
         }
 
-        await tx.transaction.create({
-          data: {
-            portfolio_id: request.portfolio_id,
-            stock_id: request.stock_id,
-            quantity: request.quantity,
-            price: numericPrice,
-            type: request.type
-          }
-        });
+        const remaining_stock = existing_investment.quantity - request.quantity;
 
-        await tx.trade_request.update({
-          where: { id: requestId },
-          data: { 
-            status: "SUCCESS", 
-            response,
-            approved_by: manager.id 
-          }
-        });
+        if (remaining_stock <= 0) {
+          await tx.investment.delete({
+            where: { id: existing_investment.id }
+          });
+        } else {
+          await tx.investment.update({
+            where: { id: existing_investment.id },
+            data: { quantity: remaining_stock }
+          });
+        }
+      }
 
-        await tx.notification.create({
-          data: {
-            user_id: client.id,
-            title: "Trade Request Executed",
-            message: `Your ${request.type} request for ${request.quantity} shares of ${request.stock.symbol} was successful.`,
-            type: "TRADE"
-          }
-        });
-      }, {
-        timeout: 30000
+      await tx.transaction.create({
+        data: {
+          portfolio_id: request.portfolio_id,
+          stock_id: request.stock_id,
+          quantity: request.quantity,
+          price: numericPrice,
+          type: request.type
+        }
       });
 
-      return res.status(200).json({ 
-        success: true, 
-        message: status === "REJECTED" ? "Request rejected successfully" : "Trade executed successfully" 
+      await tx.trade_request.update({
+        where: { id: requestId },
+        data: {
+          status: "SUCCESS",
+          response,
+          approved_by: manager.id
+        }
       });
-  }catch(err:any){
+
+      await tx.notification.create({
+        data: {
+          user_id: client.id,
+          title: "Trade Request Executed",
+          message: `Your ${request.type} request for ${request.quantity} shares of ${request.stock.symbol} was successful.`,
+          type: "TRADE"
+        }
+      });
+    }, {
+      timeout: 30000
+    });
+
+    return res.status(200).json({
+      success: true,
+      message: status === "REJECTED" ? "Request rejected successfully" : "Trade executed successfully"
+    });
+  } catch (err: any) {
     logger.error(err);
-    return next(createError(500,"Internal Server Error"));
+    return next(createError(500, "Internal Server Error"));
   }
 }
 
@@ -306,11 +306,13 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
     if (redisClient) {
       const cached = await redisClient.get(cacheKey);
       if (cached) {
-        trace.getActiveSpan()?.setAttribute("app.cache_hit", true);
+        trace.getActiveSpan()?.setAttribute('cache.hit', true);
+        trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
         return res.status(200).json(JSON.parse(cached));
       }
+      trace.getActiveSpan()?.setAttribute('cache.hit', false);
+      trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
     }
-    trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
 
     // Step 0: Fetch the actual Manager record to get its ID
     const manager = await prisma.manager.findUnique({
@@ -361,7 +363,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
                   status: true,
                   quantity: true,
                   createdAt: true,
-                  stock: { select: { symbol: true ,price:true} },
+                  stock: { select: { symbol: true, price: true } },
                 },
               },
               transaction: {
@@ -407,11 +409,11 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
 
 export const updateManagerProfile = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { 
-      bio, title, specialization, years_experience, success_rate, 
-      contact_email, availability, linkedin_url, aum_managed 
+    const {
+      bio, title, specialization, years_experience, success_rate,
+      contact_email, availability, linkedin_url, aum_managed
     } = req.body;
-    
+
     // Admin or the Manager themselves can update
     const userRole = req.user?.roles;
     const isManager = userRole === 'MANAGER';
@@ -422,7 +424,7 @@ export const updateManagerProfile = async (req: Request, res: Response, next: Ne
     }
 
     if (isManager && targetUserId !== req.user?.id) {
-       return next(createError(403, "You can only update your own profile"));
+      return next(createError(403, "You can only update your own profile"));
     }
 
     // Find the manager record directly associated with this user
@@ -453,8 +455,8 @@ export const updateManagerProfile = async (req: Request, res: Response, next: Ne
 
     // BigInt serialization fix
     const serializedManager = {
-       ...updatedManager,
-       aum_managed: updatedManager.aum_managed ? updatedManager.aum_managed.toString() : null
+      ...updatedManager,
+      aum_managed: updatedManager.aum_managed ? updatedManager.aum_managed.toString() : null
     };
 
     res.status(200).json({ success: true, message: "Profile updated successfully", data: serializedManager });

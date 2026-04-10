@@ -10,7 +10,7 @@ import { sendEmail } from "../workers/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
 import { getCache, setCache } from "../lib/redis.js";
-import { trace } from "@opentelemetry/api";
+
 
 
 
@@ -453,11 +453,9 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
   try {
     const cachedProfile = await getCache(cacheKey);
     if (cachedProfile) {
-      trace.getActiveSpan()?.setAttribute("app.cache_hit", true);
       logger.info(`[Auth] Serving profile from cache for user: ${user_logged_in.id}`);
       return res.json(JSON.parse(cachedProfile));
     }
-    trace.getActiveSpan()?.setAttribute("app.cache_hit", false);
   } catch (err) {
     logger.warn(`[Auth] Redis error in getMe: ${err}`);
   }

@@ -161,9 +161,9 @@ export const refreshMarketData = async () => {
 // ── Scheduler ───────────────────────────────────────────────────
 export const startMarketWorker = () => {
   const INTERVALS = {
-    REGULAR: 10,
-    PRE: 30,
-    POST: 30,
+    REGULAR: 20,
+    PRE: 40,
+    POST: 40,
     CLOSED: 60,
   };
 

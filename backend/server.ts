@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 dotenv.config();
-import { trace } from '@opentelemetry/api';
 import logger from "./winstonlog/logger.js";
 import express from "express";
 import type { Request, Response, NextFunction } from "express";
@@ -16,6 +15,8 @@ import { prisma } from "./lib/prisma.js";
 import passport from "./config/passport.js";
 import { scannerLimiter } from "./middlewear/404Limiter.js";
 import { monitorEventLoopDelay, performance, PerformanceObserver } from "perf_hooks";
+import { trace, SpanStatusCode } from '@opentelemetry/api';
+import crypto from 'crypto';
 
 if (!BigInt.prototype.hasOwnProperty('toJSON')) {
   (BigInt.prototype as any).toJSON = function () {
@@ -30,24 +31,24 @@ app.set("trust proxy", 1);
 // Increase MaxListeners for each response object to handle OTel + multiple custom loggers
 app.use((req: Request, res: Response, next: NextFunction) => {
   res.setMaxListeners(20);
-  
-  // Tag spans as errors if status code is >= 400
-  res.on('finish', () => {
-    if (res.statusCode >= 400) {
-      const span = trace.getActiveSpan();
-      if (span) {
-        span.setAttribute('error', true);
-        span.setAttribute('http.status_code', res.statusCode);
-      }
-    }
-  });
-  
   next();
 });
 
 export { app };
 
 app.use(cookieParser());
+
+// Attaches a unique request ID to every span and response header.
+// When a user reports a bug, they share this ID → you find the trace instantly.
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const requestId = (req.headers['x-request-id'] as string) || crypto.randomUUID();
+  res.setHeader('x-request-id', requestId);
+  trace.getActiveSpan()?.setAttribute('request.id', requestId);
+  next();
+});
+
+
+
 app.use(express.json({ limit: "5mb" }));
 // In production, requests arrive via Netlify reverse proxy (/api/* → this server)
 // so the origin will be the Netlify domain. FRONTEND_URL must be set on Render.
@@ -108,6 +109,19 @@ if (process.env.NODE_ENV === "production") {
 app.use(passport.initialize());
 
 
+// Tags every authenticated request with who made it.
+// Lets you query: "show all errors for USER role" in Honeycomb.
+app.use((req: Request, res: Response, next: NextFunction) => {
+  const span = trace.getActiveSpan();
+  if (span && req.user) {
+    span.setAttribute('user.id', req.user.id);
+    span.setAttribute('user.role', req.user.roles);
+  }
+  next();
+});
+
+
+
 // CPU + Event Loop monitor
 
 // CPU & event loop monitor
@@ -124,10 +138,16 @@ app.use((req, res, next) => {
   res.on("finish", () => {
     const duration = (performance.now() - start).toFixed(2);
     const loopLag = (h.mean / 1e6).toFixed(2);
-    console.log(`[${req.ip}] ${req.method} ${req.originalUrl} → ${res.statusCode} | node_ms: ${duration} | loop_ms: ${loopLag}`);
+    console.log(`[${req.ip}] ${req.method} 
+      ${req.originalUrl} → ${res.statusCode} 
+      | node_ms: ${duration} | loop_ms: ${loopLag}`);
 
-    // update headers if needed before response is sent
-    // actually, cannot do here
+    const span = trace.getActiveSpan();
+    if (span) {
+      span.setAttribute('perf.node_ms', parseFloat(duration));
+      span.setAttribute('perf.event_loop_lag_ms', parseFloat(loopLag));
+      span.setAttribute('http.client_ip', req.ip || '');
+    }
   });
 
   // overwrite headers in a middleware before sending
@@ -161,6 +181,15 @@ const errorHandler: ErrorRequestHandler = (err, req, res, next) => {
   const statusCode = err.statusCode || err.status || 500;
   let message = err.message || "Internal Server Error";
 
+  // Tell Honeycomb this span is an error
+  const span = trace.getActiveSpan();
+  if (span) {
+    span.recordException(err);                          // sends full stack trace
+    span.setStatus({ code: SpanStatusCode.ERROR, message: err.message });
+    span.setAttribute('http.status_code', statusCode);
+    span.setAttribute('error.type', err.name || 'Error');
+  }
+
   if (statusCode === 500) {
     logger.error(`[500 Error] ${err.stack || err.message}`);
     message = process.env.NODE_ENV === "production" ? "Internal Server Error" : err.message;
@@ -184,7 +213,7 @@ if (process.env.NODE_ENV !== "test") {
   try {
     // Run the market worker in both development and production
     // to ensure live data is fetched across all environments.
-    startMarketWorker();
+    process.env.NODE_ENV === "production" ? startMarketWorker() : null;
     startMarketCacheWorker();
 
 

@@ -118,6 +118,7 @@ useEffect(() => {
     transition: Zoom,
   });
 
+  console.log("Login error:", apiErrorMessage);
   setMessage(apiErrorMessage);
   setSuccess(false);
 

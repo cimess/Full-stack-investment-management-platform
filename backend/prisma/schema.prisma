@@ -90,12 +90,24 @@ model StockTable {
   askSize                   Int?
   beta                      Decimal?        @db.Decimal(8, 4)
   eps                       Decimal?        @db.Decimal(10, 4)
-  lastUpdated               DateTime?
-  createdAt                 DateTime        @default(now())
-  updatedAt                 DateTime        @updatedAt
-  investment                Investment[]    @relation("stock")
-  transaction               Transaction[]   @relation("stockTransaction")
-  trade_request             Trade_request[] @relation("trade_request")
+  // for stocks
+  industry      String?
+  sector        String?
+  hq            String?
+  ceo           String?
+  about         String?   @db.Text
+  website       String?
+  // for crypto
+  circulatingSupply  BigInt?
+  maxSupply          BigInt?
+  marketCapRank      Int?
+  startDate          DateTime?
+  lastUpdated        DateTime?
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  investment         Investment[]    @relation("stock")
+  transaction        Transaction[]   @relation("stockTransaction")
+  trade_request      Trade_request[] @relation("trade_request")
 
   @@index([marketCap(sort: Desc)])
   @@index([changePercent(sort: Desc)])

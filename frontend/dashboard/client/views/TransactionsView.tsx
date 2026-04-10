@@ -4,6 +4,7 @@ import { getUserDashboard } from "../../../hooks/useQuery";
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 const TransactionsView: React.FC = () => {
+
   const { data, isLoading, isError } = getUserDashboard();
 
   const parentRef = React.useRef<HTMLDivElement>(null);

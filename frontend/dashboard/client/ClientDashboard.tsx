@@ -1,10 +1,10 @@
 import React from 'react';
-import { Link, Route, Routes } from 'react-router-dom';
+import { Link, Route, Routes ,useLocation} from 'react-router-dom';
 import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
 import { toast,Zoom } from 'react-toastify';
 import { useEffect } from 'react';
-
+``
 // Views
 import Overview from './views/Overview';
 import MarketView from './views/MarketView';
@@ -19,13 +19,21 @@ import { SiGoogle } from 'react-icons/si';
 import { useState } from 'react';
 import AppTour from '../../components/ui/AppTour';
 const ClientDashboard: React.FC = () => {
+
+    const location = useLocation();
+  
+  React.useEffect(() => {
+    console.log("📍 ClientDashboard: Root routing updated", location.pathname);
+  }, [location.pathname]);
+
+  const shown = localStorage.getItem("welcome_toast_shown");
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
-  const [isWelcomeToastShown, setIsWelcomeToastShown] = React.useState(false);
+  const [isWelcomeToastShown, setIsWelcomeToastShown] = React.useState(shown);
   const navigate = useNavigate();
   const [runTour,setRunTour]=useState(false)
-
+ 
 
   useEffect(() => {
   const done = localStorage.getItem("tour_done");
@@ -46,6 +54,8 @@ const handleFinish = () => {
   const firstName = user?.fullname?.split(" ")[0];
  
     useEffect(()=>{
+     
+      if (!shown) {
    toast.success("Welcome to CimessInvestment Management Platform .", {
         position:"top-center",
         autoClose:5000,
@@ -56,6 +66,8 @@ const handleFinish = () => {
         theme:"colored",
         transition:Zoom,
         });
+        localStorage.setItem("welcome_toast_shown", "true");
+      }
     },[!isWelcomeToastShown]
     )
 

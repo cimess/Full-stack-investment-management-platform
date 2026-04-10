@@ -46,10 +46,27 @@ const Bomb = ():any => {
 
 };
 
+
+
 const App = () => {
+
+function ErrorBoundaryWithLocation({ children }: { children: React.ReactNode }) {
+  const location = useLocation();
+  return (
+    <ErrorBoundary 
+      key={location.pathname} // <--- THIS is the magic. URL change = Reset.
+      fallbackRender={({ resetErrorBoundary }) => (
+        <ErrorPage errorPage={true} resetErrorBoundary={resetErrorBoundary} />
+      )}
+    >
+      {children}
+    </ErrorBoundary>
+  );
+}
+
   return (
     <>
-    < ErrorBoundary fallback={<ErrorPage errorPage={true} />}>
+   
  
       <ToastContainer 
         position="top-center"
@@ -67,6 +84,7 @@ const App = () => {
      
       <Router>
         <ScrollToTop />
+         < ErrorBoundaryWithLocation>
      <Suspense fallback={<PageLoader />}>
       <Routes>
         {/* Public Routes */}
@@ -81,7 +99,7 @@ const App = () => {
         <Route path="/cookies" element={<ConsentPreferencesPage />} />
         {/* Client Dashboard */}
 
-        <Route path="/dashboard/client" element={
+        <Route path="/dashboard/client/*" element={
              <ProtectedRoute allowedRoles={['USER']}>
               <ClientDashboard />
              </ProtectedRoute>
@@ -125,8 +143,9 @@ const App = () => {
         <Route path="*" element={<ErrorPage errorPage={false} />} />
       </Routes>
       </Suspense>
+      </ErrorBoundaryWithLocation>
     </Router>
-    </ErrorBoundary>
+  
     </>
   );
 };
