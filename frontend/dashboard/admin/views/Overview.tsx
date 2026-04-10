@@ -37,6 +37,7 @@ const Overview: React.FC = () => {
     platformVolumeData: [], 
     tradeStatusData: [] 
   });
+  const [selectedRange, setSelectedRange] = React.useState('6M');
   const [isCalculating, setIsCalculating] = React.useState(false);
 
   React.useEffect(() => {
@@ -55,11 +56,11 @@ const Overview: React.FC = () => {
 
     worker.postMessage({
       type: 'CALCULATE_ADMIN_ANALYTICS',
-      payload: { transactions, tradeRequests }
+      payload: { transactions, tradeRequests, range: selectedRange }
     });
 
     return () => worker.terminate();
-  }, [transactions, tradeRequests]);
+  }, [transactions, tradeRequests, selectedRange]);
 
   const totalVolume = React.useMemo(() => 
     transactions.reduce((acc: number, tx: any) => acc + Number(tx.price * tx.quantity), 0)
@@ -78,6 +79,13 @@ const Overview: React.FC = () => {
       </div>
     );
   }
+
+  const rangeLabels: Record<string, string> = {
+    '1M': 'Last Month',
+    '6M': 'Last 6 Months',
+    '1Y': 'Last Year',
+    'ALL': 'All Time Traffic'
+  };
 
   return (
     <div className="space-y-6">
@@ -116,8 +124,25 @@ const Overview: React.FC = () => {
               <Loader2 className="w-6 h-6 text-purple-500 animate-spin" />
             </div>
           )}
-          <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
-          <p className="text-slate-500 text-sm mb-5">Total capital moved through the platform</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+            <div>
+              <h2 className="text-white font-bold text-lg mb-1">Platform Trade Volume</h2>
+              <p className="text-slate-500 text-sm">{rangeLabels[selectedRange]}</p>
+            </div>
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 w-fit">
+              {['1M', '6M', '1Y', 'ALL'].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRange(r)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    selectedRange === r ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
           <DashboardChart 
             series={[{ type: 'area', data: platformVolumeData, color: '#8b5cf6', dataKey: 'volume' }]} 
             loading={isCalculating} 

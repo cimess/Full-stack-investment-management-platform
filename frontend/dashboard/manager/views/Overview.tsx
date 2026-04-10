@@ -69,6 +69,7 @@ const ManagerOverview: React.FC = () => {
   , [clients]);
 
   const [analyticsData, setAnalyticsData] = React.useState<{ aumData: any[], requestVolumeData: any[] }>({ aumData: [], requestVolumeData: [] });
+  const [selectedRange, setSelectedRange] = React.useState('6M');
   const [isCalculating, setIsCalculating] = React.useState(false);
 
   React.useEffect(() => {
@@ -87,11 +88,11 @@ const ManagerOverview: React.FC = () => {
 
     worker.postMessage({
       type: 'CALCULATE_MANAGER_ANALYTICS',
-      payload: { clients }
+      payload: { clients, range: selectedRange }
     });
 
     return () => worker.terminate();
-  }, [clients]);
+  }, [clients, selectedRange]);
 
   const { aumData, requestVolumeData } = analyticsData;
 
@@ -103,6 +104,12 @@ const ManagerOverview: React.FC = () => {
     );
   }
 
+  const rangeLabels: Record<string, string> = {
+    '1M': 'Last Month',
+    '6M': 'Last 6 Months',
+    '1Y': 'Last Year',
+    'ALL': 'All Time Trend'
+  };
 
   return (
     <div className="space-y-6">
@@ -174,8 +181,25 @@ const ManagerOverview: React.FC = () => {
               <Loader2 className="w-6 h-6 text-emerald-500 animate-spin" />
             </div>
           )}
-          <h2 className="text-white font-bold text-lg mb-1">AUM Trend</h2>
-          <p className="text-slate-500 text-sm mb-5">Assets under management (6 months)</p>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
+            <div>
+              <h2 className="text-white font-bold text-lg mb-1">AUM Trend</h2>
+              <p className="text-slate-500 text-sm">{rangeLabels[selectedRange]}</p>
+            </div>
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 w-fit">
+              {['1M', '6M', '1Y', 'ALL'].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRange(r)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    selectedRange === r ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+            </div>
+          </div>
           <DashboardChart 
             series={[{ type: 'line', data: aumData, color: '#3b82f6', dataKey: 'aum' }]} 
             loading={isCalculating} 

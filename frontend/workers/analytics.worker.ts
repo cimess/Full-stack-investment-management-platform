@@ -4,16 +4,47 @@ self.onmessage = (e: MessageEvent) => {
   const { type, payload } = e.data;
 
   if (type === 'CALCULATE_CHART_DATA') {
-    const { portfolioValue, transactions } = payload;
-    const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+    const { portfolioValue, transactions, range = '1W' } = payload;
     const result = [];
     const now = new Date();
     
+    let iterations = 7;
+    let stepDays = 1;
+    let formatOptions: Intl.DateTimeFormatOptions = { weekday: 'short' };
+
+    switch (range) {
+      case '1M':
+        iterations = 15;
+        stepDays = 2;
+        formatOptions = { month: 'short', day: 'numeric' };
+        break;
+      case '6M':
+        iterations = 24;
+        stepDays = 7;
+        formatOptions = { month: 'short', day: 'numeric' };
+        break;
+      case '1Y':
+        iterations = 12;
+        stepDays = 30;
+        formatOptions = { month: 'short' };
+        break;
+      case 'ALL':
+        iterations = 20;
+        stepDays = 90; // Approx every quarter
+        formatOptions = { year: '2-digit', month: 'short' };
+        break;
+      default: // 1W
+        iterations = 7;
+        stepDays = 1;
+        break;
+    }
+
     // Performance optimization: compute net change relative to now, backwards
-    for (let i = 6; i >= 0; i--) {
+    for (let i = iterations - 1; i >= 0; i--) {
       const d = new Date();
-      d.setDate(now.getDate() - i);
-      const dayName = days[d.getDay()];
+      d.setDate(now.getDate() - (i * stepDays));
+      
+      const label = d.toLocaleDateString('en-US', formatOptions);
       const dayEnd = new Date(d.setHours(23, 59, 59, 999));
 
       const netChangeSinceThen = transactions
@@ -24,7 +55,7 @@ self.onmessage = (e: MessageEvent) => {
         }, 0);
 
       result.push({
-        name: dayName,
+        name: label,
         value: Math.max(0, portfolioValue - netChangeSinceThen)
       });
     }
@@ -33,18 +64,45 @@ self.onmessage = (e: MessageEvent) => {
   }
 
   if (type === 'CALCULATE_MANAGER_ANALYTICS') {
-    const { clients } = payload;
+    const { clients, range = '6M' } = payload;
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
     
+    let iterations = 6;
+    let stepMonths = 1;
+
+    switch (range) {
+      case '1M':
+        iterations = 4;
+        stepMonths = 0.25; // Weekly for a month
+        break;
+      case '1Y':
+        iterations = 12;
+        stepMonths = 1;
+        break;
+      case 'ALL':
+        iterations = 24;
+        stepMonths = 1;
+        break;
+      default: // 6M
+        iterations = 6;
+        stepMonths = 1;
+        break;
+    }
+
     // AUM Trend
     const aumResult = [];
-    for (let i = 5; i >= 0; i--) {
-      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    for (let i = iterations - 1; i >= 0; i--) {
+      // Use days for 1M to get weekly points, months for others
+      const targetDate = range === '1M' 
+        ? new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000))
+        : new Date(now.getFullYear(), now.getMonth() - Math.floor(i * stepMonths), 1);
+
       const monthLabel = months[targetDate.getMonth()];
+      const yearLabel = targetDate.getFullYear().toString().slice(-2);
       
       const aumAtMonth = clients.reduce((acc: number, client: any) => {
-        if (new Date(client.createdAt) <= new Date(targetDate.getFullYear(), targetDate.getMonth() + 1, 0)) {
+        if (new Date(client.createdAt) <= targetDate) {
            const val = client.portfolio?.investment?.reduce((pAcc: number, inv: any) => {
              return pAcc + (inv.quantity * (inv.stock?.price || inv.avgPrice));
            }, 0) || 0;
@@ -52,7 +110,10 @@ self.onmessage = (e: MessageEvent) => {
         }
         return acc;
       }, 0);
-      aumResult.push({ month: monthLabel, aum: aumAtMonth });
+      aumResult.push({ 
+        month: range === '1M' ? `W${iterations-i}` : `${monthLabel} '${yearLabel}`, 
+        aum: aumAtMonth 
+      });
     }
 
     // Request Volume
@@ -82,24 +143,55 @@ self.onmessage = (e: MessageEvent) => {
   }
 
   if (type === 'CALCULATE_ADMIN_ANALYTICS') {
-    const { transactions, tradeRequests } = payload;
+    const { transactions, tradeRequests, range = '6M' } = payload;
     const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
     const now = new Date();
     
+    let iterations = 6;
+    let stepMonths = 1;
+
+    switch (range) {
+      case '1M':
+        iterations = 4;
+        stepMonths = 0.25;
+        break;
+      case '1Y':
+        iterations = 12;
+        stepMonths = 1;
+        break;
+      case 'ALL':
+        iterations = 24;
+        stepMonths = 1;
+        break;
+      default: // 6M
+        iterations = 6;
+        stepMonths = 1;
+        break;
+    }
+
     // Platform Volume Data
     const volumeResult = [];
-    for (let i = 5; i >= 0; i--) {
-      const targetDate = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    for (let i = iterations - 1; i >= 0; i--) {
+      const targetDate = range === '1M' 
+        ? new Date(now.getTime() - (i * 7 * 24 * 60 * 60 * 1000))
+        : new Date(now.getFullYear(), now.getMonth() - Math.floor(i * stepMonths), 1);
+
       const mLabel = months[targetDate.getMonth()];
+      const yLabel = targetDate.getFullYear().toString().slice(-2);
       
       const volume = transactions.reduce((acc: number, t: any) => {
         const tDate = new Date(t.createdAt);
-        if (tDate.getMonth() === targetDate.getMonth() && tDate.getFullYear() === targetDate.getFullYear()) {
+        // Match logic based on scope
+        const isMatch = range === '1M'
+          ? (tDate.getTime() >= targetDate.getTime() - (7 * 24 * 60 * 60 * 1000) && tDate.getTime() <= targetDate.getTime())
+          : (tDate.getMonth() === targetDate.getMonth() && tDate.getFullYear() === targetDate.getFullYear());
+
+        if (isMatch) {
           return acc + (Number(t.amount) || (Number(t.price) * (Number(t.qty) || Number(t.quantity)) || 0));
         }
         return acc;
       }, 0);
-      volumeResult.push({ month: mLabel, volume });
+      volumeResult.push({ month: range === '1M' ? `W${iterations-i}` : `${mLabel} '${yLabel}`, volume });
     }
 
     // Trade Status Data

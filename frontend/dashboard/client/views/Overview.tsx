@@ -75,6 +75,7 @@ const ClientOverview: React.FC = () => {
   const percentageChange = initialInvestment > 0 ? (totalProfit / initialInvestment) * 100 : 0;
 
   const [chartData, setChartData] = React.useState<any[]>([]);
+  const [selectedRange, setSelectedRange] = React.useState('1W');
   const [isCalculating, setIsCalculating] = React.useState(false);
 
   useEffect(() => {
@@ -93,11 +94,11 @@ const ClientOverview: React.FC = () => {
 
     worker.postMessage({
       type: 'CALCULATE_CHART_DATA',
-      payload: { portfolioValue, transactions }
+      payload: { portfolioValue, transactions, range: selectedRange }
     });
 
     return () => worker.terminate();
-  }, [portfolioValue, transactions, data?.data]);
+  }, [portfolioValue, transactions, data?.data, selectedRange]);
 
   if (isLoading) {
     return (
@@ -130,6 +131,14 @@ const ClientOverview: React.FC = () => {
       </div>
     );
   }
+
+  const rangeLabels: Record<string, string> = {
+    '1W': 'Last 7 Days',
+    '1M': 'Last 30 Days',
+    '6M': 'Last 6 Months',
+    '1Y': 'Last Year',
+    'ALL': 'All Time Performance'
+  };
 
   return (
     <div className="space-y-4 lg:space-y-6">
@@ -165,10 +174,23 @@ const ClientOverview: React.FC = () => {
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 glass-panel rounded-2xl p-4 lg:p-6 border border-white/5">
-          <div className="flex items-center justify-between mb-4 lg:mb-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
             <div>
               <h2 className="text-white font-bold text-sm lg:text-lg tracking-tight">Portfolio Performance</h2>
-              <p className="text-slate-500 text-[9px] sm:text-xs uppercase tracking-widest font-bold mt-0.5">Last 7 Days</p>
+              <p className="text-slate-500 text-[9px] sm:text-xs uppercase tracking-widest font-bold mt-0.5">{rangeLabels[selectedRange]}</p>
+            </div>
+            <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 w-fit">
+              {['1W', '1M', '6M', '1Y', 'ALL'].map((r) => (
+                <button
+                  key={r}
+                  onClick={() => setSelectedRange(r)}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    selectedRange === r ? 'bg-white text-black shadow-lg' : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
             </div>
           </div>
           <div className="relative">
