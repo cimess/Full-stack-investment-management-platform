@@ -29,7 +29,7 @@ const metricExporter = new OTLPMetricExporter({
   url: 'https://api.honeycomb.io/v1/metrics', // Separate endpoint for metrics
   headers: {
     'x-honeycomb-team': process.env.HONEYCOMB_API_KEY || '',
-     'x-honeycomb-dataset': 'backend-metrics' 
+     'x-honeycomb-dataset': process.env.NODE_ENV === 'production' ? 'backend-metrics-prod' : 'backend-metrics-dev' 
   },
   timeoutMillis: 30000,
   compression: CompressionAlgorithm.GZIP
