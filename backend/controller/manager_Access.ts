@@ -5,7 +5,7 @@ import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 import redisClient from "../lib/redis.js";
-import { trace } from "@opentelemetry/api";
+import { trace,context } from "@opentelemetry/api";
 
 
 
@@ -296,6 +296,7 @@ export const handleRequest = async (req: Request, res: Response, next: NextFunct
 
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
   const managerId = req.user?.id;
+  const span=trace.getSpan(context.active());
 
   if (!managerId) {
     return next(createError(401, 'Unauthorized'));
@@ -306,12 +307,12 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
     if (redisClient) {
       const cached = await redisClient.get(cacheKey);
       if (cached) {
-        trace.getActiveSpan()?.setAttribute('cache.hit', true);
-        trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+        span?.setAttribute('cache.hit', true);
+        span?.setAttribute('cache.key', cacheKey);
         return res.status(200).json(JSON.parse(cached));
       }
-      trace.getActiveSpan()?.setAttribute('cache.hit', false);
-      trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', cacheKey);
     }
 
     // Step 0: Fetch the actual Manager record to get its ID

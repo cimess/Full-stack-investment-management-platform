@@ -4,16 +4,20 @@ import logger from '../winstonlog/logger.js';
 let redis: Redis | null = null;
 
 const redisUrl = process.env.REDIS_URL;
+const isLocal = redisUrl?.includes('127.0.0.1') || redisUrl?.includes('localhost');
 
 if (redisUrl) {
+   logger.info(`🌐 Redis Configuration found. Connecting...`) 
   try {
     // ── THE CLOUD-HARDENED TCP CONFIG ──
     // Specifically tuned for Render.com to Upstash.io path
     redis = new Redis(redisUrl, {
-      family: 4,                   // FORCE IPv4 (Solves many cloud-to-cloud handshake issues)
-      tls: {
+      family: 4, 
+      ...(isLocal ? {} : {
+        tls: {
         rejectUnauthorized: false, // Bypass strict cert checks that can fail in internal proxies
       },
+    }),
       connectTimeout: 30000,       // 30 seconds (be extremely patient)
       maxRetriesPerRequest: null,
       enableReadyCheck: false,
@@ -44,6 +48,8 @@ if (redisUrl) {
   } catch (err: any) {
     logger.warn(`Redis Initialization Failure: ${err.message}`);
   }
+}else{
+  logger.error(`❌ CRITICAL: No Redis configuration found! (Checked REDIS_URL and REDIS_ENDPOINT)`);
 }
 
 /**
@@ -51,7 +57,7 @@ if (redisUrl) {
  * Falls back to NULL (standard DB) if Redis is down.
  */
 export const getCache = async (key: string): Promise<string | null> => {
-  if (!redis) return null;
+  if (!redis) {logger.error(`❌ CRITICAL: No Redis configuration found! When getting ${key} (Checked REDIS_URL and REDIS_ENDPOINT)`); return null;}
   try {
     // Using a timeout on the GET itself so app doesn't hang if Redis is struggling
     const result = await Promise.race([
@@ -60,6 +66,7 @@ export const getCache = async (key: string): Promise<string | null> => {
     ]);
     return result;
   } catch (err) {
+    logger.error(`❌ CRITICAL: Error occured when getting ${key}`, err);
     return null;
   }
 };
@@ -68,10 +75,14 @@ export const getCache = async (key: string): Promise<string | null> => {
  * Safely sets a value in Cache.
  */
 export const setCache = async (key: string, value: string, ttlSeconds: number = 300): Promise<void> => {
-  if (!redis) return;
+  if (!redis) {
+    logger.error(`❌ CRITICAL: No Redis configuration found! When setting ${key} (Checked REDIS_URL and REDIS_ENDPOINT)`);
+    return;
+  }
   try {
     await redis.setex(key, ttlSeconds, value);
   } catch (err) {
+    logger.error(`❌ CRITICAL: Error occured when setting ${key}`, err);
     // Fail silently
   }
 };

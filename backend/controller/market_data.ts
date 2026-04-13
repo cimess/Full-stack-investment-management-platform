@@ -4,7 +4,7 @@ import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails, getHistoricalData } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is required
-
+import { trace,context } from "@opentelemetry/api";
 
 
 
@@ -140,6 +140,7 @@ export const postMarketQuotes = async (req: Request, res: Response, next: NextFu
 export const getMarketQuotes = async (req: Request, res: Response, next: NextFunction) => {
   const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
   const CACHE_KEY = "global:market:quotes:all";
+const span=trace.getSpan(context.active()); 
 
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -156,6 +157,8 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
           
           // Slice the pre-computed array for pagination
           const paginatedStocks = allStocks.slice(skip, skip + limit);
+          span?.setAttribute('cache.hit', true);
+          span?.setAttribute('cache.key', CACHE_KEY);
           
           return res.status(200).json({
             success: true,
@@ -165,6 +168,9 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
         }
       }
     } catch (cacheErr) {
+      console.log("cache error",span);
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', CACHE_KEY);
       logger.warn(`[Market] Cache lookup failed: ${cacheErr}`);
     }
 
@@ -263,14 +269,22 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
     const pageSize = 20;
     const skip = (page - 1) * pageSize;
     const cacheKey = `marketCategories:page:${page}`;
+    const span = trace.getSpan(context.active());
 
     // 1. Try to get cached response
     const cachedData = await getCache(cacheKey);
     if (cachedData) {
       logger.info("[Market] Serving categories from Redis cache");
+      span?.setAttribute('cache.hit', true);
+      span?.setAttribute('cache.key', cacheKey);
       return res.status(200).json(JSON.parse(cachedData));
+    }else{
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', cacheKey);
+      logger.error("[Market] Cache miss/empty. Falling back to Database...");
     }
 
+    logger.error("[Market] Cache miss/empty. Falling back to Database... using real db");
     // equity
     const equity = await prisma.stockTable.findMany({
       where: { symbol: { not: { endsWith: '-USD' } } },
@@ -347,7 +361,8 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
         mostActiveCrypto: mostActiveCrypto.map(formatStock),
         cryptoGainers: cryptoGainers.map(formatStock),
         cryptoLosers: cryptoLosers.map(formatStock),
-      }
+      },
+      message:"Data fetched successfully"
     };
 
     // 2. Cache response payload for 5 minutes (300 seconds)

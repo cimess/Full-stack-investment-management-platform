@@ -5,7 +5,7 @@ import logger from "../winstonlog/logger.js";
 import { prisma } from "../lib/prisma.js";
 import type { AuthRequest } from "../middlewear/auth.js";
 import redisClient from "../lib/redis.js";
-import { trace } from "@opentelemetry/api";
+import { trace ,context} from "@opentelemetry/api";
 
 export const add_manager_to_client = async (req: Request, res: Response, next: NextFunction) => {
 
@@ -363,6 +363,7 @@ export const sellStock = async (req: Request, res: Response, next: NextFunction)
 export const getAll = async (req: Request, res: Response, next: NextFunction) => {
 
   const client_id = req.user?.id;
+  const span=trace.getSpan(context.active()); 
 
   if (req.user?.roles !== Roles.USER) {
     return next(createError(401, "only user can get all transactions"));
@@ -377,13 +378,13 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
     if (redisClient) {
       const cached = await redisClient.get(cacheKey);
       if (cached) {
-        trace.getActiveSpan()?.setAttribute('cache.hit', true);
-        trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+        span?.setAttribute('cache.hit', true);
+        span?.setAttribute('cache.key', cacheKey);
 
         return res.status(200).json(JSON.parse(cached));
       }
-      trace.getActiveSpan()?.setAttribute('cache.hit', false);
-      trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', cacheKey);
     }
 
     let portfolio = await prisma.portfolio.findFirst({

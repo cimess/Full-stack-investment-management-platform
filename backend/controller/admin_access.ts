@@ -8,7 +8,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 import redisClient from "../lib/redis.js";
-import { trace } from "@opentelemetry/api";
+import { trace,context } from "@opentelemetry/api";
 
 
 export const managerAccessKey = async (req: Request, res: Response, next: NextFunction) => {
@@ -68,18 +68,18 @@ export const managerAccessKey = async (req: Request, res: Response, next: NextFu
 
 export const getAdminDashboard = async (req: Request, res: Response, next: NextFunction) => {
 
-
+  const span=trace.getSpan(context.active());
   try {
     const cacheKey = "admin_dashboard_cache";
     if (redisClient) {
       const cached = await redisClient.get(cacheKey);
       if (cached) {
-        trace.getActiveSpan()?.setAttribute('cache.hit', true);
-        trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+        span?.setAttribute('cache.hit', true);
+        span?.setAttribute('cache.key', cacheKey);
         return res.status(200).json(JSON.parse(cached));
       }
-      trace.getActiveSpan()?.setAttribute('cache.hit', false);
-      trace.getActiveSpan()?.setAttribute('cache.key', cacheKey);
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', cacheKey);
     }
     const results = await Promise.allSettled([
       prisma.user.findMany({
