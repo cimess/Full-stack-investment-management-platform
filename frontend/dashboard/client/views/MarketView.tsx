@@ -84,7 +84,6 @@ const MarketView: React.FC = () => {
       onSuccess: (res) => {
         setFetchingSymbol(null);
         if (res.success && res.data) {
-          console.log(res)
           const apiData = res.data;
           const detailItem: StockCardProps = {
             label: apiData.company || basicName || symbol,
