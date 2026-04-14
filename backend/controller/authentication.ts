@@ -9,7 +9,7 @@ import crypto from "crypto";
 import { sendEmail } from "../workers/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
-import { getCache, setCache } from "../lib/redis.js";
+import redisClient, { getCache, setCache } from "../lib/redis.js";
 
 
 
@@ -550,6 +550,19 @@ export const logoutUser = async (req: Request, res: Response, next: NextFunction
 
   if (deleteResult.count === 0) {
     return next(createError(403, "This session has been revoked/logged out!"));
+  }
+
+  if (redisClient) {
+    try {
+      await Promise.all([
+        redisClient.del(`user:profile:${userId}`),
+        redisClient.del(`dashboard:${userId}`),
+        redisClient.del(`manager_dashboard:${userId}`)
+      ]);
+      logger.info(`[Auth] Cleared session caches for user: ${userId}`);
+    } catch (err) {
+      logger.warn(`[Auth] Failed to clear caches on logout: ${err}`);
+    }
   }
 
   res.clearCookie("refreshToken");
