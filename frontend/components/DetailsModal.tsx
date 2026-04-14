@@ -192,7 +192,7 @@ const DetailsModal = React.memo(({
                 onClick={() => navigate(targetPath)}
                 className="flex-[2] px-8 py-4 rounded-2xl bg-white text-black font-bold uppercase text-[10px] tracking-widest shadow-xl shadow-white/10 hover:bg-slate-200 transition-all"
               >
-                Join NovaInvest to Trade
+                Join CimessInvest to Trade
               </button>
             </div>
           )}

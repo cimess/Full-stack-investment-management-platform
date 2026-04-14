@@ -58,8 +58,7 @@ function ContactUs() {
                   </div>
                   <div>
                     <p className="text-sm text-gray-400 mb-1">Email Us</p>
-                    <p className="text-white font-medium">support@cimessinvest.com</p>
-                    <p className="text-white font-medium">invest@cimessinvest.com</p>
+                    <p className="text-white font-medium">cimessdev@gmail.com</p>
                   </div>
                 </div>
 
@@ -70,7 +69,7 @@ function ContactUs() {
                   <div>
                     <p className="text-sm text-gray-400 mb-1">Visit Us</p>
                     <p className="text-white font-medium">100 Innovation Drive</p>
-                    <p className="text-white font-medium">Silicon Valley, CA 94025</p>
+                    <p className="text-white font-medium">Lagos Nigeria</p>
                   </div>
                 </div>
 
@@ -78,11 +77,11 @@ function ContactUs() {
                   <div className="p-3 rounded-lg bg-purple-500/10 text-purple-400">
                     <FiPhone className="w-6 h-6" />
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="text-sm text-gray-400 mb-1">Call Us</p>
                     <p className="text-white font-medium">+1 (555) 123-4567</p>
                     <p className="text-gray-500 text-sm">Mon-Fri from 8am to 5pm</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

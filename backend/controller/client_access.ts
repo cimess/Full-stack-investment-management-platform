@@ -66,6 +66,14 @@ export const add_manager_to_client = async (req: Request, res: Response, next: N
     })
 
 
+    if (redisClient) {
+      await redisClient.del(`dashboard:${client_id}`);
+      const managerRecord = await prisma.manager.findUnique({ where: { id: manager_id } });
+      if (managerRecord) {
+        await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
+      }
+    }
+
     res.status(200).json({ success: true, message: "manager added to client successfully" })
   } catch (err: any) {
     logger.error(err);
@@ -143,6 +151,14 @@ export const remove_manager_to_client = async (req: Request, res: Response, next
     }, {
       timeout: 30000
     })
+
+    if (redisClient) {
+      await redisClient.del(`dashboard:${client_id}`);
+      const managerRecord = await prisma.manager.findUnique({ where: { id: manager_id } });
+      if (managerRecord) {
+        await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
+      }
+    }
 
     res.status(200).json({ success: true, message: "manager removed from client successfully" })
   } catch (err: any) {
@@ -263,6 +279,14 @@ export const buyStock = async (req: Request, res: Response, next: NextFunction) 
 
     if (redisClient) {
       await redisClient.del(`dashboard:${client_id}`);
+      // Invalidate manager's dashboard cache so they see the new request immediately
+      const user = await prisma.user.findUnique({ where: { id: client_id }, select: { manager_id: true } });
+      if (user?.manager_id) {
+        const managerRecord = await prisma.manager.findUnique({ where: { id: user.manager_id } });
+        if (managerRecord) {
+          await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
+        }
+      }
     }
 
     res.status(200).json({ success: true, message: "trade request sent successfully" })
@@ -351,6 +375,14 @@ export const sellStock = async (req: Request, res: Response, next: NextFunction)
 
     if (redisClient) {
       await redisClient.del(`dashboard:${client_id}`);
+      // Invalidate manager's dashboard cache so they see the new request immediately
+      const user = await prisma.user.findUnique({ where: { id: client_id }, select: { manager_id: true } });
+      if (user?.manager_id) {
+        const managerRecord = await prisma.manager.findUnique({ where: { id: user.manager_id } });
+        if (managerRecord) {
+          await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
+        }
+      }
     }
 
     res.status(200).json({ success: true, message: "trade request sent successfully" })

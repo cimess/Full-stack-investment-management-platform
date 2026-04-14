@@ -150,7 +150,7 @@ export const handleRequest = async (req: Request, res: Response, next: NextFunct
 
   try {
 
-    await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx) => {
       const request = await tx.trade_request.findUnique({
         where: {
           id: requestId,
@@ -280,9 +280,15 @@ export const handleRequest = async (req: Request, res: Response, next: NextFunct
           type: "TRADE"
         }
       });
+      return client;
     }, {
       timeout: 30000
     });
+
+    if (redisClient && result) {
+      await redisClient.del(`manager_dashboard:${managerId}`);
+      await redisClient.del(`dashboard:${result.id}`);
+    }
 
     return res.status(200).json({
       success: true,

@@ -50,7 +50,7 @@ const GeminiAdvisor: React.FC = () => {
                         <div className="p-2 bg-white/5 rounded-lg border border-white/10">
                             <Sparkles className="w-4 h-4 text-white" strokeWidth={1.5} />
                         </div>
-                        <span className="premium-label">NOVA AI ADVISOR</span>
+                        <span className="premium-label">CimessInvest AI ADVISOR</span>
                     </div>
                     
                     <h2 className="text-4xl md:text-6xl font-bold mb-8 leading-tight tracking-tighter text-white">
@@ -59,7 +59,7 @@ const GeminiAdvisor: React.FC = () => {
                     </h2>
                     
                     <p className="text-slate-400 text-lg mb-8 leading-relaxed">
-                        Navigating the markets can be complex. Nova AI leverages Gemini's advanced models to break down concepts, analyze trends, and provide clarity in seconds.
+                        Navigating the markets can be complex. CimessInvest AI leverages Gemini's advanced models to break down concepts, analyze trends, and provide clarity in seconds.
                     </p>
 
                     <div className="flex flex-wrap gap-2">

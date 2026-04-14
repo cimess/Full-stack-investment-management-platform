@@ -40,7 +40,7 @@ const Header: React.FC = () => {
             <TrendingUp className="text-black w-5 h-5" strokeWidth={2.5} />
           </div>
           <span className="text-xl font-bold tracking-tighter text-white">
-            Nova<span className="text-slate-400">Invest</span>
+            Cimess<span className="text-slate-400">Invest</span>
           </span>
         </div>
 
