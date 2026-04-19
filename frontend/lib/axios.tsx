@@ -53,7 +53,9 @@ api.interceptors.response.use(
           })
           .catch((err) => {
             processQueue(err);
-            window.location.replace("/login?message=session_expired");
+            if (window.location.pathname.startsWith('/dashboard')) {
+              window.location.replace("/login?message=session_expired");
+            }
             reject(err);
           })
           .finally(() => {

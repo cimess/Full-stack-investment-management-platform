@@ -6,6 +6,7 @@ import argon2 from "argon2";
 import { updateSchema } from "../zodschema/registerschemer.js";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
 import crypto from "crypto";
+import redisClient from "../lib/redis.js";
 
 
 export const updateProfile = async (req: Request, res: Response, next: NextFunction) => {
@@ -20,8 +21,8 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     return next(createError(400, result.error.issues[0]?.message as string));
   }
 
-  const { name: fullname, username, email, password,role } = result.data;
-  
+  const { name: fullname, username, email, password, role } = result.data;
+
 
   try {
     // Dynamically build the update object (JSON style patching)
@@ -29,7 +30,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
     if (fullname !== undefined) updateData.fullname = fullname;
     if (username !== undefined) updateData.username = username;
     if (email !== undefined) updateData.email = email;
-    if (role !== undefined) role==="CLIENT"?updateData.roles = "USER":updateData.roles = "MANAGER";
+    if (role !== undefined) role === "CLIENT" ? updateData.roles = "USER" : updateData.roles = "MANAGER";
     if (password !== undefined) {
       updateData.password = await argon2.hash(password);
     }
@@ -52,59 +53,69 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
       }
     });
 
-    if(role==="MANAGER"){
-       const token = req.cookies.refreshToken;
-       if (!token) {
+    if (role === "MANAGER") {
+      const token = req.cookies.refreshToken;
+      if (!token) {
         return next(createError(401, "Unauthorized"));
-       }
-         await prisma.refreshToken.deleteMany({
-    where: {
-      user_id: userId
-    }
-  })
-      // generate approval code
-      const approval_code=crypto.randomUUID();
-
-          const result=await prisma.$transaction(async(tx)=>{
-           
-            await tx.manager.create({
-              data:{
-                manager_id:userId,
-                manager_slot: 10,
-                approval_code:approval_code,
-              }
-            })
-            // 7. Generate NEW tokens with the NEW role
-            const accessToken = generateAccessToken({ id: updatedUser.id, roles: updatedUser.roles });
-            const refreshToken = generateRefreshToken({ id: updatedUser.id, roles: updatedUser.roles });
-      
-            await tx.refreshToken.create({
-              data: {
-                token: refreshToken,
-                user_id: updatedUser.id
-              }
-            });
-      
-            return { accessToken, refreshToken };
-          }, {
-            timeout: 30000
-          });
-      
-          // 8. Set cookies and send response
-          res.cookie("accessToken", result.accessToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 15 * 60 * 1000
-          });
-      
-          res.cookie("refreshToken", result.refreshToken, {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax",
-            maxAge: 7 * 24 * 60 * 60 * 1000
-          });
+      }
+      await prisma.refreshToken.deleteMany({
+        where: {
+          user_id: userId
         }
+      })
+      // generate approval code
+      const approval_code = crypto.randomUUID();
+
+      const result = await prisma.$transaction(async (tx) => {
+
+        await tx.manager.upsert({
+          where: { manager_id: userId },
+          update: {
+            approval_code: approval_code, // Update the code if they retry
+          },
+          create: {
+            manager_id: userId,
+            manager_slot: 10,
+            approval_code: approval_code,
+          }
+        });
+        // 7. Generate NEW tokens with the NEW role
+        const accessToken = generateAccessToken({ id: updatedUser.id, roles: updatedUser.roles });
+        const refreshToken = generateRefreshToken({ id: updatedUser.id, roles: updatedUser.roles });
+
+        await tx.refreshToken.create({
+          data: {
+            token: refreshToken,
+            user_id: updatedUser.id
+          }
+        });
+
+        return { accessToken, refreshToken };
+      }, {
+        timeout: 30000
+      });
+
+      // 8. Set cookies and send response
+      res.cookie("accessToken", result.accessToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 15 * 60 * 1000
+      });
+
+      res.cookie("refreshToken", result.refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "lax",
+        maxAge: 7 * 24 * 60 * 60 * 1000
+      });
+    }
+
+    if (redisClient) {
+      await redisClient.del(`user:profile:${userId}`);
+      logger.info(`[Auth] Busted Redis cache for user after profile update: ${userId}`);
+    }
+
     return res.status(200).json({
       success: true,
       message: "Profile updated successfully",

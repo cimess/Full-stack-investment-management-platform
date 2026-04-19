@@ -29,6 +29,8 @@ const strategy = new GoogleStrategy(
   ) => {
     try {
       const email = profile.emails?.[0]?.value;
+      const avatar = profile.photos?.[0]?.value||null;
+      console.log("the profile photos",profile.photos)
       if (!profile.id) throw new Error("Invalid Google profileID");
       if (!email) throw new Error("Email not found in Google profile");
 
@@ -45,7 +47,8 @@ const strategy = new GoogleStrategy(
             where: { id: loggedInUser },
             data: {
               googleId: profile.id,
-              isVerified: true
+              isVerified: true,
+              avatar: avatar
             }
           });
           logger.info(`Linked Google account (${email}) to existing user ID ${loggedInUser}.`);
@@ -68,7 +71,8 @@ const strategy = new GoogleStrategy(
           where: { id: userByEmail.id },
           data: {
             googleId: profile.id,
-            isVerified: true
+            isVerified: true,
+            avatar: avatar
           }
         });
         logger.info(`Linked Google account (${email}) to existing user ID ${userByEmail.id} based on email match.`);
@@ -78,7 +82,15 @@ const strategy = new GoogleStrategy(
       const username = profile.displayName?.split(" ")[0] || profile.emails?.[0]?.value?.split("@")[0] || "user";
 
       if (userByGoogle) {
-        return done(null, userByGoogle);
+        // Update avatar on every login to keep it in sync with Google
+        const updated = await prisma.user.update({
+          where: { id: userByGoogle.id },
+          data: { 
+            avatar: avatar,
+            isVerified: true 
+          }
+        });
+        return done(null, updated);
       }
 
         const user = await prisma.user.create({
@@ -89,7 +101,8 @@ const strategy = new GoogleStrategy(
             username,
             isVerified: true,
             verificationToken: null,
-            verificationTokenExpires: null
+            verificationTokenExpires: null,
+            avatar: avatar
           },
         });
         logger.info('Google OAuth successful for user: ', user);

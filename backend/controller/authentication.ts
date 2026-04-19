@@ -6,7 +6,7 @@ import type { Request, Response } from "express";
 import argon2 from "argon2";
 import bcrypt from "bcryptjs";
 import crypto from "crypto";
-import { sendEmail } from "../workers/emailService.js";
+import { sendVerificationEmail, sendWelcomeEmail } from "../workers/emailService.js";
 import { generateAccessToken, generateRefreshToken, verifyTokenSecret } from "../middlewear/auth.js";
 import type { NextFunction } from "express";
 import redisClient, { getCache, setCache } from "../lib/redis.js";
@@ -16,7 +16,7 @@ import redisClient, { getCache, setCache } from "../lib/redis.js";
 
 export const googleAuth = async (req: Request, res: Response) => {
 
-  const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null; isVerified: boolean; password?: string | null; isNewUser?: boolean };
+  const user = req.user as { id: string; roles: string; email: string; username: string; fullname: string; manager_id: string | null; isVerified: boolean; avatar?: string; password?: string | null; isNewUser?: boolean };
 
   const oldRefreshToken = req.cookies?.refreshToken;
 
@@ -78,14 +78,27 @@ export const googleAuth = async (req: Request, res: Response) => {
     maxAge: 7 * 24 * 60 * 60 * 1000
   });
 
-  const { id, roles, username, fullname, email, manager_id: managerId } = user;
+  const { id, roles, username, fullname, email, manager_id: managerId, avatar } = user;
   const frontendUrl = process.env.NODE_ENV === "production"
     ? process.env.FRONTEND_URL
     : "http://localhost:5173";
 
+
+
   // Redirect to complete registration if user has no password (common for new Google users)
   const needsPassword = user.isNewUser || !user.password;
+  
+  if(needsPassword){
+    sendWelcomeEmail(email, fullname || username || "Valued Investor", roles).catch(err => {
+      logger.error(`Error sending welcome package to ${email}: ${err.message}`);
+    });
+  }
   const target = needsPassword ? `${frontendUrl}/complete-registration` : `${frontendUrl}/dashboard`;
+
+  if (redisClient) {
+  await redisClient.del(`user:profile:${user.id}`);
+  logger.info(`[Auth] Busted Redis cache for Google user: ${user.id}`);
+}
   return res.redirect(target);
 
 }
@@ -110,41 +123,14 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
   });
 
 
-  const otp = crypto.randomInt(100000, 999999).toString();
-  const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
-  const testCode = '123456'
+
 
   try {
-    // const emailResponse = await sendEmail(
-    //   email,
-    //   "Verify your Nova Invest Account",
-    //   `Your verification code is: ${otp}`
-    // );
-    // if (!emailResponse.success) {
-    //   return next(createError(500, "Failed to send verification email"));
-    // }
-    // const user = await prisma.user.create({
-    //   data: {
-    //     username: username,
-    //     fullname: name,
-    //     password: hashedPassword,
-    //     email: email,
-    //     roles: 'USER',
-    //     verificationToken: otp,
-    //     verificationTokenExpires: otpExpires
-    //   }
-    // })
-
-
-
-    // logger.info('user created', user)
-    // return res.status(201)
-    //   .json({
-    //     success: true, message: "user created successfully. Please check your email to verify your account."
-    //   })
-
-
+ 
     await prisma.$transaction(async (tx) => {
+      const otp = crypto.randomInt(100000, 999999).toString();
+      const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
       const user = await tx.user.create({
         data: {
           email,
@@ -153,10 +139,16 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           username,
           roles: userRole ? userRole : 'USER',
           isVerified: false,
-          verificationToken: null,
-          verificationTokenExpires: null
+          verificationToken: otp,
+          verificationTokenExpires: otpExpires
         }
       })
+      
+      const emailResponse = await sendVerificationEmail(email, otp);
+
+      if (!emailResponse.success) {
+        logger.error(`Failed to send verification email to ${email}`);
+      }
       if (role === "MANAGER") {
 
         // generate approval code
@@ -172,41 +164,13 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
             }
           })
       }
-      const accessToken = generateAccessToken({
-        id: user.id,
-        roles: user.roles
-      });
-
-      const refreshToken = generateRefreshToken({
-        id: user.id,
-        roles: user.roles
-      });
-
-      await tx.refreshToken.create({
-        data: {
-          token: refreshToken,
-          user_id: user.id
-        }
-      });
-
-      res.cookie("accessToken", accessToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 15 * 60 * 1000
-      });
-
-      res.cookie("refreshToken", refreshToken, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === "production",
-        sameSite: "lax",
-        maxAge: 7 * 24 * 60 * 60 * 1000
-      });
-
+      // Do not log the user in immediately since they are unverified.
+      // We skip returning the accessToken and refreshToken cookies.
+      
       const { id, roles, username: user_name, fullname, email: user_email, manager_id } = user as any;
       return res.status(201).json({
         success: true,
-        message: "Registration successful! Redirecting...",
+        message: "Registration successful! Please verify your email.",
         data: { id, roles, fullname, username: user_name, email: user_email, manager_id }
       });
 
@@ -224,6 +188,44 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     return next(createError(500, `Internal Server Error: ${err.message}`));
   }
 
+}
+export const sendToken = async (req: Request, res: Response, next: NextFunction) => {
+  const { email } = req.body;
+
+  try {
+    // Check if user exists
+    const user = await prisma.user.findUnique({ where: { email } });
+    if (!user) {
+      return next(createError(404, "User not found"));
+    }
+
+    const otp = crypto.randomInt(100000, 999999).toString();
+    const otpExpires = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+    const emailResponse = await sendVerificationEmail(email, otp);
+
+    if (!emailResponse.success) {
+      return next(createError(500, "Failed to send verification email"));
+    }
+
+    // Update user with token
+    await prisma.user.update({
+      where: { email },
+      data: {
+        verificationToken: otp,
+        verificationTokenExpires: otpExpires
+      }
+    });
+
+    return res.status(200).json({
+      data: {success: true,
+      message: "A verification token has been sent to your email."
+      }
+    });
+  } catch (err: any) {
+    logger.error(err);
+    return next(createError(500, `Internal Server Error: ${err.message}`));
+  }
 }
 
 export const verifyEmail = async (req: Request, res: Response, next: NextFunction) => {
@@ -262,8 +264,51 @@ export const verifyEmail = async (req: Request, res: Response, next: NextFunctio
       }
     });
 
-    logger.info(`User email verified: ${user.email}`);
-    return res.status(200).json({ success: true, message: "Email verified successfully" });
+    const accessToken = generateAccessToken({
+      id: user.id,
+      roles: user.roles
+    });
+
+    const refreshToken = generateRefreshToken({
+      id: user.id,
+      roles: user.roles
+    });
+
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        user_id: user.id
+      }
+    });
+
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 15 * 60 * 1000
+    });
+
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000
+    });
+
+    const { id, roles, username: user_name, fullname, email: user_email, manager_id } = user as any;
+
+    logger.info(`User email verified and logged in: ${user.email}`);
+    const userRole=roles==='USER'?'Client':roles
+    // Dispatch welcome email asynchronously 
+    sendWelcomeEmail(user.email, fullname || user_name || "Valued Investor", userRole).catch(err => {
+      logger.error(`Error sending welcome package to ${user.email}: ${err.message}`);
+    });
+
+    return res.status(200).json({ 
+       success: true, 
+       message: "Email verified successfully. Redirecting...",
+       data: { id, roles, fullname, username: user_name, email: user_email, manager_id }
+    });
   } catch (err: any) {
     logger.error(err);
     return next(createError(500, `Internal Server Error: ${err.message}`));
@@ -298,9 +343,9 @@ export const loginUser = async (req: Request, res: Response, next: NextFunction)
       return next(createError(401, "This account has been deactivated. Please contact support to reactivate."));
     }
 
-    // if (!user.isVerified) {
-    //   return next(createError(403, "Please verify your email address to log in"));
-    // }
+    if (!user.isVerified) {
+      return next(createError(403, "Please verify your email address to log in"));
+    }
     if (!user.password) {
       return next(createError(401, "This account is registered via Google OAuth. Please log in with Google."));
     }
@@ -467,6 +512,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
       fullname: true,
       username: true,
       email: true,
+      avatar: true,
       isVerified: true,
       password: true, // Needed to check if user has set a password
       settings: true,

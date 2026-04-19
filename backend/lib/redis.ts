@@ -55,7 +55,22 @@ if (redisUrl) {
 /**
  * Safely fetches a value from Cache. 
  * Falls back to NULL (standard DB) if Redis is down.
+ * 
  */
+
+/**
+ * Safely deletes a value from Cache.
+ */
+export const delCache = async (key: string): Promise<void> => {
+  if (!redis) return;
+  try {
+    await redis.del(key);
+  } catch (err) {
+    logger.error(`Error deleting cache key ${key}:`, err);
+  }
+};
+
+
 export const getCache = async (key: string): Promise<string | null> => {
   if (!redis) {logger.error(`❌ CRITICAL: No Redis configuration found! When getting ${key} (Checked REDIS_URL and REDIS_ENDPOINT)`); return null;}
   try {

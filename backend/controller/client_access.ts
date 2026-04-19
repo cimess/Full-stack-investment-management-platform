@@ -68,6 +68,7 @@ export const add_manager_to_client = async (req: Request, res: Response, next: N
 
     if (redisClient) {
       await redisClient.del(`dashboard:${client_id}`);
+      await redisClient.del(`user:profile:${client_id}`); 
       const managerRecord = await prisma.manager.findUnique({ where: { id: manager_id } });
       if (managerRecord) {
         await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
@@ -154,6 +155,7 @@ export const remove_manager_to_client = async (req: Request, res: Response, next
 
     if (redisClient) {
       await redisClient.del(`dashboard:${client_id}`);
+       await redisClient.del(`user:profile:${client_id}`); 
       const managerRecord = await prisma.manager.findUnique({ where: { id: manager_id } });
       if (managerRecord) {
         await redisClient.del(`manager_dashboard:${managerRecord.manager_id}`);
@@ -474,7 +476,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
         type: true,
         createdAt: true,
         stock: {           // Join the stock table to get the company info
-          select: { symbol: true, company: true }
+          select: { symbol: true, company: true, price: true }
         }
       }
     })
@@ -491,7 +493,7 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
         createdAt: true,
         response: true,
         stock: {
-          select: { symbol: true, company: true }
+          select: { symbol: true, company: true, price: true }
         }
       }
     })

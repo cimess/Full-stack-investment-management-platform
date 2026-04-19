@@ -1,17 +1,17 @@
 import React from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useGetMe} from '../hooks/useQuery';
+import { useGetMe } from '../hooks/useQuery';
 import { Loader2 } from 'lucide-react';
-
+import { toast } from 'react-toastify';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[]; // e.g., ['USER', 'MANAGER', 'ADMIN']
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles }) => {
-  const { data, isLoading,isError } = useGetMe();
+  const { data, isLoading, isError } = useGetMe();
   const location = useLocation();
-  const user=data?.data;
+  const user = data?.data;
   // 1. Handle Loading State
   if (isLoading) {
     return (
@@ -24,8 +24,13 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   // 2. Handle Not Logged In
   if (isError || !user) {
     // Save the attempted location to redirect back after login
+    toast.error("Please log in to access this page");
     return <Navigate to="/login" state={{ from: location }} replace />;
-    
+
+  }
+
+  if (!user.hasPassword && location.pathname !== '/complete-registration') {
+    return <Navigate to="/complete-registration" replace />;
   }
 
   const userRole = user?.roles;
@@ -33,9 +38,9 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   // 3. Handle Role-Based Access Control (RBAC)
   if (allowedRoles && !allowedRoles.includes(userRole)) {
     // Redirect to their specific "home" dashboard if they try to access a forbidden area
-    const defaultPath = userRole === 'ADMIN' ? '/dashboard/admin' 
-                      : userRole === 'MANAGER' ? '/dashboard/manager' 
-                      : '/dashboard/client';
+    const defaultPath = userRole === 'ADMIN' ? '/dashboard/admin'
+      : userRole === 'MANAGER' ? '/dashboard/manager'
+        : '/dashboard/client';
     return <Navigate to={defaultPath} replace />;
   }
 

@@ -31,6 +31,7 @@ const ManagerView: React.FC = () => {
         queryClient.invalidateQueries({ queryKey: ["me"] });
         queryClient.invalidateQueries({ queryKey: ["userDashboard"] });
         toast.success("Manager assigned successfully!");
+        
       },
       onError: (err: any) => {
         toast.error(err?.response?.data?.message || "Failed to assign manager");

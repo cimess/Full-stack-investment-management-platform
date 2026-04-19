@@ -1,19 +1,33 @@
 import React, { useState } from 'react';
-import { CheckCircle, XCircle, TrendingUp, ArrowLeftRight, Clock } from 'lucide-react';
+import { CheckCircle, XCircle, TrendingUp, ArrowLeftRight, Clock, Loader2 } from 'lucide-react';
 import ExecutionModal from '../../../components/ui/ExecutionModal';
 import { useGetManagerDashboard, handleUserRequest } from '../../../hooks/useQuery';
-import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 const RequestsView: React.FC = () => {
   const { data: managerData, isLoading, refetch } = useGetManagerDashboard();
   const { mutate: handleTradeAction } = handleUserRequest();
-  const [processingId, setProcessingId] = useState<string | null>(null);
   
-  // Modal states
+  // State for tracking actions
+  const [processingId, setProcessingId] = useState<string | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
   const [actionType, setActionType] = useState<'APPROVED' | 'REJECTED'>('APPROVED');
+
+  const clients = managerData?.data || [];
+  
+  // Extract pending requests from all clients using useMemo to prevent infinite loops
+  const pendingRequests = React.useMemo(() => {
+    return clients.flatMap((client: any) => 
+      (client.portfolio?.trade_request || [])
+        .filter((req: any) => req.status === 'PENDING')
+        .map((req: any) => ({
+          ...req,
+          clientName: client.fullname,
+          total: req.quantity * (req.stock?.price || 0)
+        }))
+    ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+  }, [clients]);
 
   if (isLoading) {
     return (
@@ -23,20 +37,6 @@ const RequestsView: React.FC = () => {
     );
   }
 
-  const clients = managerData?.data || [];
-  
-  
-  // Extract pending requests from all clients
-  const pendingRequests = clients.flatMap((client: any) => 
-    (client.portfolio?.trade_request || [])
-      .filter((req: any) => req.status === 'PENDING')
-      .map((req: any) => ({
-        ...req,
-        clientName: client.fullname,
-        total: req.quantity * (req.stock?.price || 0)
-      }))
-  ).sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-console.log(pendingRequests)
   const handleActionClick = (request: any, type: 'APPROVED' | 'REJECTED') => {
     setSelectedRequest(request);
     setActionType(type);
@@ -167,4 +167,3 @@ console.log(pendingRequests)
 };
 
 export default RequestsView;
-

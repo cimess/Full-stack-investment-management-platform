@@ -4,6 +4,7 @@ import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
 import { toast,Zoom } from 'react-toastify';
 import { useEffect } from 'react';
+import { resendVerificationToken } from '../../hooks/useQuery';
 ``
 // Views
 import Overview from './views/Overview';
@@ -12,12 +13,19 @@ import PortfolioView from './views/PortfolioView';
 import TransactionsView from './views/TransactionsView';
 import ManagerView from './views/ManagerView';
 import SettingsView from './views/SettingsView';
+import ReportProblemModal from '../../components/ReportProblemModal';
+import NotificationsView from '../../components/NotificationsView';
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { SiGoogle } from 'react-icons/si';
 import { useState } from 'react';
 import AppTour from '../../components/ui/AppTour';
+
+
+
+
+
 const ClientDashboard: React.FC = () => {
 
     const location = useLocation();
@@ -52,7 +60,7 @@ const handleFinish = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
- 
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
     useEffect(()=>{
      
       if (!shown) {
@@ -70,6 +78,19 @@ const handleFinish = () => {
       }
     },[!isWelcomeToastShown]
     )
+const {mutate:getVerificationToken}=resendVerificationToken()
+
+    const handleResendVerificationEmail = () => {
+      const res:any=getVerificationToken(user?.email)
+      if(res?.data.success){
+        toast.success(res?.data.message)
+        setTimeout(() => {
+          navigate("/verify-email")
+        }, 2000);
+      }else{
+        toast.error(res?.data.message)
+      }
+    }
 
   return (
     <div className="flex h-screen bg-black overflow-hidden">
@@ -86,22 +107,25 @@ const handleFinish = () => {
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
+        onReport={() => setIsReportModalOpen(true)}
+        image={user?.avatar}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar 
-          pageTitle="Client Dashboard" 
+          pageTitle="Dashboard" 
           userName={firstName || "Investor"} 
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
           role="CLIENT"
+          image={user?.avatar}
         />
            {/* Google Verify Banner - shown when user is NOT verified */}
-                 {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
-                      <SiGoogle />
-                      <Link to="http://localhost:4000/api/auth/google">
+                 {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
+                 gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
+                    <button onClick={handleResendVerificationEmail} className='cursor-pointer hover:text-amber-500 hover:underline text-amber-300'>
                     verify your email address
-                    </Link>
+                    </button>
                   </div>}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           <Routes>
@@ -111,9 +135,16 @@ const handleFinish = () => {
             <Route path="transactions" element={<TransactionsView />} />
             <Route path="manager" element={<ManagerView />} />
             <Route path="settings" element={<SettingsView />} />
+            <Route path="notifications" element={<NotificationsView />} />
           </Routes>
         </main>
       </div>
+
+      <ReportProblemModal 
+        isOpen={isReportModalOpen} 
+        onClose={() => setIsReportModalOpen(false)}
+        targetId={user?.client_manager?.id} 
+      />
     </div>
   );
 };

@@ -8,7 +8,8 @@ import {
   postMarketQuotes, getMe, fetchStockDetailsAPI, generateAccessKey, addAdmin,
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
   updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI,
-  getMarketCategories, getAIInsights, fetchStockHistoryAPI
+  getMarketCategories, getAIInsights, fetchStockHistoryAPI, resendVerificationTokenAPI,
+  reportProblem, updateManagerProfileAPI, getClientReportsAPI, updateReportStatusAPI, deleteReportAPI
 } from "../services/queryServices"
 
 
@@ -26,10 +27,14 @@ export const login = () => {
 
 export const verifyUserEmail = () => {
   return useMutation({
-    mutationFn: (token: string) => verifyEmail(token)
+    mutationFn: (data: { email: string, otp: string }) => verifyEmail(data)
   })
 }
-
+export const resendVerificationToken = () => {
+  return useMutation({
+    mutationFn: (email: string) => resendVerificationTokenAPI(email)
+  })
+}
 export const useGetMe = () => {
   return useQuery({
     queryKey: ["me"],
@@ -192,10 +197,7 @@ export const useRedeemManager = () => {
 
 export const useUpdateManagerProfile = () => {
   return useMutation({
-    mutationFn: async (data: any) => {
-      const response = await api.post("/api/manager/profile", data);
-      return response.data;
-    }
+    mutationFn: updateManagerProfileAPI
   });
 };
 export const useUpdateUserSettings = () => {
@@ -238,3 +240,32 @@ export const useDeactivateAccount = () => {
   })
 }
 
+// report problem api
+export const useReportProblem = () => {
+  return useMutation({
+    mutationFn: reportProblem
+  })
+}
+
+export const useGetUserReports = () => {
+  return useQuery({
+    queryKey: ["userReports"],
+    queryFn: getClientReportsAPI,
+    enabled: true,
+    refetchOnWindowFocus: false,
+  })
+}
+
+export const useUpdateReportStatus = () => {
+  return useMutation({
+    mutationFn: ({ reportId, status, resolutionNote }: 
+      { reportId: string, status: string, resolutionNote?: string }) => 
+        updateReportStatusAPI(reportId, status, resolutionNote)
+  })
+}
+
+export const useDeleteReport = () => {
+  return useMutation({
+    mutationFn: deleteReportAPI
+  })
+}

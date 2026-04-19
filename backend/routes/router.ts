@@ -1,10 +1,10 @@
 import { Router } from "express";
 import { registerUser, loginUser, refreshToken, logoutUser, 
-  // verifyEmail ,
+  verifyEmail, sendToken,
   getMe } from "../controller/authentication.js";
 import { googleAuth } from "../controller/authentication.js";
 import logger from "../winstonlog/logger.js";
-import { verifyToken } from "../middlewear/auth.js";
+import { verifyToken,verifyTokenOptional } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
@@ -13,18 +13,19 @@ import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAcc
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount } from "../controller/userController.js";
-
-
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
 import { getAIInsightsController } from "../controller/aiController.js";
+import { createReport, getAllReports, updateReportStatus, deleteReport } from "../controller/reportController.js";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 10, // Increased from 5 to 100 for production setup
   message: { success: false, message: "Too many attempts, please try again after 15 minutes" }
 });
+
+
 
 const router = Router();
 
@@ -62,15 +63,16 @@ router.get("/health", (req, res) => res.status(200).json({ success: true, messag
 
 // --- Market Data ---
 router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
-router.get("/market/quotes", verifyToken, getMarketQuotes);
-router.post("/market/search", verifyToken, searchStockController);
-router.post("/market/stock-details", verifyToken, postStockDetails);
-router.get("/market/history/:symbol", verifyToken, getStockHistory);
-router.get("/market/categories", verifyToken, getMarketCategories);
+router.get("/market/quotes",verifyTokenOptional, getMarketQuotes);
+router.post("/market/search", verifyTokenOptional, searchStockController);
+router.post("/market/stock-details", verifyTokenOptional, postStockDetails);
+router.get("/market/history/:symbol", verifyTokenOptional, getStockHistory);
+router.get("/market/categories", verifyTokenOptional, getMarketCategories);
 
 // --- Authentication Routes ---
 router.post("/register", registerUser);
-// router.post("/verify/email", verifyEmail);
+router.post("/verify/email", verifyEmail);
+router.post("/send-token", sendToken);
 process.env.NODE_ENV === "production" ? router.post("/login", authLimiter,loginUser) : router.post("/login", loginUser);
 router.post("/refresh", refreshToken);
 router.post("/logout", verifyToken, logoutUser);
@@ -110,6 +112,12 @@ router.post("/add-super-admin", verifyToken, addSuperAdmin);
 router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN]), addAdmin)
 router.post("/manager/approval/key", verifyToken, authorise([Roles.ADMIN]), generateAccessKey)
 router.post("/admin/emergency-shutdown", verifyToken, authorise([Roles.ADMIN]), remoteShutdown);
+
+// --- Report & Incident Routes ---
+router.post("/reports", verifyToken, createReport); // Users & Managers can report a problem
+router.get("/admin/reports", verifyToken, authorise([Roles.ADMIN]), getAllReports);
+router.patch("/admin/reports/status", verifyToken, authorise([Roles.ADMIN]), updateReportStatus);
+router.delete("/admin/reports/delete", verifyToken, authorise([Roles.ADMIN]), deleteReport); // Controller handles Super Admin check
 
 
 

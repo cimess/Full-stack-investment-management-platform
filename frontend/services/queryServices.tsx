@@ -10,8 +10,12 @@ export const loginUser = async (loginData: any) => {
   return response.data
 }
 
-export const verifyEmail = async (token: string) => {
-  const response = await api.get(`/verify/email?token=${token}`)
+export const verifyEmail = async (data: { email: string, otp: string }) => {
+  const response = await api.post("/verify/email", data)
+  return response.data
+}
+export const resendVerificationTokenAPI = async (email: string) => {
+  const response = await api.post("/send-token", { email })
   return response.data
 }
 
@@ -163,5 +167,25 @@ export const deactivateAccountAPI = async () => {
 
 export const getMarketCategories = async (page: number = 1) => {
   const response = await api.get(`/market/categories?page=${page}`);
+  return response.data;
+}
+export const reportProblem = async (data: any) => {
+  const response = await api.post("/reports", data);
+  return response.data;
+}
+export const updateManagerProfileAPI = async (profileData: any) => {
+  const response = await api.post("/manager/profile", profileData);
+  return response.data;
+}
+export const getClientReportsAPI = async () => {
+  const response = await api.get("/admin/reports");
+  return response.data;
+}
+export const updateReportStatusAPI = async (reportId: string, status: string, resolutionNote?: string) => {
+  const response = await api.patch(`/admin/reports/status`, { reportId, status, resolutionNote });
+  return response.data;
+}
+export const deleteReportAPI = async (reportId: string) => {
+  const response = await api.delete(`/admin/reports/delete`, { data: { reportId } });
   return response.data;
 }

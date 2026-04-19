@@ -6,14 +6,15 @@ import PriceChart from './PriceChart';
 import { useFetchStockHistory, useFetchStockDetails, useGetMe, useBuyStock } from '../hooks/useQuery';
 import { toast } from 'react-toastify';
 
-const DetailsModal = React.memo(({ 
-  item, 
-  onClose, 
+const DetailsModal = React.memo(({
+  item,
+  onClose,
   targetPath = "/signup",
   onConfirm: externalConfirm,
   tradeType = 'BUY',
   isPending: externalPending,
-  initialQuantity = 0
+  initialQuantity = 0,
+  isManager = false
 }: {
   item: StockCardProps,
   onClose: () => void,
@@ -21,19 +22,36 @@ const DetailsModal = React.memo(({
   onConfirm?: (id: string, qty: number) => void,
   tradeType?: 'BUY' | 'SELL',
   isPending?: boolean,
-  initialQuantity?: number
+  initialQuantity?: number,
+  isManager?: boolean
 }) => {
   const navigate = useNavigate();
   const [range, setRange] = useState('1mo');
   const [quantity, setQuantity] = useState<number>(initialQuantity);
-  
+
   const { data: userData, isLoading: isUserLoading } = useGetMe();
   const { mutate: buyStock, isPending: isBuying } = useBuyStock();
   const { mutate: fetchHistory, data: historyData, isPending: isHistoryLoading } = useFetchStockHistory();
-  const { mutate: fetchDetails, data: detailsData, isPending: isDetailsLoading } = useFetchStockDetails();
+  const { mutate: fetchDetails, data: detailsData, isPending: isDetailsLoading, isError: isDetailsError } = useFetchStockDetails();
+ 
 
   const isLoggedIn = !!userData?.success;
   const isPending = isBuying || externalPending;
+
+
+useEffect(() => {
+
+   if (isDetailsError) {
+    toast.info("Failed to fetch market data");
+    }
+  }, [isDetailsError])
+
+  useEffect(() => {
+    // ✅ Only fetch from backend if NOT logged in (guest on landing page)
+    if (item?.symbol && item.type !== 'CASH' && !isLoggedIn) {
+      fetchDetails(item.symbol);
+    }
+  }, [item?.symbol, fetchDetails, isLoggedIn]);
 
   useEffect(() => {
     if (item?.symbol) {
@@ -41,28 +59,66 @@ const DetailsModal = React.memo(({
     }
   }, [item?.symbol, range, fetchHistory]);
 
-  useEffect(() => {
-    if (item?.symbol && item.type !== 'CASH' && item.type !== 'WALLET') {
-      fetchDetails(item.symbol);
-    }
-  }, [item?.symbol, fetchDetails]);
+
+  const isDataReady = isLoggedIn || (detailsData?.data && !isDetailsLoading)
 
   if (!item) return null;
 
-  const displayItem = (detailsData as any)?.data ? { ...item, ...(detailsData as any).data } : item;
-  const price = Number(displayItem.price || 0);
-  const totalCost = price * quantity;
 
-  const stats = [
-    { label: 'Market Cap', value: displayItem.marketCap || 'N/A' },
-    { label: 'Volume', value: displayItem.volume || 'N/A' },
-    { label: 'P/E Ratio', value: displayItem.peRatio || 'N/A' },
-    { label: 'Div. Yield', value: displayItem.dividendYield || 'N/A' },
-    { label: '52W High', value: displayItem.fiftyTwoWeekHigh || 'N/A' },
-    { label: '52W Low', value: displayItem.fiftyTwoWeekLow || 'N/A' },
-  ];
+  const displayItem = (detailsData as any)?.data ? { ...item, ...(detailsData as any).data } : item;
+  const price: any = isLoggedIn ? item.invest : displayItem?.displayPrice;
+  const calPrice=item?.price||displayItem?.price
+  const totalCost = calPrice!== "N/A" ? calPrice * quantity : "N/A";
+
+// frontend/components/DetailsModal.tsx
+
+// 1. Determine if it's crypto (checking both sources)
+const isCrypto = item.type === 'CRYPTO' || displayItem.type === 'CRYPTO' || displayItem.isCrypto || item.symbol?.endsWith('-USD');
+
+// 2. Helper to get a value from any of the three possible locations:
+// (Backend Details -> Frontend Flat Item -> Frontend Nested Stats)
+const getStat = (key: string, fallback: any = 'N/A') => {
+  return (displayItem as any)?.[key] || ((item as any)?.[key] || (item as any)?.stats?.[key] || fallback);
+};
+
+// 3. The 100% complete stats array
+const stats = [
+  { label: 'Market Cap', value: getStat('displayMarketCap', getStat('marketCap')) },
+  { label: 'Volume', value: getStat('displayVolume', getStat('volume')) },
+  
+  isCrypto
+    ? { label: 'Circ. Supply', value: getStat('circulatingSupply') }
+    : { label: 'P/E Ratio', value: getStat('peRatio') },
+    
+  isCrypto
+    ? { label: 'Rank', value: getStat('marketCapRank') !== 'N/A' ? `#${getStat('marketCapRank')}` : 'N/A' }
+    : { label: 'Div. Yield', value: getStat('dividendYield') },
+    
+  { 
+    label: '52W High', 
+    value: getStat('fiftyTwoWeekHigh') !== 'N/A' ? `$${getStat('fiftyTwoWeekHigh')}` : 'N/A' 
+  },
+  { 
+    label: '52W Low', 
+    value: getStat('fiftyTwoWeekLow') !== 'N/A' ? `$${getStat('fiftyTwoWeekLow')}` : 'N/A' 
+  },
+];
+
+  
 
   const handleImmediateTrade = () => {
+
+
+
+    if (!isLoggedIn) {
+      toast.error("Please log in to execute trades");
+      return;
+    }
+    // Safety check: Ensure quantity is valid
+    if (quantity <= 0) {
+      toast.error("Please enter a valid quantity");
+      return;
+    }
     if (externalConfirm) {
       externalConfirm(item.id || item.symbol || '', quantity);
       return;
@@ -86,12 +142,26 @@ const DetailsModal = React.memo(({
   const isUp = parseFloat(item.return || '0') >= 0;
   const chartData = (historyData as any)?.data || [];
 
+
+
+  if (!isDataReady && isDetailsLoading) {
+   
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xl">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-white/20 border-t-white rounded-full animate-spin" />
+          <p className="text-white/60 font-medium">Fetching market data...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-opacity animate-in fade-in duration-500" onClick={onClose} />
 
       <div className="relative w-full max-w-2xl bg-[#0a0a0a] border border-white/10 rounded-t-[2.5rem] sm:rounded-[2.5rem] shadow-2xl flex flex-col max-h-[95vh] overflow-hidden animate-in slide-in-from-bottom-10 duration-500">
-        
+
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-6 border-b border-white/5 bg-white/[0.02] backdrop-blur-md sticky top-0 z-10">
           <div className="flex items-center gap-4">
@@ -113,11 +183,11 @@ const DetailsModal = React.memo(({
 
         {/* Scrollable Body */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          
+
           {/* Price & Chart */}
           <div className="p-6 sm:p-8">
             <div className="flex items-baseline gap-3 mb-6">
-              <span className="text-4xl sm:text-5xl font-bold text-white tracking-tighter">${price.toLocaleString(undefined, { minimumFractionDigits: 2 })}</span>
+              <span className="text-4xl sm:text-5xl font-bold text-white tracking-tighter">{price}</span>
               <span className={`text-sm font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{item.return}</span>
             </div>
 
@@ -140,7 +210,7 @@ const DetailsModal = React.memo(({
 
           {/* Key Stats */}
           <div className="px-6 sm:px-8 py-8 border-t border-white/5">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 ">
               {stats.map((stat, i) => (
                 <div key={i} className="p-4 rounded-2xl bg-white/[0.02] border border-white/5">
                   <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">{stat.label}</p>
@@ -149,11 +219,53 @@ const DetailsModal = React.memo(({
               ))}
             </div>
           </div>
+
+          {/* About Section */}
+          <div className="px-6 sm:px-8 py-8 border-t border-white/5 space-y-6">
+            <div>
+              <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                <Info className="w-3.5 h-3.5" />
+                About {displayItem.company}
+              </h3>
+              <p className="text-sm text-slate-400 leading-relaxed">
+                {displayItem.about || displayItem.financialSummary}
+              </p>
+            </div>
+
+            <div className="grid grid-cols-2 gap-6">
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">HQ / Origin</p>
+                <div className="flex items-center gap-2 text-white font-bold">
+                  <Globe className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-sm">{displayItem.hq || 'Global'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
+                  {displayItem.isCrypto ? 'Market Rank' : 'Leadership'}
+                </p>
+                <div className="flex items-center gap-2 text-white font-bold">
+                  <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-sm">{displayItem.ceo || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-4 flex flex-wrap gap-2">
+              <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{displayItem.industry}</span>
+              <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{displayItem.sector}</span>
+            </div>
+          </div>
+
         </div>
 
         {/* REDESIGNED TRADING CONSOLE */}
         <div className="p-4 sm:p-6 border-t border-white/10 bg-black/95 backdrop-blur-xl sticky bottom-0">
-          {!isUserLoading && isLoggedIn ? (
+          {isManager ? (
+            <div className="flex gap-3">
+              <button onClick={onClose} className="w-full px-6 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all">Close Details</button>
+            </div>
+          ) : !isUserLoading && isLoggedIn ? (
             <div className="space-y-4">
               <div className="flex items-center justify-between gap-4 p-4 rounded-3xl bg-white/5 border border-white/5">
                 <div className="flex-1">
@@ -172,7 +284,7 @@ const DetailsModal = React.memo(({
                   <p className="text-emerald-400 text-xl font-bold font-mono">${totalCost.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
                 </div>
               </div>
-              
+
               <div className="flex gap-3">
                 <button onClick={onClose} className="flex-1 px-6 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all">Dismiss</button>
                 <button

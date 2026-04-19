@@ -34,9 +34,11 @@ export default function CompleteRegistration() {
 
   useEffect(() => {
     // If user already has a password, redirect them away
-    // if (userData?.data?.hasPassword) {
-    //   navigate("/dashboard/client");
-    // }
+    if (userData?.data?.hasPassword) {
+      navigate("/dashboard/client");
+    }
+
+
   }, [userData, navigate]);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -96,7 +98,7 @@ export default function CompleteRegistration() {
 
 
 
-  if (userLoading) return <Loader message="Verifying session..." />;
+  if (userLoading || !userData) return <Loader message="Verifying session..." />;
 
   return (
     <>

@@ -2,7 +2,7 @@ import { prisma } from "../lib/prisma.js";
 import { getQuotes, seedTopSymbols, mapToPrismaStock } from "../services/marketservice.js";
 import logger from "../winstonlog/logger.js";
 import pLimit from "p-limit";
-
+import { delCache } from "../lib/redis.js"
 // ── Config ───────────────────────────────────────────────────────
 const BATCH_SIZE = 150;
 const CONCURRENCY = 10;
@@ -139,7 +139,7 @@ export const refreshMarketData = async () => {
             where: { symbol: stock.symbol },
             data: fields,
           });
-
+           await delCache(`stock:details:${stock.symbol}`);
           // Prevent Database Hammer by yielding event loop and resting between single row DB locks
           await sleep(20); 
         } catch (err) {

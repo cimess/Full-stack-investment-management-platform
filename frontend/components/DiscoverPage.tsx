@@ -103,7 +103,7 @@ const StockCard = (item: StockCardProps) => {
 
    }
   return (
-    <div className="flex flex-col bg-[#0a0a0a] text-white min-h-screen selection:bg-white/10 rounded-3xl overflow-hidden premium-card group">
+    <div className="flex flex-col bg-[#0a0a0a] text-white selection:bg-white/10 rounded-3xl overflow-hidden premium-card group shadow-md shadow-gray-900">
       {/* Image */}
       <div
         className="h-60 bg-center bg-cover"

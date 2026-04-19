@@ -13,6 +13,9 @@ import Overview from './views/Overview';
 import UsersView from './views/UsersView';
 import ManagersView from './views/ManagersView';
 import TransactionsView from './views/TransactionsView';
+import ReportsView from './views/ReportsView';
+import NotificationsView from '../../components/NotificationsView';
+import ReportProblemModal from '../../components/ReportProblemModal';
 
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
@@ -26,6 +29,7 @@ const AdminDashboard: React.FC = () => {
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
   const [runTour,setRunTour]=useState(false)
+  const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
 
   useEffect(() => {
@@ -46,7 +50,8 @@ const handleFinish = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
-
+console.log(user)
+console.log(user.avatar)
   return (
     <div className="flex h-screen bg-black overflow-hidden">
       <AppTour
@@ -62,14 +67,17 @@ const handleFinish = () => {
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
+        onReport={() => setIsReportModalOpen(true)}
+        image={user?.avatar}
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <TopBar 
-          pageTitle="Admin Control Centre" 
+          pageTitle="Dashboard" 
           userName={firstName || "Admin"} 
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
+          image={user?.avatar}
         />
 
         <main className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -79,6 +87,8 @@ const handleFinish = () => {
             <Route path="users" element={<UsersView />} />
             <Route path="managers" element={<ManagersView />} />
             <Route path="transactions" element={<TransactionsView />} />
+            <Route path="reports" element={<ReportsView />} />
+            <Route path="notifications" element={<NotificationsView />} />
             {/* Fallbacks for other routes */}
             <Route path="portfolios" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Portfolios Management - Coming Soon</div>} />
             <Route path="trade-requests" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Trade Requests - Coming Soon</div>} />
@@ -124,6 +134,11 @@ const handleFinish = () => {
 
         </main>
       </div>
+
+      <ReportProblemModal 
+        isOpen={isReportModalOpen} 
+        onClose={() => setIsReportModalOpen(false)} 
+      />
     </div>
   );
 };

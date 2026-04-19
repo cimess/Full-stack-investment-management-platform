@@ -190,7 +190,7 @@ export const handleRequest = async (req: Request, res: Response, next: NextFunct
             type: "TRADE"
           }
         });
-        return; // Success, exit transaction
+        return client; // Success, exit transaction
       }
 
       const numericPrice = Number(price);
@@ -276,7 +276,7 @@ export const handleRequest = async (req: Request, res: Response, next: NextFunct
         data: {
           user_id: client.id,
           title: "Trade Request Executed",
-          message: `Your ${request.type} request for ${request.quantity} shares of ${request.stock.symbol} was successful.`,
+          message: `Your ${request.type} request for ${request.quantity} shares of ${request.stock.symbol} was successful. ${response ? "Note: " + response : ""}`,
           type: "TRADE"
         }
       });

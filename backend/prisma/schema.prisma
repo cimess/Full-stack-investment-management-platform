@@ -42,6 +42,7 @@ model User {
   updatedAt  DateTime @updatedAt
   manager_id String?
   restricted Boolean  @default(false)
+  avatar     String?
 
   // Email Verification Fields
   isVerified               Boolean   @default(false)
@@ -60,6 +61,8 @@ model User {
   to_admin         Admin?            @relation("admin")
   add_admin        Approved_Admin?   @relation("add_admin")
   Approved_Manager Approved_Manager? @relation("Approved_Manager")
+
+  reportsSubmitted SystemReport[] @relation("reporter")
 }
 
 model StockTable {
@@ -185,7 +188,7 @@ model Manager {
   approval_code String @unique
 
   client_id    String?
-  manager_slot Int     @default(10)
+  manager_slot Int     @default(1)
 
   // Profile fields — all optional, UI falls back to defaults if not set
   bio              String?
@@ -268,4 +271,27 @@ model SystemConfig {
   key       String   @id
   value     String
   updatedAt DateTime @updatedAt
+}
+
+enum ReportType {
+  BUG
+  FRAUD
+  SERVICE
+  OTHER
+}
+
+model SystemReport {
+  id          String     @id @default(cuid())
+  reporter    User       @relation("reporter", fields: [reporterId], references: [id])
+  reporterId  String
+  targetId    String?    // ID of reported manager or asset
+  type        ReportType @default(OTHER)
+  subject     String
+  description String     @db.Text
+  status      Status     @default(PENDING)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  @@index([reporterId])
+  @@index([status])
 }

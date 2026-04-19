@@ -215,7 +215,7 @@ if (process.env.NODE_ENV !== "test") {
     // to ensure live data is fetched across all environments.
     process.env.NODE_ENV === "production" ? startMarketWorker() : null;
     startMarketCacheWorker();
-
+    // startMarketWorker();
 
     if (process.env.NODE_ENV === "production") {
       // Database Keep-alive Ping (Prevents Render DB Sleep)

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Bell, Search, ChevronDown, CheckCircle, TrendingUp, AlertCircle, Menu } from 'lucide-react';
 import { useGetNotifications, useMarkNotificationsRead, getUserDashboard } from '../../hooks/useQuery';
 import { useQueryClient } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
 
 const notifIcons: Record<string, React.ReactNode> = {
   success: <CheckCircle className="w-4 h-4 text-emerald-400" />,
@@ -31,13 +32,15 @@ interface TopBarProps {
   userAvatar?: string;
   onToggleSidebar?: () => void;
   handleLogout?: () => void;
-  role?:"CLIENT"|"MANAGER"|"ADMIN"
-  managerSlot?:number
+  role?: "CLIENT" | "MANAGER" | "ADMIN"
+  managerSlot?: number
+  image?: string;
 }
 
-const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout,role,managerSlot}) => {
+const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleSidebar, handleLogout, role, managerSlot, image }) => {
   const [showNotifs, setShowNotifs] = useState(false);
   const [showProfile, setShowProfile] = useState(false);
+  const navigate = useNavigate();
 
   const queryClient = useQueryClient();
   const { data: notificationsResponse } = useGetNotifications();
@@ -46,14 +49,15 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
   const notifications = (notificationsResponse as any)?.data?.notifications || [];
   const unread = (notificationsResponse as any)?.data?.unreadCount || 0;
 
-  const { data } = role==="CLIENT"&&getUserDashboard()
-const investments = data?.data?.investments || [];
-const portfolioValue = investments.reduce((acc:number, inv:any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
-const insertValue=role==="MANAGER"?managerSlot:portfolioValue;
+  const { data } = role === "CLIENT" && getUserDashboard()
+  const investments = data?.data?.investments || [];
+  const portfolioValue = investments.reduce((acc: number, inv: any) => acc + (inv.quantity * Number(inv.stock.price)), 0);
+  const insertValue = role === "MANAGER" ? managerSlot : portfolioValue;
 
-  const handleReadMsg = (id: string) => {
-    // If it's already a bulk mark-as-read API, run it for all when clicked anywhere unread
+  const handleReadMsg = (_id: string) => {
     markAllRead();
+    setShowNotifs(false);
+    navigate('notifications');
   };
 
   const markAllRead = () => {
@@ -90,10 +94,18 @@ const insertValue=role==="MANAGER"?managerSlot:portfolioValue;
       {role && typeof insertValue === 'number' && (
         <div className="flex flex-col items-center justify-center text-center">
           <h2 className="hidden sm:block text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-0.5">
-            {role==="MANAGER"?"Total Manager Slots":"Total Portfolio"}
+            {role === "MANAGER" ? "Total Manager Slots" : "Total Portfolio"}
           </h2>
-          <p className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role==="CLIENT"?"topbar-portfolio-value":role==="MANAGER"?"topbar-manager-slots":role==="ADMIN"?"topbar-admin-slots":null}>
-            {role==="MANAGER"?managerSlot:"$" + insertValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          <p className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role === "CLIENT" ? "topbar-portfolio-value" : role === "MANAGER" ? "topbar-manager-slots" : role === "ADMIN" ? "topbar-admin-slots" : null}>
+            {role === "MANAGER" ? `Manager Slots` : `portfolio-value `}
+            <p>
+              {role === "CLIENT"
+                ? `$${Number(portfolioValue).toLocaleString()}`
+                : role === "MANAGER"
+                  ? Number(managerSlot).toLocaleString()
+                  : null}
+            </p>
+
           </p>
         </div>
       )}
@@ -154,6 +166,15 @@ const insertValue=role==="MANAGER"?managerSlot:portfolioValue;
                   ))
                 )}
               </div>
+              {/* View all link */}
+              <div className="px-5 py-3 border-t border-white/5">
+                <button
+                  onClick={() => { setShowNotifs(false); navigate('notifications'); }}
+                  className="w-full text-center text-[10px] font-bold text-slate-500 hover:text-white uppercase tracking-widest transition-colors py-1"
+                >
+                  View all notifications &rarr;
+                </button>
+              </div>
             </div>
           )}
         </div>
@@ -164,9 +185,13 @@ const insertValue=role==="MANAGER"?managerSlot:portfolioValue;
             onClick={() => { setShowProfile(!showProfile); setShowNotifs(false); }}
             className="flex items-center gap-2 p-1 rounded-xl hover:bg-white/5 transition-all group"
           >
-            <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-white text-xs font-bold shadow-inner group-hover:border-white/20 transition-all">
-              {userName.charAt(0).toUpperCase()}
-            </div>
+            {image ? (
+              <img src={image} alt={userName} className="w-8 h-8 rounded-lg object-cover border border-white/10 group-hover:border-white/20 transition-all" />
+            ) : (
+              <div className="w-8 h-8 rounded-lg bg-slate-800 border border-white/10 flex items-center justify-center text-white text-xs font-bold shadow-inner group-hover:border-white/20 transition-all">
+                {userName.charAt(0).toUpperCase()}
+              </div>
+            )}
             <ChevronDown className={`w-3 h-3 text-slate-500 hidden sm:block transition-transform duration-300 ${showProfile ? 'rotate-180' : ''}`} strokeWidth={2} />
           </button>
 

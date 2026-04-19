@@ -10,9 +10,20 @@ const TransactionsView: React.FC = () => {
   const parentRef = React.useRef<HTMLDivElement>(null);
 
   const transactions = React.useMemo(() => {
-    return [...(data?.data?.transactions || []), ...(data?.data?.trade_requests || [])]
-      .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+    // 1. Get all executed transactions (These always show as "Completed")
+    const executed = data?.data?.transactions || [];
+
+    // 2. Only show requests if they are still Pending or have been Rejected
+    // Successful requests are already represented by the 'executed' transactions above
+    const requests = (data?.data?.trade_requests || []).filter(
+      (req: any) => req.status === 'PENDING' || req.status === 'REJECTED'
+    );
+
+    return [...executed, ...requests].sort(
+      (a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+    );
   }, [data?.data?.transactions, data?.data?.trade_requests]);
+
 
   const virtualizer = useVirtualizer({
     count: transactions.length,
@@ -48,8 +59,8 @@ const TransactionsView: React.FC = () => {
             <div className="grid grid-cols-1 divide-y divide-white/5 md:hidden">
               {transactions.map((act: any) => {
                 const isBuy = act.type === 'BUY';
-                const price = act.price ? Number(act.price) : 0;
-                const total = price ? price * act.quantity : 0;
+                const price = act.price ? Number(act.price) : Number(act.stock?.price || 0);
+                const total = price * act.quantity;
                 const status = act.status ? act.status.toLowerCase() : 'completed';
                 const date = new Date(act.createdAt).toLocaleDateString();
 
@@ -66,17 +77,16 @@ const TransactionsView: React.FC = () => {
                         </div>
                       </div>
                       <div className="text-right">
-                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${
-                          status === 'completed' || status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
-                          : status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                          : 'bg-red-500/10 text-red-400 border border-red-500/20'
-                        }`}>
+                        <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${status === 'completed' || status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
+                            : status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                          }`}>
                           {status}
                         </span>
                         <p className="text-slate-500 text-[10px] mt-1">{date}</p>
                       </div>
                     </div>
-                    
+
                     <div className="grid grid-cols-3 gap-2 pt-2 border-t border-white/5">
                       <div>
                         <p className="text-slate-500 text-[10px] uppercase font-bold tracking-tighter">Quantity</p>
@@ -97,74 +107,71 @@ const TransactionsView: React.FC = () => {
             </div>
 
             {/* Desktop Table View - Virtualized */}
+
             <div className="hidden md:block">
-              <table className="w-full border-collapse">
-                <thead className="sticky top-0 z-10 bg-black shadow-sm">
-                  <tr className="border-b border-white/5">
-                    <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Transaction</th>
-                    <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Quantity</th>
-                    <th className="text-right text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Price / Total Value</th>
-                    <th className="text-left text-slate-500 text-xs font-medium uppercase tracking-wider px-4 py-4">Date</th>
-                    <th className="text-center text-slate-500 text-xs font-medium uppercase tracking-wider px-6 py-4">Status</th>
-                  </tr>
-                </thead>
-                <tbody 
-                  style={{
-                    height: `${virtualizer.getTotalSize()}px`,
-                    position: 'relative',
-                  }}
-                >
-                  {virtualizer.getVirtualItems().map((virtualRow) => {
-                    const act = transactions[virtualRow.index];
-                    const isBuy = act.type === 'BUY';
-                    const price = act.price ? Number(act.price) : 0;
-                    const total = price ? price * act.quantity : 0;
-                    const status = act.status ? act.status.toLowerCase() : 'completed';
-                    
-                    return (
-                      <tr 
-                        key={virtualRow.key}
-                        data-index={virtualRow.index}
-                        ref={virtualizer.measureElement}
-                        className="hover:bg-white/2 transition-colors absolute top-0 left-0 w-full"
-                        style={{
-                          transform: `translateY(${virtualRow.start}px)`,
-                        }}
-                      >
-                        <td className="px-6 py-4">
-                          <div className="flex items-center gap-3">
-                            <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} border border-white/5`}>
-                               {isBuy ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
-                            </div>
-                            <div>
-                              <p className="text-white text-sm font-semibold">{act.type} {act.stock.symbol}</p>
-                              <p className="text-slate-500 text-xs">Market Order</p>
-                            </div>
-                          </div>
-                        </td>
-                        <td className="px-4 py-4 text-right text-slate-300 text-sm">{act.quantity}</td>
-                        <td className="px-4 py-4 text-right">
-                           <p className="text-white text-sm font-bold">{total ? `$${total.toLocaleString()}` : '--'}</p>
-                           {price > 0 && <p className="text-slate-500 text-xs">${price.toLocaleString()} per share</p>}
-                        </td>
-                        <td className="px-4 py-4 text-slate-400 text-sm text-left">
-                           {new Date(act.createdAt).toLocaleDateString()}
-                        </td>
-                        <td className="px-6 py-4 text-center">
-                          <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${
-                            status === 'completed' || status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+              {/* Header */}
+              <div className="flex items-center border-b border-white/5 bg-black sticky top-0 z-10 px-6 py-4">
+                <div className="flex-[2] text-slate-500 text-xs font-medium uppercase tracking-wider">Transaction</div>
+                <div className="flex-1 text-right text-slate-500 text-xs font-medium uppercase tracking-wider pr-8">Quantity</div>
+                <div className="flex-1 text-right text-slate-500 text-xs font-medium uppercase tracking-wider pr-8">Price / Total</div>
+                <div className="flex-1 text-left text-slate-500 text-xs font-medium uppercase tracking-wider">Date</div>
+                <div className="w-24 text-center text-slate-500 text-xs font-medium uppercase tracking-wider">Status</div>
+              </div>
+
+              <div
+                style={{ height: `${virtualizer.getTotalSize()}px`, position: 'relative' }}
+              >
+                {virtualizer.getVirtualItems().map((virtualRow) => {
+                  const act = transactions[virtualRow.index];
+                  const isBuy = act.type === 'BUY';
+                  const price = act.price ? Number(act.price) : Number(act.stock?.price || 0);
+                  const total = price * act.quantity;
+                  const status = act.status ? act.status.toLowerCase() : 'completed';
+
+                  return (
+                    <div
+                      key={virtualRow.key}
+                      className="flex items-center px-6 py-4 hover:bg-white/2 transition-colors absolute top-0 left-0 w-full border-b border-white/[0.02]"
+                      style={{ transform: `translateY(${virtualRow.start}px)`, height: `${virtualRow.size}px` }}
+                    >
+                      {/* Column 1: Info */}
+                      <div className="flex-[2] flex items-center gap-3">
+                        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${isBuy ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'} border border-white/5`}>
+                          {isBuy ? <ArrowUpRight className="w-4 h-4" /> : <ArrowDownRight className="w-4 h-4" />}
+                        </div>
+                        <div>
+                          <p className="text-white text-sm font-semibold">{act.type} {act.stock.symbol}</p>
+                          <p className="text-slate-500 text-[10px] uppercase tracking-tight">{status === 'pending' || status === 'rejected' ? 'OTC Request' : 'Market Order'}</p>
+                        </div>
+                      </div>
+
+                      {/* Column 2: Qty */}
+                      <div className="flex-1 text-right pr-8 text-slate-300 text-sm font-mono">{act.quantity}</div>
+
+                      {/* Column 3: Value */}
+                      <div className="flex-1 text-right pr-8">
+                        <p className="text-white text-sm font-bold">${total.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                        <p className="text-slate-500 text-[10px]">${price.toLocaleString(undefined, { minimumFractionDigits: 2 })} / share</p>
+                      </div>
+
+                      {/* Column 4: Date */}
+                      <div className="flex-1 text-slate-400 text-sm">{new Date(act.createdAt).toLocaleDateString()}</div>
+
+                      {/* Column 5: Status */}
+                      <div className="w-24 flex justify-center">
+                        <span className={`text-[9px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${status === 'completed' || status === 'success' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                             : status === 'pending' ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
-                            : 'bg-red-500/10 text-red-400 border border-red-500/20'
+                              : 'bg-red-500/10 text-red-400 border border-red-500/20'
                           }`}>
-                            {status}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+                          {status}
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
+
           </div>
         )}
       </div>

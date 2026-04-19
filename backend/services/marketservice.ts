@@ -154,6 +154,7 @@ export const mapToPrismaStock = (simplified: any) => {
   if (simplified.website) data.website = simplified.website;
   if (simplified.marketCapRank) data.marketCapRank = simplified.marketCapRank;
   if (simplified.circulatingSupply) data.circulatingSupply = BigInt(Math.floor(simplified.circulatingSupply));
+  if (simplified.maxSupply) data.maxSupply = BigInt(Math.floor(simplified.maxSupply));
   return data;
 };
 
@@ -330,8 +331,7 @@ export const searchStock = async (query: string) => {
     if (!query || query.length < 1) {
       return { success: false, message: "Query is required" };
     }
-    const qoute = await withRetry(() => yahooFinance.quote(query));
-    console.log(qoute)
+
     const searchResults = await withRetry(() => yahooFinance.search(query));
 
 
@@ -398,22 +398,26 @@ export const getStockDetails = async (symbol: string) => {
     if (cached) return { success: true, message: "Fetched from Redis", data: JSON.parse(cached) };
     let stock = await prisma.stockTable.findUnique({ where: { symbol } });
     const isCryptoSym = symbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
-    // 2. Realistic "Data Present" check
     const haveDetails = isCryptoSym
-      ? (stock?.about && stock?.marketCapRank) // Crypto only needs About + Rank to be useful
-      : (stock?.about && stock?.ceo);         // Stocks only need About + CEO to be useful
+      ? (stock?.about && stock?.marketCapRank) 
+      : (stock?.about && stock?.ceo);         
     const isStale = stock && stock.updatedAt && 
       (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
+        console.log("have details",haveDetails)
+        console.log("is stale",isStale)
     if (!stock || !haveDetails || isStale) {
+      logger.info("am getting from yahoo finance",stock)
       const [quote, summary] = await Promise.all([
         withRetry(() => yahooFinance.quote(symbol)),
         withRetry(() => yahooFinance.quoteSummary(symbol, { 
           modules: ['assetProfile', 'financialData', 'defaultKeyStatistics'] 
         })).catch(() => null)
       ]);
+
       if (quote) {
         const simpleQuote = simplifyQuote(quote);
         const profile = (summary?.assetProfile as any) || {};
+        
         const updateData = {
           ...mapToPrismaStock(simpleQuote),
           industry: profile.industry || null,
@@ -424,9 +428,10 @@ export const getStockDetails = async (symbol: string) => {
           website: profile.website || null,
           marketCapRank: quote.marketCapRank || null,
           circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
-           maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
+          maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
           startDate: quote.startDate ? new Date(quote.startDate) : null,
         };
+
         stock = await prisma.stockTable.upsert({
           where: { symbol },
           update: updateData,
@@ -434,60 +439,41 @@ export const getStockDetails = async (symbol: string) => {
         }) as any;
       }
     }
+
     if (!stock) throw new Error("Stock not found");
-        const isCrypto = stock.assetType === 'CRYPTOCURRENCY' || symbol.endsWith('-USD');
+
+    // Use the formatter to get consistent base fields (type, ceo/rank, industry, etc.)
+    const simpleQuote = simplifyQuote(stock);
     
     const detailData = {
-      // Basic Identifiers
-      symbol: stock.symbol,
-      company: stock.company,
-      price: Number(stock.price),
-      changePercent: Number(stock.changePercent),
-      type: isCrypto ? 'CRYPTO' : 'STOCK',
-      
-      // The "About" Section (Bio & Links)
+      ...simpleQuote,
+      // Metadata & Bio
       about: stock.about || `Information for ${stock.company} is currently being updated.`,
       website: stock.website || 'N/A',
-      hq: stock.hq || 'Global',
-      industry: isCrypto ? 'Blockchain' : (stock.industry || 'N/A'),
-      sector: isCrypto ? 'Digital Asset' : (stock.sector || 'N/A'),
-      ceo: isCrypto ? `Rank #${stock.marketCapRank || 'N/A'}` : (stock.ceo || 'N/A'),
+      hq: stock.hq || (simpleQuote.isCrypto ? 'Global' : 'N/A'),
       
-      // Stock Specific Stats (Labels mapping)
+      // Formatted Stats for Frontend
       marketCap: formatCompactNumber(Number(stock.marketCap || 0)),
       volume: formatCompactNumber(Number(stock.volume || 0)),
       peRatio: stock.peRatio ? Number(stock.peRatio).toFixed(2) : 'N/A',
       dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
-      eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
-      beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
       fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
       fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
       
-      // Crypto Specific Stats (Labels mapping)
-      circulatingSupply: isCrypto && stock.circulatingSupply 
+      circulatingSupply: simpleQuote.isCrypto && stock.circulatingSupply 
           ? formatCompactNumber(Number(stock.circulatingSupply)) 
           : 'N/A',
-      maxSupply: isCrypto && stock.maxSupply 
+      maxSupply: simpleQuote.isCrypto && stock.maxSupply 
           ? formatCompactNumber(Number(stock.maxSupply)) 
           : 'N/A',
-      marketCapRank: stock.marketCapRank || 'N/A',
       startDate: stock.startDate ? new Date(stock.startDate).toLocaleDateString() : 'N/A',
 
-      // Additional UI Details (Chart & Hero section)
-      open: formatCurrency(Number(stock.open || 0), stock.currency),
-      previousClose: formatCurrency(Number(stock.previousClose || 0), stock.currency),
-      
-      // Matching the frontend's nested check: (displayItem.stats?.founded)
-      stats: {
-        founded: isCrypto ? 'N/A' : (stock.lastUpdated ? new Date(stock.lastUpdated).getFullYear() - 10 : 'N/A')
-      },
-      
-      financialSummary: isCrypto
-        ? `${stock.symbol} is a decentralized asset current ranked #${stock.marketCapRank || 'N/A'} by market cap.`
+      financialSummary: simpleQuote.isCrypto
+        ? `${stock.symbol} is a decentralized asset currently ranked #${stock.marketCapRank || 'N/A'} by market cap.`
         : `Currently trading at $${Number(stock.price).toFixed(2)}, ${stock.company} has a 52-week range of ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`
     };
 
-    await setCache(REDIS_KEY, JSON.stringify(detailData), 86400);
+    await setCache(REDIS_KEY, JSON.stringify(detailData), 600);
     return { success: true, data: detailData };
   } catch (error: any) {
     logger.error(`Detail fetch failed for ${symbol}:`, error);
@@ -519,7 +505,7 @@ export const getHistoricalData = async (symbol: string, range: string = '1mo') =
   try {
     const config = getRangeConfig(range);
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const timeoutId = setTimeout(() => controller.abort(), 20000);
 
     try {
       const result: any = await withRetry(() => yahooFinance.chart(symbol, config as any, { fetchOptions: { signal: controller.signal } as any }));

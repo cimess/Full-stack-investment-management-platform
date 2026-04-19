@@ -68,17 +68,17 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
             Next generation financial tools. Real-time analytics, AI insights, and institutional-grade security.
           </p>
 
-          <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-5 mb-20">
+          <div ref={buttonsRef} className="flex flex-col sm:flex-row gap-5 mb-20  items-center">
             <button
               onClick={()=>navigate('/signup')}
-              className="flex items-center justify-center gap-3 bg-white text-black hover:bg-slate-100 px-10 py-4.5 rounded-2xl font-bold transition-all group shadow-xl shadow-white/5 active:scale-95"
+              className=" w-[70%] flex items-center justify-center gap-3 bg-white text-black hover:bg-slate-100 px-4 py-2 md:px-6 rounded-2xl font-bold transition-all group shadow-xl shadow-white/5 active:scale-95"
             >
               Get Started
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" strokeWidth={2} />
             </button>
             <button
                onClick={()=>navigate('/login')}
-               className="flex items-center justify-center gap-3 bg-white/[0.03] border border-white/10 text-white hover:bg-white/[0.06] px-10 py-4.5 rounded-2xl font-bold transition-all active:scale-95"
+               className="w-[70%] flex items-center justify-center gap-3 bg-white/[0.03] border border-white/10 text-white hover:bg-white/[0.06] px-4 py-2 md:px-6 rounded-2xl font-bold transition-all active:scale-95"
             >
               Sign In
             </button>

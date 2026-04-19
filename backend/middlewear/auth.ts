@@ -66,3 +66,22 @@ export const generateAccessToken = (payload: { id: string; roles: string }) => {
   })
 }
 
+
+
+export const verifyTokenOptional: RequestHandler = (req, res, next) => {
+  const token = req.cookies.accessToken;
+
+  if (!token) return next(); // No token? No problem, move to rate limiter as a guest.
+
+  jwt.verify(token, process.env.JWT_SECRET_ACCESSTOKEN as string, (err: any, decodedPayload: any) => {
+    if (!err) {
+      (req as AuthRequest).user = {
+        id: decodedPayload.id,
+        roles: decodedPayload.roles
+      };
+    }
+    next(); // Move to the next checkpoint regardless.
+  });
+};
+
+

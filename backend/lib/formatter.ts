@@ -14,8 +14,10 @@ export const formatCompactNumber = (number: number | undefined): string => {
 /**
  * Formats numbers into standard currency (e.g., $262.52)
  */
-export const formatCurrency = (number: number | undefined, currency = "USD"): string => {
+export const formatCurrency = (number: number | undefined, currency = "USD",log?:string): string => {
+
   if (number === undefined || number === null) return "N/A";
+
 
 // ✅ Fix — dynamic decimal places
   const digits = number < 0.01 ? 6 : number < 1 ? 4 : 2;
@@ -42,14 +44,18 @@ export const formatPercent = (number: number | undefined): string => {
  */
 export const simplifyQuote = (quote: any) => {
   // Yahoo Finance can return varying property names; we map the most common ones.
-  const marketState = quote.marketState; // "REGULAR" | "PRE" | "POST" | "CLOSED"
-  const price =
+  const marketState = quote.marketState||"REGULAR"; // "REGULAR" | "PRE" | "POST" | "CLOSED"
+  const price =quote.price??(
     marketState === "PRE" ? (quote.preMarketPrice ?? quote.regularMarketPrice) :
       marketState === "POST" ? (quote.postMarketPrice ?? quote.regularMarketPrice) :
-        quote.regularMarketPrice;
+        quote.regularMarketPrice);
   const changePercent = quote.regularMarketChangePercent || quote.postMarketChangePercent || 0;
-  const company = quote.displayName || quote.shortName || quote.longName || "Unknown Company";
+  const company = quote.displayName || quote.shortName || quote.longName ||null;
+   const isCrypto = quote.quoteType === 'CRYPTOCURRENCY' || quote.symbol?.endsWith('-USD');
 
+  
+
+ 
   return {
     symbol: quote.symbol,
     company: company, // Added to match Prisma 'company' field
@@ -90,6 +96,19 @@ export const simplifyQuote = (quote: any) => {
     displayMarketCap: formatCompactNumber(quote.marketCap),
     displayVolume: formatCompactNumber(quote.regularMarketVolume || quote.averageDailyVolume3Month),
     isUp: changePercent > 0,
+
+    // for cyptor
+     type: isCrypto ? 'CRYPTO' : 'STOCK',
+    isCrypto,
+    
+    // ✅ NEW: Unified mapping (CEO becomes Rank for Crypto)
+    industry: isCrypto ? 'Blockchain' : (quote.industry || 'N/A'),
+    sector: isCrypto ? 'Digital Asset' : (quote.sector || 'N/A'),
+    ceo: isCrypto ? `Rank #${quote.marketCapRank || 'N/A'}` : (quote.officerName || quote.ceo || 'N/A'),
+    // Supply fields (mostly for crypto)
+    circulatingSupply: quote.circulatingSupply || null,
+    maxSupply: quote.maxSupply || null,
+    marketCapRank: quote.marketCapRank || null,
   };
 };
 

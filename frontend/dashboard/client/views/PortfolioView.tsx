@@ -18,7 +18,8 @@ const TradeModal = React.memo(({
   isPending,
   initialSelectedStockId,
   initialSelectedStock,
-  isMarketLoading
+  isMarketLoading,
+  holdings
 }: {
   isOpen: boolean;
   onClose: () => void;
@@ -29,7 +30,9 @@ const TradeModal = React.memo(({
   initialSelectedStockId?: string | null;
   initialSelectedStock?: string | null;
   isMarketLoading?: boolean;
+  holdings?: any[];
 }) => {
+  console.log(holdings)
   const [selectedStockId, setSelectedStockId] = React.useState(initialSelectedStockId || '');
   const [quantity, setQuantity] = React.useState(0);
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -130,6 +133,12 @@ const TradeModal = React.memo(({
 
   if (!isOpen) return null;
 
+    // ✅ Calculate the "precise" quantity for the CURRENTLY selected stock
+  const currentHolding = holdings?.find((h: any) => 
+    h.stock?.id === selectedStockId || h.stock?.symbol === selectedStockId
+  );
+  const preciseQuantity = currentHolding?.quantity || 0;
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
@@ -149,7 +158,7 @@ const TradeModal = React.memo(({
                   </>
                 ) : (
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    {filteredResults.length} Assets Available
+                    {type==='BUY'?filteredResults.length:preciseQuantity} {type==='BUY'?'Assets Available':'Available to Sell'}
                   </span>
                 )}
               </div>
@@ -308,7 +317,7 @@ const TradeModal = React.memo(({
               Cancel
             </button>
             <button
-              disabled={!selectedStockId || quantity <= 0 || isPending || (Number(selectedStock?.price) <= 0)}
+              disabled={!selectedStockId || quantity <= 0 || isPending || (Number(selectedStock?.price) <= 0)||(type === 'SELL' && quantity > preciseQuantity)}
               onClick={() => onConfirm(selectedStockId, quantity)}
               className={`flex-[2] py-4 rounded-2xl font-bold text-white transition-all text-sm uppercase tracking-widest shadow-2xl ${
                 type === 'BUY' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-red-500 shadow-red-500/20'
@@ -579,6 +588,7 @@ const PortfolioView: React.FC = () => {
           isOpen={isTradeModalOpen}
           onClose={() => setIsTradeModalOpen(false)}
           type={tradeType || 'BUY'}
+          holdings={holdings}
           stocks={
             tradeType === 'SELL' 
               ? (data?.data?.investments?.map((v: any) => v.stock) || []) 
