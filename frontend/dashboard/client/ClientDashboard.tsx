@@ -129,7 +129,7 @@ const {mutate:getVerificationToken}=resendVerificationToken()
                   </div>}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           <Routes>
-            <Route index element={<Overview />} />
+            <Route index element={<MarketView/>} />
             <Route path="market" element={<MarketView />} />
             <Route path="portfolio" element={<PortfolioView />} />
             <Route path="transactions" element={<TransactionsView />} />

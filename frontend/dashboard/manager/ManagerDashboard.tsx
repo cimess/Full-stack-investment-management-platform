@@ -98,7 +98,7 @@ const handleFinish = () => {
                   </div>}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <Routes>
-            <Route index element={<Overview />} />
+            <Route index element={<MarketView />} />
             <Route path="clients" element={<ClientsView />} />
             <Route path="requests" element={<RequestsView />} />
             <Route path="analytics" element={<AnalyticsView />} />
