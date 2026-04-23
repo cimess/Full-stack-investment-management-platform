@@ -50,6 +50,7 @@ export interface StockCardProps{
   circulatingSupply?: string;
   maxSupply?: string;
   marketCapRank?: string;
+  changePercent?: string;
   stats:{
     ceo:string,
     more:string,

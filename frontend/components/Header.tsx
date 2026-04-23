@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Menu, X, TrendingUp } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import logo from "../public/mylogo.webp"
 
 
 
@@ -35,11 +36,11 @@ const Header: React.FC = () => {
       <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
         <div
         onClick={()=>window.scrollTo({top:0,behavior:'smooth'})}
-         className="flex items-center gap-2 cursor-pointer group">
-          <div className="bg-white p-1.5 rounded-lg group-hover:bg-slate-200 transition-colors">
-            <TrendingUp className="text-black w-5 h-5" strokeWidth={2.5} />
+         className="flex items-center gap-4 cursor-pointer group">
+          <div className="md:w-16 w-12 md:h-16 h-12 rounded-full overflow-hidden border border-white/10 shadow-xl group-hover:scale-105 transition-transform duration-300">
+            <img src={logo} className='w-full h-full object-cover' alt="logo"/>
           </div>
-          <span className="text-xl font-bold tracking-tighter text-white">
+          <span className="text-2xl font-bold tracking-tighter text-white hidden sm:block">
             Cimess<span className="text-slate-400">Invest</span>
           </span>
         </div>

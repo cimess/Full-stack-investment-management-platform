@@ -104,6 +104,10 @@ export const postMarketQuotes = async (symbols: string[]) => {
   const response = await api.post("/market/quotes", { symbols })
   return response.data
 }
+export const getFundamentals = async (symbol: string) => {
+  const response = await api.post("/market/fundamentals", { symbol })
+  return response.data
+}
 
 export const fetchStockDetailsAPI = async (symbol: string) => {
   const response = await api.post("/market/stock-details", { symbol })

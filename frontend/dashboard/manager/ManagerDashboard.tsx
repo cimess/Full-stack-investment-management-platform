@@ -18,7 +18,7 @@ import MarketView from './views/MarketView';
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-
+import DCFModeler from '../../components/analytics/DCFModeler';
 const ManagerDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const navigate = useNavigate();
@@ -99,12 +99,14 @@ const handleFinish = () => {
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <Routes>
             <Route index element={<MarketView />} />
+            <Route path="overview" element={<Overview />} />
             <Route path="clients" element={<ClientsView />} />
             <Route path="requests" element={<RequestsView />} />
             <Route path="analytics" element={<AnalyticsView />} />
             <Route path="settings" element={<SettingsView />} />
             <Route path="notifications" element={<NotificationsView />} />
             <Route path="market" element={<MarketView />} />
+            <Route path="dcf" element={<DCFModeler />} />
           </Routes>
         </main>
       </div>

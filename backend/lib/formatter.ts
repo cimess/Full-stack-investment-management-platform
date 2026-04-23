@@ -1,32 +1,69 @@
+import logger from "../winstonlog/logger.js";
+
 /**
  * Formats large numbers into human-readable strings (e.g., 3.8T, 45.2M)
  */
-export const formatCompactNumber = (number: number | undefined): string => {
+// backend/lib/formatter.ts
+export const formatCompactNumber = (number: number | undefined, currency?: string): string => {
   if (number === undefined || number === null) return "N/A";
-
-  return new Intl.NumberFormat('en-US', {
+  
+  const options: Intl.NumberFormatOptions = {
     notation: "compact",
     compactDisplay: "short",
-    maximumFractionDigits: 2
-  }).format(number);
+    maximumFractionDigits: 1
+  };
+
+  const plainValue = new Intl.NumberFormat('en-US', options).format(number);
+
+  if (currency) {
+    try {
+      const currencyValue = new Intl.NumberFormat('en-US', {
+        ...options,
+        style: 'currency',
+        currency: currency.toUpperCase(),
+      }).format(number);
+
+      // Validation: If Intl failed to add a symbol/code, the result will be the same as plainValue
+      // In that case, we manually prefix the code.
+      // We check if the result contains any part of the original currency code Or a symbol.
+      const hasCurrency = /[^\d\s.,KMBT]/.test(currencyValue); 
+      
+      if (!hasCurrency) {
+          return `${currency.toUpperCase()} ${plainValue}`;
+      }
+      return currencyValue;
+    } catch {
+      return `${currency.toUpperCase()} ${plainValue}`;
+    }
+  }
+
+  return plainValue;
 };
 
 /**
  * Formats numbers into standard currency (e.g., $262.52)
  */
-export const formatCurrency = (number: number | undefined, currency = "USD",log?:string): string => {
-
+export const formatCurrency = (number: number | undefined, currency: string = "USD"): string => {
   if (number === undefined || number === null) return "N/A";
 
+  const code = currency.toUpperCase();
+  try {
+    const formatted = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: code,
+      currencyDisplay: "narrowSymbol",
+    }).format(number);
 
-// ✅ Fix — dynamic decimal places
-  const digits = number < 0.01 ? 6 : number < 1 ? 4 : 2;
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency', currency,
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  }).format(number);
+    // Some browsers return the number alone if the currency is unknown
+    if (!formatted.includes(code) && !/[^\d\s.,]/.test(formatted)) {
+       return `${code} ${number.toLocaleString()}`;
+    }
+    return formatted;
+  } catch (e) {
+    return `${code} ${number.toLocaleString()}`;
+  }
 };
+
 
 
 /**
@@ -43,6 +80,7 @@ export const formatPercent = (number: number | undefined): string => {
  * Master formatter to clean up a raw Yahoo Quote object
  */
 export const simplifyQuote = (quote: any) => {
+  console.log(quote.currency)
   // Yahoo Finance can return varying property names; we map the most common ones.
   const marketState = quote.marketState||"REGULAR"; // "REGULAR" | "PRE" | "POST" | "CLOSED"
   const price =quote.price??(
@@ -87,13 +125,17 @@ export const simplifyQuote = (quote: any) => {
     eps: quote.epsTrailingTwelveMonths,
     fiftyTwoWeekChangePercent: quote.fiftyTwoWeekChangePercent || null,
     // Display
-    displayChange: `${formatCurrency(quote.regularMarketChange)} (${formatPercent(changePercent)})`,
-    displayDayRange: `${formatCurrency(quote.regularMarketDayLow)} - ${formatCurrency(quote.regularMarketDayHigh)}`,
-    display52wRange: `${formatCurrency(quote.fiftyTwoWeekLow)} - ${formatCurrency(quote.fiftyTwoWeekHigh)}`,
+    displayChange: `${formatCurrency(quote.regularMarketChange,quote.currency)} (${formatPercent(changePercent)})`,
+    displayDayRange: `${formatCurrency(quote.regularMarketDayLow,quote.currency)} - ${formatCurrency(quote.regularMarketDayHigh,quote.currency)}`,
+    display52wRange: `${formatCurrency(quote.fiftyTwoWeekLow,quote.currency)} - ${formatCurrency(quote.fiftyTwoWeekHigh,quote.currency)}`,
+    display52wHigh: formatCurrency(quote.fiftyTwoWeekHigh, quote.currency),
+    display52wLow: formatCurrency(quote.fiftyTwoWeekLow, quote.currency),
+    displayDayHigh: formatCurrency(quote.regularMarketDayHigh, quote.currency),
+    displayDayLow: formatCurrency(quote.regularMarketDayLow, quote.currency),
 
     // UI Display Fields
     displayPrice: formatCurrency(price, quote.currency),
-    displayMarketCap: formatCompactNumber(quote.marketCap),
+    displayMarketCap: formatCompactNumber(quote.marketCap,quote.currency),
     displayVolume: formatCompactNumber(quote.regularMarketVolume || quote.averageDailyVolume3Month),
     isUp: changePercent > 0,
 

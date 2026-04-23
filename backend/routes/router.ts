@@ -10,7 +10,7 @@ import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
-import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory } from "../controller/market_data.js";
+import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
@@ -68,6 +68,9 @@ router.post("/market/search", verifyTokenOptional, searchStockController);
 router.post("/market/stock-details", verifyTokenOptional, postStockDetails);
 router.get("/market/history/:symbol", verifyTokenOptional, getStockHistory);
 router.get("/market/categories", verifyTokenOptional, getMarketCategories);
+
+// --- SEC Fundamentals ---
+router.post("/market/fundamentals", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), getFundamentals);
 
 // --- Authentication Routes ---
 router.post("/register", registerUser);

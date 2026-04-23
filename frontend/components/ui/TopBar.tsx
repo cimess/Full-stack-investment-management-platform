@@ -96,17 +96,17 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
           <h2 className="hidden sm:block text-[9px] font-bold text-slate-500 uppercase tracking-[0.2em] mb-0.5">
             {role === "MANAGER" ? "Total Manager Slots" : "Total Portfolio"}
           </h2>
-          <p className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role === "CLIENT" ? "topbar-portfolio-value" : role === "MANAGER" ? "topbar-manager-slots" : role === "ADMIN" ? "topbar-admin-slots" : null}>
-            {role === "MANAGER" ? `Manager Slots` : `portfolio-value `}
-            <p>
+          <div className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role === "CLIENT" ? "topbar-portfolio-value" : role === "MANAGER" ? "topbar-manager-slots" : role === "ADMIN" ? "topbar-admin-slots" : null}>
+            {role === "MANAGER" ? `Manager Slots: ` : `portfolio-value: `}
+            <span className="">
               {role === "CLIENT"
                 ? `$${Number(portfolioValue).toLocaleString()}`
                 : role === "MANAGER"
                   ? Number(managerSlot).toLocaleString()
                   : null}
-            </p>
+            </span>
 
-          </p>
+          </div>
         </div>
       )}
 

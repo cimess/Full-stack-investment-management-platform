@@ -13,6 +13,7 @@ import Loader from './loadericon/loader';
 import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
 import { SiGoogle } from "react-icons/si";
+import logo from "../public/mylogo.webp"
 
 
 
@@ -368,26 +369,7 @@ useEffect(() => {
         ${shake ? "animate-shake" : ""}`}
         >
           {/* Badge */}
-          <div
-            onMouseEnter={() => setHoverBadge(true)}
-            onMouseLeave={() => setHoverBadge(false)}
-            className={`absolute -top-8 left-1/2 -translate-x-1/2 w-16 h-16 rounded-2xl
-          flex items-center justify-center text-white text-2xl shadow-2xl border border-white/10
-          transition-all duration-500
-          ${redirectSuccess
-                ? "bg-emerald-500 shadow-emerald-500/20"
-                : "bg-white/[0.03] backdrop-blur-xl"}`}
-          >
-            <i
-              className={`fas ${success
-                  ? "fa-check"
-                  : hoverBadge
-                    ? "fa-user"
-                    : "fa-lock-open"
-                }`}
-              style={success ? { color: 'white' } : { color: '#888888' }}
-            />
-          </div>
+ 
 
           <h1 className="text-center text-white text-2xl sm:text-3xl font-bold mb-2 tracking-tighter">
             {loginUi ? "Welcome back" : "Create your account"}

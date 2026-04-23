@@ -96,11 +96,11 @@ const stats = [
     
   { 
     label: '52W High', 
-    value: getStat('fiftyTwoWeekHigh') !== 'N/A' ? `$${getStat('fiftyTwoWeekHigh')}` : 'N/A' 
+    value: getStat('display52wHigh', getStat('fiftyTwoWeekHigh'))
   },
   { 
     label: '52W Low', 
-    value: getStat('fiftyTwoWeekLow') !== 'N/A' ? `$${getStat('fiftyTwoWeekLow')}` : 'N/A' 
+    value: getStat('display52wLow', getStat('fiftyTwoWeekLow'))
   },
 ];
 
@@ -139,8 +139,10 @@ const stats = [
     }
   };
 
-  const isUp = parseFloat(item.return || '0') >= 0;
+
   const chartData = (historyData as any)?.data || [];
+const changeDisplay = item?.return || displayItem?.return || "0.00%";
+const isUp = changeDisplay.startsWith('+') || parseFloat(changeDisplay) >= 0;
 
 
 
@@ -188,7 +190,7 @@ const stats = [
           <div className="p-6 sm:p-8">
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-4xl sm:text-5xl font-bold text-white tracking-tighter">{price}</span>
-              <span className={`text-sm font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{item.return}</span>
+              <span className={`text-sm font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{changeDisplay}</span>
             </div>
 
             <div className="flex gap-2 mb-6 bg-white/[0.03] p-1 rounded-xl w-fit border border-white/5">

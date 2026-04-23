@@ -1,14 +1,16 @@
 import { Link } from 'react-router-dom';
-import { TrendingUp, Twitter, Linkedin, Instagram } from 'lucide-react';
+import { Twitter, Linkedin, Instagram } from 'lucide-react';
+import logo from "../public/mylogo.webp"
+
 const Footer: React.FC = () => {
   return (
     <footer className="bg-black border-t border-white/5 pt-32 pb-16">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-16 mb-24">
           <div className="space-y-6">
-            <div className="flex items-center gap-2">
-                <div className="bg-white p-1.5 rounded-lg">
-                    <TrendingUp className="text-black w-5 h-5" strokeWidth={2.5} />
+            <div className="flex items-center gap-3">
+                <div className="w-12 h-12 rounded-full overflow-hidden border border-white/10 shadow-lg">
+                    <img src={logo} className="w-full h-full object-cover" alt="logo" />
                 </div>
                 <span className="text-xl font-bold tracking-tighter text-white">
                     Cimess<span className="text-slate-400">Invest</span>

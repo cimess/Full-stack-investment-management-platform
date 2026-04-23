@@ -453,7 +453,7 @@ export const getStockDetails = async (symbol: string) => {
       hq: stock.hq || (simpleQuote.isCrypto ? 'Global' : 'N/A'),
       
       // Formatted Stats for Frontend
-      marketCap: formatCompactNumber(Number(stock.marketCap || 0)),
+      marketCap: formatCompactNumber(Number(stock.marketCap || 0), stock.currency),
       volume: formatCompactNumber(Number(stock.volume || 0)),
       peRatio: stock.peRatio ? Number(stock.peRatio).toFixed(2) : 'N/A',
       dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
@@ -470,7 +470,7 @@ export const getStockDetails = async (symbol: string) => {
 
       financialSummary: simpleQuote.isCrypto
         ? `${stock.symbol} is a decentralized asset currently ranked #${stock.marketCapRank || 'N/A'} by market cap.`
-        : `Currently trading at $${Number(stock.price).toFixed(2)}, ${stock.company} has a 52-week range of ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`
+        : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}, ${stock.company} has a 52-week range of ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`
     };
 
     await setCache(REDIS_KEY, JSON.stringify(detailData), 600);

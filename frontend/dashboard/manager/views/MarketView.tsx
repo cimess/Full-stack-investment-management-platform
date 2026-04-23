@@ -78,7 +78,7 @@ const MarketView: React.FC = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, searchStocks]);
 
-  const handleStockClick = (symbol: string, basicName: string) => {
+  const handleStockClick = (symbol: string, basicName: string, change: string) => {
     setFetchingSymbol(symbol);
     fetchDetails(symbol, {
       onSuccess: (res) => {
@@ -92,7 +92,7 @@ const MarketView: React.FC = () => {
             label: apiData.company || apiData.name || basicName || symbol,
             image: logoUrl,
             type: assetClass === 'equity' ? "STOCK" : "CRYPTO",
-            return: `${apiData.changePercent >= 0 ? '+' : ''}${apiData.changePercent?.toFixed(2)}%`,
+            return: change,
             risk: "Variable",
             invest: apiData.displayPrice,
             price: apiData.price,
@@ -284,7 +284,11 @@ const MarketView: React.FC = () => {
                     return (
                       <div
                         key={`${symbol}-${index}`}
-                        onClick={() => handleStockClick(symbol, name)}
+                        onClick={() => {
+                          const changeToString = change.toString()
+                          handleStockClick(symbol, name, changeToString)
+
+                        }}
                         className="premium-card p-4 sm:p-5 cursor-pointer hover:-translate-y-1 transition-all group flex flex-col justify-between border border-white/5 hover:border-emerald-500/30 mb-2 sm:mb-0 border-b md:border-b-transparent border-white/5 rounded-xl"
                       >
                         <div className="flex items-center justify-between mb-6">
@@ -303,11 +307,12 @@ const MarketView: React.FC = () => {
                         </div>
 
                         <div className="flex justify-between items-end">
-                          <div>
-                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest mb-1">Price</p>
-                            <p className="text-white text-xl font-mono font-bold">
-                              ${price.toLocaleString(undefined, { minimumFractionDigits: 2 })}
+                          <div className="flex flex-col gap-1">
+                            <p className="text-slate-500 text-[9px] font-bold uppercase tracking-widest">Price</p>
+                            <p className="text-white text-xl font-mono font-bold leading-none">
+                              {s.displayPrice || `$${price.toLocaleString()}`}
                             </p>
+                            <p className="text-[10px] text-slate-400 font-medium">MCap: {s.displayMarketCap || 'N/A'}</p>
                           </div>
                           <div className={`px-2 py-1 rounded-md text-[11px] font-bold font-mono ${change >= 0 ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
                             {change >= 0 ? '+' : ''}{change.toFixed(2)}%
@@ -323,6 +328,7 @@ const MarketView: React.FC = () => {
         </div>
       )}
 
+
       {isModalOpen && selectedStock && (
         <DetailsModal
           item={selectedStock}
@@ -336,6 +342,7 @@ const MarketView: React.FC = () => {
       )}
     </div>
   );
+
 };
 
 export default MarketView;

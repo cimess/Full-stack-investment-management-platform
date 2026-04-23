@@ -54,10 +54,7 @@ const Hero: React.FC<HeroProps> = ({ onGetStarted }) => {
 
       <div className="max-w-7xl mx-auto px-6 w-full grid lg:grid-cols-2 gap-16 items-center">
         <div className="max-w-2xl">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/[0.03] border border-white/10 text-slate-400 text-[10px] font-bold uppercase tracking-[0.2em] mb-8">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
-            Platform Status: Live
-          </div>
+          
 
           <h1 ref={titleRef} className="text-6xl md:text-8xl font-bold leading-[1.05] mb-10 tracking-tighter">
             Invest in the <br />

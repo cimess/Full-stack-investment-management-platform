@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout, useGetNotifications } from "../../hooks/useQuery";
+import logo from "../../public/mylogo.webp"
 import {
   LayoutDashboard,
   TrendingUp,
@@ -43,14 +44,15 @@ const clientNav: NavItem[] = [
 ];
 
 const managerNav: NavItem[] = [
-  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager', dataTour: 'sidebar-overview' },
+  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager/overview', dataTour: 'sidebar-overview' },
   { label: 'My Clients', icon: <Users className="w-5 h-5" />, path: '/dashboard/manager/clients', dataTour: 'sidebar-clients' },
   { label: 'Requests', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/manager/requests', dataTour: 'sidebar-requests' },
   { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/manager/market', dataTour: 'sidebar-market' },
   { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/manager/analytics', dataTour: 'sidebar-analytics' },
+  { label: 'DCF Calculator', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/dcf', dataTour: 'sidebar-dcf' },
   { label: 'Notifications', icon: <Bell className="w-5 h-5" />, path: '/dashboard/manager/notifications', dataTour: 'sidebar-notifications' },
   { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/settings', dataTour: 'sidebar-settings' },
-
+  
 ];
 
 const adminNav: NavItem[] = [
@@ -149,14 +151,14 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         lg:relative lg:translate-x-0 ${collapsed ? 'lg:w-20' : 'lg:w-64'}`}
       >
         {/* Logo */}
-        <div className={`flex items-center gap-3 px-6 py-8 border-b border-white/5 ${collapsed ? 'justify-center px-3' : ''}`}>
-          <div className="w-8 h-8 rounded-lg bg-white/10 flex items-center justify-center flex-shrink-0 border border-white/10 shadow-inner">
-            <span className="text-white font-bold text-xs tracking-tighter">CM</span>
+        <div className={`flex flex-col items-center gap-3 px-6 py-10 border-b border-white/5 ${collapsed ? 'px-2' : ''}`}>
+          <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 border border-white/10 shadow-2xl overflow-hidden group hover:scale-110 transition-transform duration-500">
+            <img src={logo} className="w-full h-full object-cover" alt="logo" />
           </div>
           {!collapsed && (
-            <div className="flex flex-col">
-              <span className="text-white font-bold text-lg leading-tight tracking-tight">CimessInvest</span>
-              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.2em] -mt-0.5">Wealth Management</span>
+            <div className="flex flex-col items-center text-center">
+              <span className="text-white font-bold text-xl leading-tight tracking-tighter">Cimess<span className="text-slate-400">Invest</span></span>
+              <span className="text-slate-500 text-[9px] font-bold uppercase tracking-[0.3em] mt-1">Wealth Management</span>
             </div>
           )}
         </div>

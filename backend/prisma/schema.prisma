@@ -112,6 +112,12 @@ model StockTable {
   transaction        Transaction[]   @relation("stockTransaction")
   trade_request      Trade_request[] @relation("trade_request")
 
+  // fundamentals
+  revenue           BigInt?     // Using BigInt because Apple's revenue is 383 Billion!
+  totalDebt         BigInt?
+  totalCash         BigInt?
+  sharesOutstanding BigInt?
+
   @@index([marketCap(sort: Desc)])
   @@index([changePercent(sort: Desc)])
   @@index([lastUpdated(sort: Desc)])

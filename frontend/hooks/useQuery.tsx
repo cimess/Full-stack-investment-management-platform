@@ -9,7 +9,7 @@ import {
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
   updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI,
   getMarketCategories, getAIInsights, fetchStockHistoryAPI, resendVerificationTokenAPI,
-  reportProblem, updateManagerProfileAPI, getClientReportsAPI, updateReportStatusAPI, deleteReportAPI
+  reportProblem, updateManagerProfileAPI, getClientReportsAPI, updateReportStatusAPI, deleteReportAPI,getFundamentals
 } from "../services/queryServices"
 
 
@@ -120,8 +120,6 @@ export const getUserDashboard = () => {
 }
 
 // frontend/hooks/useQuery.tsx
-
-
 
 export const useGetMarketQuotes = (enabled: boolean = false, limit: number = 2000) => {
   return useQuery({
@@ -267,5 +265,12 @@ export const useUpdateReportStatus = () => {
 export const useDeleteReport = () => {
   return useMutation({
     mutationFn: deleteReportAPI
+  })
+}
+
+// fundamentals api
+export const useGetFundamentals = () => {
+  return useMutation({
+    mutationFn: getFundamentals
   })
 }

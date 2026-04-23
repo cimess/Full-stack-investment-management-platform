@@ -3,7 +3,8 @@ import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails, getHistoricalData } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
-import type { AuthRequest } from "../middlewear/auth.js"; // Assuming auth is required
+import { getSECFundamentals } from '../services/secservices.js';
+import { formatCurrency, formatCompactNumber, formatPercent } from "../lib/formatter.js";
 import { trace,context } from "@opentelemetry/api";
 
 
@@ -213,11 +214,18 @@ const span=trace.getSpan(context.active());
     }
 
     // BigInt cannot be serialized to JSON directly
-    const formattedData = stocks.map(stock => ({
-      ...stock,
-      marketCap: stock.marketCap ? stock.marketCap.toString() : null,
-      price: Number(stock.price)
-    }));
+    const formattedData = stocks.map(stock => {
+      const currency = stock.currency || "USD";
+      return {
+        ...stock,
+        marketCap: stock.marketCap ? stock.marketCap.toString() : null,
+        price: Number(stock.price),
+        // Use our robust formatters!
+        displayPrice: formatCurrency(Number(stock.price), currency),
+        displayMarketCap: formatCompactNumber(Number(stock.marketCap), currency),
+        displayChange: `${formatCurrency(Number(stock.change), currency)} (${formatPercent(Number(stock.changePercent))})`,
+      };
+    });
 
     return res.status(200).json({
       success: true,
@@ -344,11 +352,17 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
     });
 
     // Helper to format BigInt to string for JSON serialization
-    const formatStock = (stock: any) => ({
-      ...stock,
-      marketCap: stock.marketCap ? stock.marketCap.toString() : null,
-      price: Number(stock.price)
-    });
+    const formatStock = (stock: any) => {
+      const currency = stock.currency || "USD";
+      return {
+        ...stock,
+        marketCap: stock.marketCap ? stock.marketCap.toString() : null,
+        price: Number(stock.price),
+        displayPrice: formatCurrency(Number(stock.price), currency),
+        displayMarketCap: formatCompactNumber(Number(stock.marketCap), currency),
+        displayChange: `${formatCurrency(Number(stock.change), currency)} (${formatPercent(Number(stock.changePercent))})`,
+      };
+    };
 
     const responsePayload = {
       success: true,
@@ -389,3 +403,112 @@ const getSingleStock = async (symbol:string ) => {
   }
 };
 // getSingleStock('GOOGL')
+
+// getSECFundamentals
+
+
+
+
+export const getFundamentals = async (req: Request, res: Response) => {
+    const { symbol } = req.body;
+    const REDIS_KEY = `stock:fundamentals:${symbol}`;
+    const span = trace.getSpan(context.active());
+    if(!symbol){
+      span?.setAttribute('cache.hit', false);
+      span?.setAttribute('cache.key', REDIS_KEY);
+      return res.status(400).json({ success: false, message: "Symbol is required" });
+    }
+    try {
+        // 1. Check Redis Cache for speed
+        const cached = await getCache(REDIS_KEY);
+        if (cached) {
+          span?.setAttribute('cache.hit', true);
+          span?.setAttribute('cache.key', REDIS_KEY);
+            return res.status(200).json({ success: true, data: JSON.parse(cached) });
+        }
+        // 2. Check the Database if not in Redis
+        const dbStock = await prisma.stockTable.findUnique({
+            where: { symbol: symbol.toUpperCase() }
+        });
+        // If we have it in DB and it's not null, use it!
+        if (dbStock && dbStock.revenue && dbStock.sharesOutstanding) {
+            const dbData = {
+                ticker: dbStock.symbol,
+                currentRevenue: Number(dbStock.revenue),
+                totalCash: Number(dbStock.totalCash),
+                totalDebt: Number(dbStock.totalDebt),
+                sharesOutstanding: Number(dbStock.sharesOutstanding),
+                dataSource: 'Database Cache',
+                currentPrice: Number(dbStock.price),
+            };
+            await setCache(REDIS_KEY, JSON.stringify(dbData), 86400); // Re-cache for 24h
+            return res.status(200).json({ success: true, data: dbData });
+        }
+        // 3. Not in DB? Fetch from SEC API permanently!
+        const secData = await getSECFundamentals(symbol);
+
+        
+
+        let stock:any=await prisma.stockTable.findUnique({
+            where: { symbol: symbol.toUpperCase() }
+        })
+        if(!stock || stock.price===0||!stock.price){
+          // 2. Get LIVE PRICE from your existing service
+          const quote = await getQuotes([symbol]); 
+          stock=quote.data?.[0];
+        }
+        const combinedData = {
+            ...secData,
+            currentPrice: Number(stock?.price)||null, // Add the live price here!
+        };
+        // 4. SAVE TO DATABASE!
+if (secData) {
+    await prisma.stockTable.upsert({
+        where: { symbol: symbol.toUpperCase() },
+        update: {
+            revenue: BigInt(Math.floor(secData.currentRevenue)),
+            totalCash: BigInt(Math.floor(secData.totalCash)),
+            totalDebt: BigInt(Math.floor(secData.totalDebt)),
+            sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
+            ...(Number(stock?.price) && { price: Number(stock?.price) })
+        },
+        create: {
+            symbol: symbol.toUpperCase(),
+            company: stock?.company || symbol.toUpperCase(),
+            revenue: BigInt(Math.floor(secData.currentRevenue)),
+            totalCash: BigInt(Math.floor(secData.totalCash)),
+            totalDebt: BigInt(Math.floor(secData.totalDebt)),
+            sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
+            price: Number(stock?.price) || 0
+        }
+    });
+}
+        // 5. Cache the new data
+        await setCache(REDIS_KEY, JSON.stringify(combinedData), 86400);
+        return res.status(200).json({ success: true, data: combinedData });
+    } catch (error: any) {
+        // If the stock isn't known to the SEC (like Crypto), handle it safely
+ console.error("DCF Error:", error.message);
+    // 1. Handle SEC-specific "Not Found" errors
+    if (error.message.includes("Ticker not found") || error.message.includes("404")) {
+        return res.status(404).json({ 
+            success: false, 
+            message: "Symbol not found in SEC database. (Note: Crypto and Foreign stocks are not supported by the SEC EDGAR API)." 
+        });
+    }
+    // 2. Handle Rate Limiting (SEC is strict)
+    if (error.message.includes("429")) {
+        return res.status(429).json({ 
+            success: false, 
+            message: "SEC Rate limit reached. Please wait a few seconds and try again." 
+        });
+    }
+    // 3. Fallback for other errors
+    return res.status(400).json({ 
+        success: false, 
+        message: error.message || "An unexpected error occurred while fetching fundamentals." 
+    });
+
+       
+    }
+};
