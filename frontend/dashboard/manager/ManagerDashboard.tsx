@@ -10,11 +10,11 @@ import { toast } from 'react-toastify';
 import Overview from './views/Overview';
 import ClientsView from './views/ClientsView';
 import RequestsView from './views/RequestsView';
-import AnalyticsView from './views/AnalyticsView';
 import SettingsView from './views/SettingsView';
 import NotificationsView from '../../components/NotificationsView';
 import ReportProblemModal from '../../components/ReportProblemModal';
 import MarketView from './views/MarketView';
+import StocksView from '../admin/views/StocksView';
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
@@ -102,7 +102,7 @@ const handleFinish = () => {
             <Route path="overview" element={<Overview />} />
             <Route path="clients" element={<ClientsView />} />
             <Route path="requests" element={<RequestsView />} />
-            <Route path="analytics" element={<AnalyticsView />} />
+            <Route path="stocks" element={<StocksView />} />
             <Route path="settings" element={<SettingsView />} />
             <Route path="notifications" element={<NotificationsView />} />
             <Route path="market" element={<MarketView />} />

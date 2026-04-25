@@ -396,28 +396,37 @@ export const getStockDetails = async (symbol: string) => {
   try {
     const cached = await getCache(REDIS_KEY);
     if (cached) return { success: true, message: "Fetched from Redis", data: JSON.parse(cached) };
-    let stock = await prisma.stockTable.findUnique({ where: { symbol } });
-    const isCryptoSym = symbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
+
+    const targetSymbol = symbol.toUpperCase();
+    let stock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
+
+    const isCryptoSym = targetSymbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
     const haveDetails = isCryptoSym
-      ? (stock?.about && stock?.marketCapRank) 
-      : (stock?.about && stock?.ceo);         
-    const isStale = stock && stock.updatedAt && 
+      ? (stock?.about && stock?.marketCapRank)
+      : (stock?.about && stock?.ceo);
+    const isStale = stock && stock.updatedAt &&
       (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
-        console.log("have details",haveDetails)
-        console.log("is stale",isStale)
+
+    let intelligence: any = null;
+
     if (!stock || !haveDetails || isStale) {
-      logger.info("am getting from yahoo finance",stock)
-      const [quote, summary] = await Promise.all([
-        withRetry(() => yahooFinance.quote(symbol)),
-        withRetry(() => yahooFinance.quoteSummary(symbol, { 
-          modules: ['assetProfile', 'financialData', 'defaultKeyStatistics'] 
-        })).catch(() => null)
+      logger.info("am getting from yahoo finance", stock)
+      const [quote, summary, intel] = await Promise.all([
+        withRetry(() => yahooFinance.quote(targetSymbol)),
+        withRetry(() => yahooFinance.quoteSummary(targetSymbol, {
+          modules: ['assetProfile', 'financialData', 'defaultKeyStatistics']
+        })).catch(() => null),
+        getStockIntelligence(targetSymbol) // <-- Grabs live News & Ratings!
       ]);
+
+      intelligence = intel;
 
       if (quote) {
         const simpleQuote = simplifyQuote(quote);
         const profile = (summary?.assetProfile as any) || {};
-        
+        const financialData = (summary?.financialData as any) || {};
+        const keyStats = (summary?.defaultKeyStatistics as any) || {};
+
         const updateData = {
           ...mapToPrismaStock(simpleQuote),
           industry: profile.industry || null,
@@ -430,28 +439,46 @@ export const getStockDetails = async (symbol: string) => {
           circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
           maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
           startDate: quote.startDate ? new Date(quote.startDate) : null,
+
+          forwardPE: keyStats?.forwardPE ?? null,
+          priceToBook: keyStats?.priceToBook ?? null,
+          priceToSales: financialData?.revenuePerShare && financialData?.currentPrice
+            ? (financialData.currentPrice / financialData.revenuePerShare) : null,
+          enterpriseValue: keyStats?.enterpriseValue ?? null,
+          ebitda: financialData?.ebitda ?? null,
+          grossMargin: financialData?.grossMargins ?? null,
+          operatingMargin: financialData?.operatingMargins ?? null,
+          profitMargin: financialData?.profitMargins ?? null,
+          returnOnEquity: financialData?.returnOnEquity ?? null,
+          returnOnAssets: financialData?.returnOnAssets ?? null,
+          currentRatio: financialData?.currentRatio ?? null,
+          debtToEquity: financialData?.debtToEquity ?? null,
+          freeCashflow: financialData?.freeCashflow ?? null,
         };
 
         stock = await prisma.stockTable.upsert({
-          where: { symbol },
+          where: { symbol: targetSymbol },
           update: updateData,
-          create: { ...updateData as any, symbol }
+          create: { ...updateData as any, symbol: targetSymbol }
         }) as any;
       }
+    } else {
+      // Data is fresh in DB, but always fetch fresh news/ratings
+      intelligence = await getStockIntelligence(targetSymbol);
     }
 
     if (!stock) throw new Error("Stock not found");
 
     // Use the formatter to get consistent base fields (type, ceo/rank, industry, etc.)
     const simpleQuote = simplifyQuote(stock);
-    
+
     const detailData = {
       ...simpleQuote,
       // Metadata & Bio
       about: stock.about || `Information for ${stock.company} is currently being updated.`,
       website: stock.website || 'N/A',
       hq: stock.hq || (simpleQuote.isCrypto ? 'Global' : 'N/A'),
-      
+
       // Formatted Stats for Frontend
       marketCap: formatCompactNumber(Number(stock.marketCap || 0), stock.currency),
       volume: formatCompactNumber(Number(stock.volume || 0)),
@@ -460,17 +487,29 @@ export const getStockDetails = async (symbol: string) => {
       fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
       fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
       
-      circulatingSupply: simpleQuote.isCrypto && stock.circulatingSupply 
-          ? formatCompactNumber(Number(stock.circulatingSupply)) 
-          : 'N/A',
-      maxSupply: simpleQuote.isCrypto && stock.maxSupply 
-          ? formatCompactNumber(Number(stock.maxSupply)) 
-          : 'N/A',
+      // Institutional metrics
+      eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
+      beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
+      enterpriseValue: stock.enterpriseValue ? formatCompactNumber(Number(stock.enterpriseValue), stock.currency) : 'N/A',
+      ebitda: stock.ebitda ? formatCompactNumber(Number(stock.ebitda), stock.currency) : 'N/A',
+      freeCashflow: stock.freeCashflow ? formatCompactNumber(Number(stock.freeCashflow), stock.currency) : 'N/A',
+      profitMargin: stock.profitMargin ? (Number(stock.profitMargin) * 100).toFixed(2) + '%' : 'N/A',
+      operatingMargin: stock.operatingMargin ? (Number(stock.operatingMargin) * 100).toFixed(2) + '%' : 'N/A',
+
+      circulatingSupply: simpleQuote.isCrypto && stock.circulatingSupply
+        ? formatCompactNumber(Number(stock.circulatingSupply))
+        : 'N/A',
+      maxSupply: simpleQuote.isCrypto && stock.maxSupply
+        ? formatCompactNumber(Number(stock.maxSupply))
+        : 'N/A',
       startDate: stock.startDate ? new Date(stock.startDate).toLocaleDateString() : 'N/A',
 
       financialSummary: simpleQuote.isCrypto
         ? `${stock.symbol} is a decentralized asset currently ranked #${stock.marketCapRank || 'N/A'} by market cap.`
-        : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}, ${stock.company} has a 52-week range of ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`
+        : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}, ${stock.company} has a 52-week range of 
+        ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0),
+          stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`,
+      intelligence
     };
 
     await setCache(REDIS_KEY, JSON.stringify(detailData), 600);
@@ -543,4 +582,96 @@ export const getHistoricalData = async (symbol: string, range: string = '1mo') =
   }
 };
 
-export default { getQuotes, searchStock, getStockDetails, seedTopSymbols, getHistoricalData };
+// Fetches LIVE News and Analyst Ratings (Caches them in Redis for 2 hours)
+export const getStockIntelligence = async (symbol: string) => {
+  const cacheKey = `stock:intelligence:${symbol}`;
+
+  try {
+    const cached = await getCache(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    // Fetch Live Analyst Ratings & News simultaneously
+    const [summary, searchResults] = await Promise.all([
+      yahooFinance.quoteSummary(symbol, { modules: ['recommendationTrend'] }).catch(() => null),
+      yahooFinance.search(symbol, { newsCount: 5 }).catch(() => null)
+    ]);
+
+    const intelligence = {
+      analystRatings: summary?.recommendationTrend?.trend?.[0] || null,
+      news: searchResults?.news?.map((n: any) => ({
+        title: n.title,
+        publisher: n.publisher,
+        link: n.link,
+        publishTime: n.providerPublishTime,
+        thumbnail: n.thumbnail?.resolutions?.[0]?.url || null
+      })) || []
+    };
+
+    // Cache for 2 hours (7200 seconds) to prevent API spam on hot stocks
+    await setCache(cacheKey, JSON.stringify(intelligence), 7200);
+    return intelligence;
+
+  } catch (err) {
+    logger.error(`Intelligence fetch failed for ${symbol}`, err);
+    return { analystRatings: null, news: [] };
+  }
+};
+
+
+// Fetches 4 years of Annual Revenue & Net Income and persists to DB
+export const getHistoricalFundamentals = async (symbol: string) => {
+  const cacheKey = `stock:historical_fundamentals:${symbol}`;
+  const targetSymbol = symbol.toUpperCase();
+
+  try {
+    const cached = await getCache(cacheKey);
+    if (cached) return JSON.parse(cached);
+
+    // 1. Check if we already have it in the Database
+    const stock = await prisma.stockTable.findUnique({
+      where: { symbol: targetSymbol },
+      select: { historicalAnalytics: true }
+    });
+
+    if (stock?.historicalAnalytics) {
+      const data = stock.historicalAnalytics as any;
+      await setCache(cacheKey, JSON.stringify(data), 86400); // 24hr Cache
+      return data;
+    }
+
+    // 2. Not in DB? Fetch from Yahoo Finance
+    const summary = await yahooFinance.quoteSummary(targetSymbol, { modules: ['incomeStatementHistory'] });
+    
+    if (!summary || !summary.incomeStatementHistory || !summary.incomeStatementHistory.incomeStatementHistory) {
+      return [];
+    }
+
+    const rawData = summary.incomeStatementHistory.incomeStatementHistory;
+    const formattedData = rawData
+      .filter((item: any) => item.endDate && item.totalRevenue != null && item.netIncome != null)
+      .map((item: any) => ({
+        year: new Date(item.endDate).getFullYear().toString(),
+        revenue: item.totalRevenue,
+        netIncome: item.netIncome
+      }))
+      .reverse();
+
+    // 3. Save to Database for long-term history tracking
+    if (formattedData.length > 0) {
+      await prisma.stockTable.update({
+        where: { symbol: targetSymbol },
+        data: { historicalAnalytics: formattedData }
+      }).catch(err => logger.error(`DB Save failed for ${targetSymbol} history:`, err));
+    }
+
+    await setCache(cacheKey, JSON.stringify(formattedData), 86400);
+    return formattedData;
+  } catch (err) {
+    logger.error(`Historical Fundamentals fetch failed for ${symbol}`, err);
+    return [];
+  }
+};
+
+export default { getQuotes, searchStock, getStockDetails, seedTopSymbols, getHistoricalData, getHistoricalFundamentals };
+
+

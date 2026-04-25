@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
+import { useMutation, useQueryClient, useQuery } from '@tanstack/react-query';
 import { useGetAdminDashboard, adminRestrictUser, useGenerateAccessKey } from '../../../hooks/useQuery';
-import { Loader2, ShieldOff, ShieldCheck, Users, UserPlus, Copy, Check, X } from 'lucide-react';
+import { Loader2, ShieldOff, ShieldCheck, Users, UserPlus, Copy, Check, X, ShieldAlert } from 'lucide-react';
 import { toast } from 'react-toastify';
 
 interface PromotionModalProps {
@@ -88,7 +89,17 @@ const PromotionModal: React.FC<PromotionModalProps> = ({ user, type, onClose, on
 const UsersView: React.FC = () => {
   const { data: adminData, isLoading, refetch } = useGetAdminDashboard();
   const { mutate: restrictUserAction } = adminRestrictUser();
-  const [userFilter, setUserFilter] = useState<'all' | 'active' | 'restricted'>('all');
+  const queryClient = useQueryClient();
+  
+  // Robust check for superadmin status using both current query and cache fallback
+  const { data: meQueryData } = useQuery({ queryKey: ["me"] }) as any;
+  const meCacheData = queryClient.getQueryData(["me"]) as any;
+
+  const currentUser = meQueryData?.data || meCacheData?.data;
+  
+  const isSuperAdmin = currentUser?.admin?.super_admin === true;
+
+  const [userFilter, setUserFilter] = useState<'all' | 'active' | 'restricted' | 'admins'>('all');
   const [processingId, setProcessingId] = useState<string | null>(null);
   const [modalData, setModalData] = useState<{ user: any, type: 'manager' | 'admin' } | null>(null);
   const [activeCode, setActiveCode] = useState<{ id: string, code: string } | null>(null);
@@ -103,6 +114,12 @@ const UsersView: React.FC = () => {
   }
 
   const allUsers = adminData?.data?.users || [];
+  const allAdmins = (adminData?.data?.admins || []).map((a: any) => ({
+      ...a.user,
+      id: a.user_id, // Normalize ID for existing components
+      isAdminEntry: true,
+      isSuperAdmin: a.super_admin
+  }));
 
   const handleRestrictToggle = (user: any) => {
     setProcessingId(user.id);
@@ -129,11 +146,13 @@ const UsersView: React.FC = () => {
     toast.info("Code copied to clipboard");
   };
 
-  const filteredUsers = allUsers.filter((u: any) => {
-    if (userFilter === 'active') return !u.restricted;
-    if (userFilter === 'restricted') return u.restricted;
-    return true;
-  });
+  const filteredUsers = userFilter === 'admins' 
+    ? allAdmins 
+    : allUsers.filter((u: any) => {
+        if (userFilter === 'active') return !u.restricted;
+        if (userFilter === 'restricted') return u.restricted;
+        return true;
+      });
 
   return (
     <div className="space-y-6">
@@ -152,6 +171,14 @@ const UsersView: React.FC = () => {
               {f}
             </button>
           ))}
+          {isSuperAdmin && (
+            <button
+              onClick={() => setUserFilter('admins')}
+              className={`flex-1 sm:flex-none px-4 py-1.5 rounded-md text-xs font-medium capitalize transition-colors ${userFilter === 'admins' ? 'bg-purple-500/20 text-purple-400' : 'text-slate-400 hover:text-white'}`}
+            >
+              Admins
+            </button>
+          )}
         </div>
       </div>
 
@@ -175,16 +202,21 @@ const UsersView: React.FC = () => {
                   <tr key={u.id} className="hover:bg-white/2 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-500/20 to-blue-500/20 flex items-center justify-center text-white text-sm font-bold border border-white/5">
+                        <div className={`w-9 h-9 rounded-full flex items-center justify-center text-white text-sm font-bold border border-white/5 ${u.isAdminEntry ? 'bg-gradient-to-br from-purple-500/20 to-pink-500/20' : 'bg-gradient-to-br from-emerald-500/20 to-blue-500/20'}`}>
                           {u.fullname.charAt(0)}
                         </div>
                         <div>
-                          <p className="text-white text-sm font-medium">{u.fullname}</p>
+                          <div className="flex items-center gap-2">
+                            <p className="text-white text-sm font-medium">{u.fullname}</p>
+                            {u.isSuperAdmin && (
+                              <span className="text-[8px] bg-purple-500 text-white px-1 rounded font-bold uppercase">Super</span>
+                            )}
+                          </div>
                           <p className="text-slate-500 text-xs">{u.email}</p>
                         </div>
                       </div>
                     </td>
-                    <td className="px-4 py-4 text-slate-300 text-sm font-medium">{u.manager_id ? 'Assigned' : 'None'}</td>
+                    <td className="px-4 py-4 text-slate-300 text-sm font-medium">{u.isAdminEntry ? 'N/A' : (u.manager_id ? 'Assigned' : 'None')}</td>
                     <td className="px-4 py-4 text-right text-white text-sm font-semibold">—</td>
                     <td className="px-4 py-4">
                       <span className={`text-[10px] px-2 py-1 rounded-full font-bold uppercase tracking-wider ${isRestricted ? 'bg-red-500/10 text-red-400 border border-red-500/20' : 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'}`}>
@@ -193,7 +225,9 @@ const UsersView: React.FC = () => {
                     </td>
                     <td className="px-4 py-4">
                       <div className="flex flex-col gap-2">
-                        {activeCode?.id === u.id ? (
+                        {u.isAdminEntry ? (
+                          <span className="text-slate-600 text-[10px] italic">No actions available</span>
+                        ) : activeCode?.id === u.id ? (
                           <div className="flex items-center gap-2 bg-purple-500/10 border border-purple-500/20 px-2 py-1 rounded-lg">
                             <span className="text-purple-400 font-mono text-xs">{activeCode.code}</span>
                             <button onClick={() => copyToClipboard(activeCode.code)} className="text-purple-400 hover:text-purple-300">
@@ -224,17 +258,20 @@ const UsersView: React.FC = () => {
                       </div>
                     </td>
                     <td className="px-6 py-4 text-center">
-                      <button
-                        disabled={processingId === u.id}
-                        onClick={() => handleRestrictToggle(u)}
-                        className={`flex items-center gap-1.5 mx-auto px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
-                          isRestricted
-                            ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
-                            : 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
-                        } disabled:opacity-50`}
-                      >
-                        {processingId === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isRestricted ? <><ShieldCheck className="w-3.5 h-3.5" /> Unrestrict</> : <><ShieldOff className="w-3.5 h-3.5" /> Restrict</>}
-                      </button>
+                      {/* Super Admins cannot be restricted, and only Super Admins can restrict other Admins */}
+                      {(!u.isSuperAdmin || !u.isAdminEntry) && (
+                        <button
+                          disabled={processingId === u.id}
+                          onClick={() => handleRestrictToggle(u)}
+                          className={`flex items-center gap-1.5 mx-auto px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
+                            isRestricted
+                              ? 'bg-emerald-500/10 text-emerald-400 hover:bg-emerald-500/20 border border-emerald-500/20'
+                              : 'bg-red-500/10 text-red-400 hover:bg-red-500/20 border border-red-500/20'
+                          } disabled:opacity-50`}
+                        >
+                          {processingId === u.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : isRestricted ? <><ShieldCheck className="w-3.5 h-3.5" /> Unrestrict</> : <><ShieldOff className="w-3.5 h-3.5" /> Restrict</>}
+                        </button>
+                      )}
                     </td>
                   </tr>
                 );

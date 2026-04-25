@@ -186,10 +186,22 @@ export const getClientReportsAPI = async () => {
   return response.data;
 }
 export const updateReportStatusAPI = async (reportId: string, status: string, resolutionNote?: string) => {
-  const response = await api.patch(`/admin/reports/status`, { reportId, status, resolutionNote });
+  const response = await api.patch("/admin/reports/status", { reportId, status, resolutionNote });
   return response.data;
 }
 export const deleteReportAPI = async (reportId: string) => {
-  const response = await api.delete(`/admin/reports/delete`, { data: { reportId } });
+  const response = await api.delete("/admin/reports/delete", { data: { reportId } });
   return response.data;
 }
+
+export const getStockPeers = async (symbol: string) => {
+  const response = await api.post("/market/peers", { symbol });
+  return response.data;
+}
+
+export const getHistoricalFundamentals = async (symbol: string) => {
+  const response = await api.get(`/market/historical-fundamentals/${symbol}`);
+  return response.data;
+}
+
+

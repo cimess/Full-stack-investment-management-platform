@@ -4,6 +4,7 @@ import logger from "../winstonlog/logger.js";
 import createError from "http-errors";
 import { Roles } from "@prisma/client";
 import { generateAccessToken, generateRefreshToken } from "../middlewear/auth.js";
+import argon2 from "argon2";
 import redisClient from "../lib/redis.js";
 import { trace,context } from "@opentelemetry/api";
 
@@ -47,7 +48,7 @@ export const getManagerAccess = async (req: Request, res: Response, next: NextFu
           approval_code: access_key
         }
       });
-      logger.info(manager_accessKey)
+
       if (!manager_accessKey) {
         throw createError(409, "Invalid manager approval code");
       }

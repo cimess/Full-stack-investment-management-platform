@@ -112,6 +112,29 @@ model StockTable {
   transaction        Transaction[]   @relation("stockTransaction")
   trade_request      Trade_request[] @relation("trade_request")
 
+    // --- Institutional Metrics (Updated Daily) ---
+  forwardPE         Decimal?  @db.Decimal(10, 4)
+  priceToBook       Decimal?  @db.Decimal(10, 4)
+  priceToSales      Decimal?  @db.Decimal(10, 4)
+  enterpriseValue   BigInt?   
+  ebitda            BigInt?  
+  returnOnAssets    Decimal?  @db.Decimal(10, 4)
+  freeCashflow      BigInt? 
+
+  // Storage for 4-year trends (Revenue, Net Income, etc.)
+  historicalAnalytics Json?
+
+  // Profitability
+  grossMargin       Decimal?  @db.Decimal(10, 4)
+  operatingMargin   Decimal?  @db.Decimal(10, 4)
+  profitMargin      Decimal?  @db.Decimal(10, 4)
+  returnOnEquity    Decimal?  @db.Decimal(10, 4)
+  
+  // Health
+  currentRatio      Decimal?  @db.Decimal(10, 4)
+  debtToEquity      Decimal?  @db.Decimal(10, 4)
+
+
   // fundamentals
   revenue           BigInt?     // Using BigInt because Apple's revenue is 383 Billion!
   totalDebt         BigInt?

@@ -14,6 +14,7 @@ import UsersView from './views/UsersView';
 import ManagersView from './views/ManagersView';
 import TransactionsView from './views/TransactionsView';
 import ReportsView from './views/ReportsView';
+import StocksView from './views/StocksView';
 import NotificationsView from '../../components/NotificationsView';
 import ReportProblemModal from '../../components/ReportProblemModal';
 
@@ -50,8 +51,6 @@ const handleFinish = () => {
   const meData: any = queryClient.getQueryData(["me"]);
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
-console.log(user)
-console.log(user.avatar)
   return (
     <div className="flex h-screen bg-black overflow-hidden">
       <AppTour
@@ -92,7 +91,7 @@ console.log(user.avatar)
             {/* Fallbacks for other routes */}
             <Route path="portfolios" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Portfolios Management - Coming Soon</div>} />
             <Route path="trade-requests" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Trade Requests - Coming Soon</div>} />
-            <Route path="stocks" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Stock Management - Coming Soon</div>} />
+            <Route path="stocks" element={<StocksView />} />
             <Route path="security" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Security Settings - Coming Soon</div>} />
           </Routes>
 

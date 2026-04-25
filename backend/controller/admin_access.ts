@@ -115,17 +115,33 @@ export const getAdminDashboard = async (req: Request, res: Response, next: NextF
         orderBy: { createdAt: "desc" }
       }),
       prisma.admin.findMany({
-        select: { id: true, user_id: true, super_admin: true, createdAt: true, updatedAt: true }
+        select: { 
+          id: true, 
+          user_id: true, 
+          super_admin: true, 
+          createdAt: true, 
+          updatedAt: true,
+          user: {
+            select: {
+              fullname: true,
+              email: true,
+              restricted: true
+            }
+          }
+        }
       }),
       prisma.approved_Manager.findMany({
         select: { id: true, approval_code: true, manager_slot: true, admin_id: true, user_id: true, createdAt: true, updatedAt: true }
+      }),
+      prisma.approved_Admin.findMany({
+        select: { id: true, approval_code: true, superAdmin_id: true, admin_id: true, createdAt: true, updatedAt: true }
       })
     ]);
 
     const data: any = {};
     const keys = [
       "users", "managers", "restrictedUser", "restrictedManagers", "transactions",
-      "tradeRequests", "portfolios", "stocks", "admin", "approvedManagers"
+      "tradeRequests", "portfolios", "stocks", "admins", "approvedManagers", "approvedAdmins"
     ];
 
     results.forEach((result, index) => {
@@ -139,10 +155,22 @@ export const getAdminDashboard = async (req: Request, res: Response, next: NextF
       }
     });
 
+    // Check if the requester is a Super Admin
+    const requesterAdmin = await prisma.admin.findUnique({
+      where: { user_id: req.user?.id || '' }
+    });
+    const isSuperAdmin = requesterAdmin?.super_admin === true;
+
     const responseData = {
       success: true,
       message: "Admin dashboard data fetched",
-      data
+      data: {
+        ...data,
+        // Standard admins CAN see managers and their pending approvals
+        // But ONLY Super Admins can see other admins or pending admin invitations
+        admins: isSuperAdmin ? data.admins : [],
+        approvedAdmins: isSuperAdmin ? data.approvedAdmins : []
+      }
     };
 
     if (redisClient) {
@@ -254,8 +282,13 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
       where: { user_id: admin_id! }
     });
 
-    if (!adminUser || !adminUser.super_admin) {
-      return next(createError(403, "Forbidden: Super Admin access required"));
+    if (!adminUser) {
+      return next(createError(403, "Forbidden: Administrative access required"));
+    }
+
+    // Only Super Admins can promote others to ADMIN role
+    if (role === 'ADMIN' && !adminUser.super_admin) {
+      return next(createError(403, "Forbidden: Only Super Admins can promote other users to Admin role"));
     }
 
     const accessKey = crypto.randomUUID();
@@ -286,7 +319,7 @@ export const generateAccessKey = async (req: Request, res: Response, next: NextF
         }
       })
       if (isAccessCodeGenerated) {
-        return res.status(409).json({ success: false, message: "Access code already generated", key: isAccessCodeGenerated.approval_code });
+        return res.status(409).json({ success: false, message: "Access code already generated. Check your existing approvals.", key: isAccessCodeGenerated.approval_code });
       }
       await prisma.approved_Admin.create({
         data: {
@@ -343,10 +376,13 @@ export const addAdmin = async (req: Request, res: Response, next: NextFunction) 
 
       let isMatch = false;
       if (approval.approval_code.startsWith("$2")) {
+        // Legacy bcrypt support for passwords
         isMatch = await bcrypt.compare(access_key, approval.approval_code);
       } else {
-        isMatch = await argon2.verify(approval.approval_code, access_key);
+        // High-performance direct comparison for UUIDs
+        isMatch = approval.approval_code === access_key;
       }
+
       if (!isMatch) {
         throw createError(401, "Invalid admin access key");
       }
@@ -427,9 +463,21 @@ export const restrictUser = async (req: Request, res: Response, next: NextFuncti
     if (!user) {
       return next(createError(401, "invalid credentials"));
     }
-    if (user?.roles === Roles.ADMIN || !super_admin_access) {
-      return next(createError(401, "invalid super admin access"));
+    // Super Admin privilege check
+    const requester = await prisma.admin.findUnique({
+      where: { user_id: req.user?.id || '' }
+    });
+
+    const isSuperAdmin = requester?.super_admin === true;
+
+    // If the target is an admin, only Super Admins can proceed
+    if (user?.roles === Roles.ADMIN && !isSuperAdmin) {
+      return next(createError(403, "Forbidden: Only Super Admins can manage other admins"));
     }
+    
+    // If a standard admin is restricting another standard admin (fails above)
+    // or if an admin is restricting a standard user (always allowed as long as they are authenticated as ADMIN)
+    // We already have Roles.ADMIN check in the router authorise middleware.
 
     const restrict = await prisma.user.update({
       where: { id: user_id },

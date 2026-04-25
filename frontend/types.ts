@@ -51,6 +51,7 @@ export interface StockCardProps{
   maxSupply?: string;
   marketCapRank?: string;
   changePercent?: string;
+  intelligence?: any;
   stats:{
     ceo:string,
     more:string,

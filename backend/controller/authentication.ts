@@ -517,6 +517,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
       password: true, // Needed to check if user has set a password
       settings: true,
       manager: true, // The manager's OWN profile
+      to_admin: true,   // The admin's OWN profile
       client_manager: { // The manager attached TO this client
         select: {
           id: true,
@@ -538,7 +539,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
         }
       } as any // Bypass TS error 'bio does not exist' until user runs prisma generate locally
     }
-  })
+  }) as any;
   if (!user) {
     return next(createError(401, "Unauthorized"));
   }
@@ -548,6 +549,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
     ...user,
     hasPassword: !!user.password,
     password: undefined, // Don't send the password hash to the frontend
+    admin: user.to_admin || null, // Map back for frontend consistency
     manager: user.manager ? {
       ...user.manager,
       aum_managed: (user.manager as any).aum_managed ? (user.manager as any).aum_managed.toString() : null

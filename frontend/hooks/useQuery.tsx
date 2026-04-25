@@ -9,7 +9,7 @@ import {
   updateUserSettingsAPI, getNotificationsAPI, markNotificationsReadAPI,
   updateUserProfileAPI, getPublicManagerProfileAPI, deactivateAccountAPI,
   getMarketCategories, getAIInsights, fetchStockHistoryAPI, resendVerificationTokenAPI,
-  reportProblem, updateManagerProfileAPI, getClientReportsAPI, updateReportStatusAPI, deleteReportAPI,getFundamentals
+  reportProblem, updateManagerProfileAPI, getClientReportsAPI, updateReportStatusAPI, deleteReportAPI,getFundamentals,getStockPeers,getHistoricalFundamentals
 } from "../services/queryServices"
 
 
@@ -272,5 +272,21 @@ export const useDeleteReport = () => {
 export const useGetFundamentals = () => {
   return useMutation({
     mutationFn: getFundamentals
+  })
+}
+
+export const useGetStockPeers = (symbol: string) => {
+  return useQuery({
+    queryKey: ["stockPeers", symbol],
+    queryFn: () => getStockPeers(symbol),
+    enabled: !!symbol && symbol.length > 0,
+  })
+}
+
+export const useGetHistoricalFundamentals = (symbol: string) => {
+  return useQuery({
+    queryKey: ["historicalFundamentals", symbol],
+    queryFn: () => getHistoricalFundamentals(symbol),
+    enabled: !!symbol && symbol.length > 0,
   })
 }

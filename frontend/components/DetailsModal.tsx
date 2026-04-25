@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import PriceChart from './PriceChart';
 import { useFetchStockHistory, useFetchStockDetails, useGetMe, useBuyStock } from '../hooks/useQuery';
 import { toast } from 'react-toastify';
+import { StockIntelligence } from './analytics/StockIntelligence';
 
 const DetailsModal = React.memo(({
   item,
@@ -33,16 +34,16 @@ const DetailsModal = React.memo(({
   const { mutate: buyStock, isPending: isBuying } = useBuyStock();
   const { mutate: fetchHistory, data: historyData, isPending: isHistoryLoading } = useFetchStockHistory();
   const { mutate: fetchDetails, data: detailsData, isPending: isDetailsLoading, isError: isDetailsError } = useFetchStockDetails();
- 
+
 
   const isLoggedIn = !!userData?.success;
   const isPending = isBuying || externalPending;
 
 
-useEffect(() => {
+  useEffect(() => {
 
-   if (isDetailsError) {
-    toast.info("Failed to fetch market data");
+    if (isDetailsError) {
+      toast.info("Failed to fetch market data");
     }
   }, [isDetailsError])
 
@@ -67,44 +68,44 @@ useEffect(() => {
 
   const displayItem = (detailsData as any)?.data ? { ...item, ...(detailsData as any).data } : item;
   const price: any = isLoggedIn ? item.invest : displayItem?.displayPrice;
-  const calPrice=item?.price||displayItem?.price
-  const totalCost = calPrice!== "N/A" ? calPrice * quantity : "N/A";
+  const calPrice = item?.price || displayItem?.price
+  const totalCost = calPrice !== "N/A" ? calPrice * quantity : "N/A";
 
-// frontend/components/DetailsModal.tsx
+  // frontend/components/DetailsModal.tsx
 
-// 1. Determine if it's crypto (checking both sources)
-const isCrypto = item.type === 'CRYPTO' || displayItem.type === 'CRYPTO' || displayItem.isCrypto || item.symbol?.endsWith('-USD');
+  // 1. Determine if it's crypto (checking both sources)
+  const isCrypto = item.type === 'CRYPTO' || displayItem.type === 'CRYPTO' || displayItem.isCrypto || item.symbol?.endsWith('-USD');
 
-// 2. Helper to get a value from any of the three possible locations:
-// (Backend Details -> Frontend Flat Item -> Frontend Nested Stats)
-const getStat = (key: string, fallback: any = 'N/A') => {
-  return (displayItem as any)?.[key] || ((item as any)?.[key] || (item as any)?.stats?.[key] || fallback);
-};
+  // 2. Helper to get a value from any of the three possible locations:
+  // (Backend Details -> Frontend Flat Item -> Frontend Nested Stats)
+  const getStat = (key: string, fallback: any = 'N/A') => {
+    return (displayItem as any)?.[key] || ((item as any)?.[key] || (item as any)?.stats?.[key] || fallback);
+  };
 
-// 3. The 100% complete stats array
-const stats = [
-  { label: 'Market Cap', value: getStat('displayMarketCap', getStat('marketCap')) },
-  { label: 'Volume', value: getStat('displayVolume', getStat('volume')) },
-  
-  isCrypto
-    ? { label: 'Circ. Supply', value: getStat('circulatingSupply') }
-    : { label: 'P/E Ratio', value: getStat('peRatio') },
-    
-  isCrypto
-    ? { label: 'Rank', value: getStat('marketCapRank') !== 'N/A' ? `#${getStat('marketCapRank')}` : 'N/A' }
-    : { label: 'Div. Yield', value: getStat('dividendYield') },
-    
-  { 
-    label: '52W High', 
-    value: getStat('display52wHigh', getStat('fiftyTwoWeekHigh'))
-  },
-  { 
-    label: '52W Low', 
-    value: getStat('display52wLow', getStat('fiftyTwoWeekLow'))
-  },
-];
+  // 3. The 100% complete stats array
+  const stats = [
+    { label: 'Market Cap', value: getStat('displayMarketCap', getStat('marketCap')) },
+    { label: 'Volume', value: getStat('displayVolume', getStat('volume')) },
 
-  
+    isCrypto
+      ? { label: 'Circ. Supply', value: getStat('circulatingSupply') }
+      : { label: 'P/E Ratio', value: getStat('peRatio') },
+
+    isCrypto
+      ? { label: 'Rank', value: getStat('marketCapRank') !== 'N/A' ? `#${getStat('marketCapRank')}` : 'N/A' }
+      : { label: 'Div. Yield', value: getStat('dividendYield') },
+
+    {
+      label: '52W High',
+      value: getStat('display52wHigh', getStat('fiftyTwoWeekHigh'))
+    },
+    {
+      label: '52W Low',
+      value: getStat('display52wLow', getStat('fiftyTwoWeekLow'))
+    },
+  ];
+
+
 
   const handleImmediateTrade = () => {
 
@@ -141,13 +142,13 @@ const stats = [
 
 
   const chartData = (historyData as any)?.data || [];
-const changeDisplay = item?.return || displayItem?.return || "0.00%";
-const isUp = changeDisplay.startsWith('+') || parseFloat(changeDisplay) >= 0;
+  const changeDisplay = item?.return || displayItem?.return || "0.00%";
+  const isUp = changeDisplay.startsWith('+') || parseFloat(changeDisplay) >= 0;
 
 
 
   if (!isDataReady && isDetailsLoading) {
-   
+
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xl">
         <div className="flex flex-col items-center gap-4">
@@ -258,14 +259,35 @@ const isUp = changeDisplay.startsWith('+') || parseFloat(changeDisplay) >= 0;
               <span className="px-3 py-1 rounded-full bg-white/5 border border-white/5 text-[10px] font-bold text-slate-400 uppercase tracking-wider">{displayItem.sector}</span>
             </div>
           </div>
-
+          {((detailsData as any)?.data?.intelligence || item?.intelligence) && (
+            <StockIntelligence 
+              intelligence={(detailsData as any)?.data?.intelligence || item?.intelligence} 
+              symbol={(detailsData as any)?.data?.symbol || item?.symbol} 
+              isManager={isManager} 
+            />
+          )}
         </div>
 
         {/* REDESIGNED TRADING CONSOLE */}
         <div className="p-4 sm:p-6 border-t border-white/10 bg-black/95 backdrop-blur-xl sticky bottom-0">
           {isManager ? (
             <div className="flex gap-3">
-              <button onClick={onClose} className="w-full px-6 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all">Close Details</button>
+              <button 
+                onClick={onClose} 
+                className="flex-1 px-6 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all"
+              >
+                Close Details
+              </button>
+              {isManager && <button 
+                onClick={() => {
+                  onClose();
+                  navigate(`/dashboard/manager/dcf?symbol=${displayItem.symbol}`);
+                }}
+                className="flex-[2] px-8 py-4 rounded-2xl bg-indigo-500 text-white font-bold uppercase text-[10px] tracking-widest shadow-2xl shadow-indigo-500/20 hover:bg-indigo-600 transition-all flex items-center justify-center gap-2"
+              >
+                <Activity className="w-4 h-4" />
+                Deep Analysis
+              </button>}
             </div>
           ) : !isUserLoading && isLoggedIn ? (
             <div className="space-y-4">
@@ -312,6 +334,7 @@ const isUp = changeDisplay.startsWith('+') || parseFloat(changeDisplay) >= 0;
           )}
         </div>
       </div>
+     
     </div>
   );
 });

@@ -1,11 +1,21 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import { calculateProfessionalDCF } from '../../workers/dcfcalculate';
 import { useGetFundamentals } from '../../hooks/useQuery';
-import { Search, Loader2, ArrowUpRight, ArrowDownRight, Info } from 'lucide-react';
-import {toast}from "react-toastify"
+import { Search, Loader2, ArrowUpRight, ArrowDownRight, Info, Calculator } from 'lucide-react';
+import { toast } from "react-toastify"
+import PeerComparison from './peerComparison';
+import HistoricalTrends from './HistoricalTrends';
+
+
 export default function DCFModeler() {
+    const location = useLocation();
+    
     // 1. Assumption State (What the Manager controls)
-    const [ticker, setTicker] = useState<string>("");
+    const [ticker, setTicker] = useState<string>(() => {
+        const params = new URLSearchParams(location.search);
+        return params.get('symbol')?.toUpperCase() || "";
+    });
     const [revenueGrowth, setRevenueGrowth] = useState<number>(10); // Default 10%
     const [operatingMargin, setOperatingMargin] = useState<number>(20); // Default 20%
     const [discountRate, setDiscountRate] = useState<number>(9);
@@ -14,25 +24,25 @@ export default function DCFModeler() {
     const [reinvestmentMargin, setReinvestmentMargin] = useState<number>(5);
 
     // 2. Data Fetching
-    const { mutate: getFundamentals, isPending: isLoading, data: fundamentalsResponse,error } = useGetFundamentals();
+    const { mutate: getFundamentals, isPending: isLoading, data: fundamentalsResponse, error } = useGetFundamentals();
     const stockData = fundamentalsResponse?.data;
 
     // 3. Search Effect
     useEffect(() => {
         if (ticker.length < 1) return;
-        const delaySearch = setTimeout(() => getFundamentals(ticker), 800);        
+        const delaySearch = setTimeout(() => getFundamentals(ticker), 800);
         return () => clearTimeout(delaySearch);
     }, [ticker, getFundamentals]);
 
     useEffect(() => {
 
-    if (error) {
+        if (error) {
 
-        // Important: Axios/Fetch errors are usually in error.response.data
-        const message = (error as any)?.response?.data?.message || "Failed to fetch stock data";
-        toast.info(`${message}  pls try again later`);
-    }
-}, [error]);
+            // Important: Axios/Fetch errors are usually in error.response.data
+            const message = (error as any)?.response?.data?.message || "Failed to fetch stock data";
+            toast.info(`${message}  pls try again later`);
+        }
+    }, [error]);
 
     // 4. DCF Calculation Engine
     const dcfResult = useMemo(() => {
@@ -62,7 +72,7 @@ export default function DCFModeler() {
     const isUndervalued = upside > 0;
 
     return (
-        <div className="bg-[#0B0F17] border border-white/10 rounded-2xl p-8 text-white max-w-4xl mx-auto shadow-2xl">
+        <div className="flex flex-col gap-4 border border-white/10 rounded-2xl p-8 text-white max-w-4xl mx-auto shadow-2xl ">
 
             {/* Search Top Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-10 border-b border-white/5">
@@ -79,6 +89,7 @@ export default function DCFModeler() {
 
                 {stockData && (
                     <div className="flex gap-8 items-center">
+                        
                         <div className="text-right">
                             <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Market Price</p>
                             <p className="text-2xl font-mono">${currentPrice.toLocaleString()}</p>
@@ -103,7 +114,20 @@ export default function DCFModeler() {
                     <p className="text-slate-500 font-medium">Search for a company to begin professional valuation</p>
                 </div>
             ) : (
+                <>
+                <div className="flex items-center gap-3 mb-8 pb-6 border-b border-white/5">
+                            <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
+                                <Calculator className="w-5 h-5 text-blue-400" />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-white tracking-tight">Discounted Cash Flow (DCF) Model</h3>
+                                <p className="text-xs font-medium text-slate-400 uppercase tracking-widest mt-1">
+                                    Future Cash Flow Analysis
+                                </p>
+                            </div>
+                        </div>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+                    
 
                     {/* Left: Interactive Controls */}
                     <div className="space-y-8">
@@ -191,7 +215,10 @@ export default function DCFModeler() {
                         </div>
                     </div>
                 </div>
+                </>
             )}
+            <HistoricalTrends symbol={ticker} />
+            <PeerComparison symbol={ticker} />
         </div>
     );
 }

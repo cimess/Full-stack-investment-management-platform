@@ -10,7 +10,7 @@ import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
-import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals } from "../controller/market_data.js";
+import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals, getPeers, getHistoricalFundamentalsController } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
@@ -71,6 +71,8 @@ router.get("/market/categories", verifyTokenOptional, getMarketCategories);
 
 // --- SEC Fundamentals ---
 router.post("/market/fundamentals", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), getFundamentals);
+router.get("/market/historical-fundamentals/:symbol", verifyToken, authorise([Roles.ADMIN,Roles.MANAGER,Roles.USER]), getHistoricalFundamentalsController);
+router.post("/market/peers", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), getPeers);
 
 // --- Authentication Routes ---
 router.post("/register", registerUser);
@@ -99,6 +101,7 @@ router.post("/client/remove/manager", verifyToken, authorise([Roles.USER]), remo
 router.post("/client/buy/stock", verifyToken, authorise([Roles.USER]), buyStock);
 router.post("/client/sell/stock", verifyToken, authorise([Roles.USER]), sellStock);
 router.get("/client/dashboard", verifyToken, authorise([Roles.USER]), getClientAll);
+router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN,Roles.USER]), addAdmin)
 
 // --- Manager Routes ---
 router.post("/manager/handle/request", verifyToken, authorise([Roles.MANAGER]), handleRequest);

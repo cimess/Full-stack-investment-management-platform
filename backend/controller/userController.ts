@@ -25,6 +25,7 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 
 
   try {
+    let raw_approval_code: string | undefined;
     // Dynamically build the update object (JSON style patching)
     const updateData: any = {};
     if (fullname !== undefined) updateData.fullname = fullname;
@@ -64,19 +65,18 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
         }
       })
       // generate approval code
-      const approval_code = crypto.randomUUID();
+      raw_approval_code = crypto.randomUUID();
 
       const result = await prisma.$transaction(async (tx) => {
-
         await tx.manager.upsert({
           where: { manager_id: userId },
           update: {
-            approval_code: approval_code, // Update the code if they retry
+            approval_code: raw_approval_code!, // Update the code if they retry
           },
           create: {
             manager_id: userId,
             manager_slot: 10,
-            approval_code: approval_code,
+            approval_code: raw_approval_code!,
           }
         });
         // 7. Generate NEW tokens with the NEW role
@@ -118,8 +118,9 @@ export const updateProfile = async (req: Request, res: Response, next: NextFunct
 
     return res.status(200).json({
       success: true,
-      message: "Profile updated successfully",
-      data: updatedUser
+      message: role === "MANAGER" ? "Profile updated and promoted to Manager. Use the provided code to finalize." : "Profile updated successfully",
+      data: updatedUser,
+      approval_code: (typeof raw_approval_code !== 'undefined') ? raw_approval_code : undefined
     });
   } catch (err: any) {
     logger.error("Failed to update user profile: ", err);

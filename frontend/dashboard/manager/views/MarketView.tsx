@@ -34,7 +34,7 @@ const MarketView: React.FC = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [selectedStock, setSelectedStock] = useState<StockCardProps | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [fetchingSymbol, setFetchingSymbol] = useState<string | null>(null);
+  const [fetchingSymbol, setFetchingSymbol] = useState<boolean>(false);
 
   const {
     data,
@@ -78,11 +78,20 @@ const MarketView: React.FC = () => {
     return () => clearTimeout(delayDebounceFn);
   }, [searchTerm, searchStocks]);
 
+   useEffect(() => {
+    if(isFetchingDetails){
+      setFetchingSymbol(true);
+    }
+  },[isFetchingDetails])
+
   const handleStockClick = (symbol: string, basicName: string, change: string) => {
-    setFetchingSymbol(symbol);
+
+   
     fetchDetails(symbol, {
+
+     
       onSuccess: (res) => {
-        setFetchingSymbol(null);
+        setFetchingSymbol(false);
         if (res.success && res.data) {
           const apiData = res.data;
           // A much more reliable way for stocks:
@@ -117,7 +126,8 @@ const MarketView: React.FC = () => {
             eps: apiData.eps || "N/A",
             beta: apiData.beta || "N/A",
             fiftyTwoWeekHigh: apiData.fiftyTwoWeekHigh || "N/A",
-            fiftyTwoWeekLow: apiData.fiftyTwoWeekLow || "N/A"
+            fiftyTwoWeekLow: apiData.fiftyTwoWeekLow || "N/A",
+            intelligence: apiData.intelligence || "N/A"
           };
           setSelectedStock(detailItem);
           setIsModalOpen(true);
@@ -251,7 +261,7 @@ const MarketView: React.FC = () => {
       </div>
 
       {/* Main Content Area */}
-      {isMarketLoading || isSearching ? (
+      {isMarketLoading || isSearching || fetchingSymbol ? (
         <div className="flex justify-center items-center py-32">
           <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
         </div>
@@ -286,6 +296,7 @@ const MarketView: React.FC = () => {
                         key={`${symbol}-${index}`}
                         onClick={() => {
                           const changeToString = change.toString()
+
                           handleStockClick(symbol, name, changeToString)
 
                         }}

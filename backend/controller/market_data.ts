@@ -512,3 +512,110 @@ if (secData) {
        
     }
 };
+
+export const getPeers = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { symbol } = req.body; // Using what you changed to 'req.body'
+    if (!symbol) return res.status(400).json({ success: false, message: "Symbol is required" });
+
+    const targetSymbol = symbol.toUpperCase();
+    const targetStock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
+
+    if (!targetStock) {
+        return res.status(404).json({ success: false, message: "Stock not found in our database." });
+    }
+
+    // UPDATED: Let the backend handle the heavy lifting for formatting!
+    const formatStock = (stock: any) => {
+      const currency = stock.currency || "USD";
+      return {
+        ...stock,
+        marketCap: stock.marketCap ? stock.marketCap.toString() : null,
+        price: Number(stock.price), 
+        peRatio: stock.peRatio ? Number(stock.peRatio) : null,
+        dividendYield: stock.dividendYield ? Number(stock.dividendYield) : null,
+        changePercent: Number(stock.changePercent),
+        
+        // Formatted strings ready for the UI
+        displayMarketCap: stock.marketCap ? formatCompactNumber(Number(stock.marketCap), currency) : 'N/A',
+        displayPrice: formatCurrency(Number(stock.price), currency),
+      };
+    };
+
+    // 1. Crypto Logic
+    if (targetSymbol.endsWith('-USD') || targetStock.assetType === 'CRYPTOCURRENCY') {
+        const peers = await prisma.stockTable.findMany({
+            where: { 
+                symbol: { endsWith: '-USD' },
+                NOT: { symbol: targetSymbol },
+                marketCap: { not: null }
+            },
+            orderBy: { marketCap: 'desc' },
+            take: 5
+        });
+        return res.status(200).json({ success: true, data: peers.map(formatStock) });
+    }
+
+    // 2. Equity Logic
+    if (!targetStock.industry || !targetStock.sector) {
+       return res.status(200).json({ success: true, data: [], message: "Sector/Industry data missing for this asset." });
+    }
+
+    // PHASE 1: Try strict Industry match (The gold standard)
+    let peers = await prisma.stockTable.findMany({
+        where: {
+            industry: targetStock.industry,
+            NOT: { symbol: targetSymbol },
+            marketCap: { not: null }
+        },
+        orderBy: { marketCap: 'desc' },
+        take: 10
+    });
+
+    // PHASE 2: If Industry is too narrow (< 3 results), try Sector match
+    // but ONLY as a secondary list and strictly matching the sector title.
+    if (peers.length < 3) {
+       const sectorPeers = await prisma.stockTable.findMany({
+            where: {
+                sector: targetStock.sector,
+                industry: { not: targetStock.industry }, // Don't duplicate
+                NOT: { symbol: targetSymbol },
+                marketCap: { not: null }
+            },
+            orderBy: { marketCap: 'desc' },
+            take: 10 - peers.length
+        });
+        peers = [...peers, ...sectorPeers];
+    }
+
+    // PHASE 3: Strict Validation
+    // Prioritize Industry (exact match). We only include Sector matches if 
+    // Industry peers are scarce, but Industry is always the gold standard.
+    const industryPeers = peers.filter(p => p.industry === targetStock.industry);
+    const sectorPeers = peers.filter(p => p.industry !== targetStock.industry && p.sector === targetStock.sector);
+    
+    const finalPeers = [...industryPeers, ...sectorPeers].slice(0, 5);
+
+    return res.status(200).json({ success: true, data: finalPeers.map(formatStock) });
+  } catch (err: any) {
+    logger.error("Error in getPeers:", err);
+    return next(err);
+  }
+};
+
+export const getHistoricalFundamentalsController = async (req: any, res: any, next: any) => {
+  try {
+    const symbol = req.params.symbol;
+    if (!symbol) return res.status(400).json({ success: false, message: "Symbol is required" });
+    
+    // Grab the service method
+    const marketService = await import('../services/marketservice.js');
+    const data = await marketService.getHistoricalFundamentals(symbol);
+    return res.status(200).json({ success: true, data });
+  } catch (err: any) {
+    logger.error("Error in getHistoricalFundamentalsController:", err);
+    return next(err);
+  }
+};
+
+

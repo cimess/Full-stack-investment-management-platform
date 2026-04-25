@@ -48,11 +48,11 @@ const managerNav: NavItem[] = [
   { label: 'My Clients', icon: <Users className="w-5 h-5" />, path: '/dashboard/manager/clients', dataTour: 'sidebar-clients' },
   { label: 'Requests', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/manager/requests', dataTour: 'sidebar-requests' },
   { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/manager/market', dataTour: 'sidebar-market' },
-  { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/manager/analytics', dataTour: 'sidebar-analytics' },
-  { label: 'DCF Calculator', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/dcf', dataTour: 'sidebar-dcf' },
+  { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/manager/dcf', dataTour: 'sidebar-dcf' },
+  { label: 'Asset Management', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/manager/stocks', dataTour: 'sidebar-stocks' },
   { label: 'Notifications', icon: <Bell className="w-5 h-5" />, path: '/dashboard/manager/notifications', dataTour: 'sidebar-notifications' },
   { label: 'Settings', icon: <Settings className="w-5 h-5" />, path: '/dashboard/manager/settings', dataTour: 'sidebar-settings' },
-  
+
 ];
 
 const adminNav: NavItem[] = [
@@ -60,11 +60,11 @@ const adminNav: NavItem[] = [
   { label: 'Users', icon: <Users className="w-5 h-5" />, path: '/dashboard/admin/users', dataTour: 'sidebar-users' },
   { label: 'Managers', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/admin/managers', dataTour: 'sidebar-managers' },
   { label: 'Portfolios', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/admin/portfolios', dataTour: 'sidebar-portfolios' },
+  { label: 'Asset Management', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/admin/stocks', dataTour: 'sidebar-stocks' },
   { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/admin/transactions', dataTour: 'sidebar-transactions' },
   { label: 'Trade Requests', icon: <FileText className="w-5 h-5" />, path: '/dashboard/admin/trade-requests', dataTour: 'sidebar-trade-requests' },
   { label: 'System Reports', icon: <ShieldAlert className="w-5 h-5" />, path: '/dashboard/admin/reports', dataTour: 'sidebar-reports' },
   { label: 'Notifications', icon: <Bell className="w-5 h-5" />, path: '/dashboard/admin/notifications', dataTour: 'sidebar-notifications' },
-  { label: 'Stocks', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/admin/stocks', dataTour: 'sidebar-stocks' },
   { label: 'Security', icon: <ShieldCheck className="w-5 h-5" />, path: '/dashboard/admin/security', dataTour: 'sidebar-security' },
 ];
 
@@ -184,8 +184,8 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
               <div className="min-w-0">
                 <p className="text-white text-sm font-medium truncate">{userName}</p>
                 <div className={`mt-1 inline-flex px-2 py-0.5 rounded-full border text-[9px] font-bold uppercase tracking-wider ${roleBadgeColors[role]}`}>
-                {roleLabels[role]}
-              </div>
+                  {roleLabels[role]}
+                </div>
               </div>
             </div>
           </div>
