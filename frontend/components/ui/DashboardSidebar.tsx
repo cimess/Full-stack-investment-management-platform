@@ -34,7 +34,7 @@ interface NavItem {
 }
 
 const clientNav: NavItem[] = [
-  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client', dataTour: 'sidebar-overview' },
+  { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client/overview', dataTour: 'sidebar-overview' },
   { label: 'Portfolio', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/client/portfolio', dataTour: 'sidebar-portfolio' },
   { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/client/transactions', dataTour: 'sidebar-transactions' },
   { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/client/market', dataTour: 'sidebar-market' },

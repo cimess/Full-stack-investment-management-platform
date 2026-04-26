@@ -117,7 +117,8 @@ const MarketView: React.FC = () => {
             eps: apiData.eps || "N/A",
             beta: apiData.beta || "N/A",
             fiftyTwoWeekHigh: apiData.fiftyTwoWeekHigh || "N/A",
-            fiftyTwoWeekLow: apiData.fiftyTwoWeekLow || "N/A"
+            fiftyTwoWeekLow: apiData.fiftyTwoWeekLow || "N/A",
+             intelligence: apiData.intelligence || null 
           };
           setSelectedStock(detailItem);
           setIsModalOpen(true);

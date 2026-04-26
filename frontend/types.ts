@@ -31,8 +31,8 @@ export interface StockCardProps{
   type:string,
   return:string,
   risk:string,
-  invest:string,
-  price:string
+  invest?:string,
+  price?:string
   symbol:string,
   financial:string,
   about:string,

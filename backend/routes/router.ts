@@ -70,7 +70,7 @@ router.get("/market/history/:symbol", verifyTokenOptional, getStockHistory);
 router.get("/market/categories", verifyTokenOptional, getMarketCategories);
 
 // --- SEC Fundamentals ---
-router.post("/market/fundamentals", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), getFundamentals);
+router.post("/market/fundamentals", verifyTokenOptional, getFundamentals);
 router.get("/market/historical-fundamentals/:symbol", verifyToken, authorise([Roles.ADMIN,Roles.MANAGER,Roles.USER]), getHistoricalFundamentalsController);
 router.post("/market/peers", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), getPeers);
 

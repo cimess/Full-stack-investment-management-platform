@@ -18,7 +18,6 @@ import NotificationsView from '../../components/NotificationsView';
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
-import { SiGoogle } from 'react-icons/si';
 import { useState } from 'react';
 import AppTour from '../../components/ui/AppTour';
 
@@ -130,6 +129,7 @@ const {mutate:getVerificationToken}=resendVerificationToken()
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           <Routes>
             <Route index element={<MarketView/>} />
+            <Route path="overview" element={<Overview />} />
             <Route path="market" element={<MarketView />} />
             <Route path="portfolio" element={<PortfolioView />} />
             <Route path="transactions" element={<TransactionsView />} />

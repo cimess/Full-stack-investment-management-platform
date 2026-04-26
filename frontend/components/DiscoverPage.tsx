@@ -13,7 +13,6 @@ const card = [
     label: 'Bitcoin',
     return: '+8.5%',
     risk: 'Medium',
-    invest: '84,645.73',
     image: "/assets/images/imgB.jpg",
     symbol: 'BTC-USD',
     financial:
@@ -35,7 +34,6 @@ const card = [
     label: 'Tesla stock ',
     return: '+20.5%',
     risk: 'Low',
-    invest: '5000',
     image: "/assets/images/imT.jpg",
     symbol: 'TSLA',
     financial:
@@ -57,7 +55,6 @@ const card = [
     symbol: 'SPAX.PVT',
     return: '+40.5%',
     risk: 'Low',
-    invest: '1000',
     image: "/assets/images/imS.jpg",
     about:
       "SpaceX designs, manufactures and launches rockets and spacecraft. The company has developed a fleet of reusable rockets including Falcon 9 which SpaceX claims is the first orbital class rocket capable of re-flight and Falcon Heavy, its super heavy lift rocket. SpaceX's mission is to create fully reusable launch vehicles capable of carrying humans to Mars and other destinations in the solar system. Additionally, SpaceX has developed StarLink, a satellite internet service created with thousands of small satellites in low Earth orbit.",
@@ -77,7 +74,6 @@ const card = [
     label: 'Renewable',
     return: '+40.5%',
     risk: 'High',
-    invest: '3000',
     image: "/assets/images/imE.jpg",
     symbol: 'TTE',
     about:
@@ -138,11 +134,6 @@ const StockCard = (item: StockCardProps) => {
           </span>
         </div>
 
-        <div className="flex justify-between text-sm border-t border-white/5 pt-4 text-slate-400 font-medium">
-          <p>Min. Investment</p>
-          <p className="font-bold text-white tracking-tight">${item.invest}</p>
-        </div>
-
         <button onClick={handleDetailsToggle} className="w-full h-12 bg-white text-black rounded-xl font-bold text-xs uppercase tracking-widest mt-auto hover:bg-slate-200 transition-all active:scale-[0.98]">
           View Details
         </button>
@@ -194,7 +185,6 @@ const DiscoverPage = () => {
                     label={item.label}
                     image={item.image}
                     risk={item.risk}
-                    invest={item.invest}
                     symbol={item.symbol}
                     financial={item.financial}
                     stats={item.stats}

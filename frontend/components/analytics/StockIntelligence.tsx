@@ -23,11 +23,9 @@ interface StockIntelligenceProps {
     analystRatings: AnalystRatings | null;
     news: NewsItem[];
   };
-  symbol: string;
-  isManager: boolean;
 }
 
-export const StockIntelligence: React.FC<StockIntelligenceProps> = ({ intelligence, symbol, isManager }) => {
+export const StockIntelligence: React.FC<StockIntelligenceProps> = ({ intelligence }) => {
   if (!intelligence) return null;
 
   const { analystRatings, news } = intelligence;

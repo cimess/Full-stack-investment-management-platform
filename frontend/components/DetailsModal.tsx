@@ -260,10 +260,8 @@ const DetailsModal = React.memo(({
             </div>
           </div>
           {((detailsData as any)?.data?.intelligence || item?.intelligence) && (
-            <StockIntelligence 
-              intelligence={(detailsData as any)?.data?.intelligence || item?.intelligence} 
-              symbol={(detailsData as any)?.data?.symbol || item?.symbol} 
-              isManager={isManager} 
+            <StockIntelligence
+              intelligence={(detailsData as any)?.data?.intelligence || item?.intelligence}
             />
           )}
         </div>
@@ -272,13 +270,13 @@ const DetailsModal = React.memo(({
         <div className="p-4 sm:p-6 border-t border-white/10 bg-black/95 backdrop-blur-xl sticky bottom-0">
           {isManager ? (
             <div className="flex gap-3">
-              <button 
-                onClick={onClose} 
+              <button
+                onClick={onClose}
                 className="flex-1 px-6 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold uppercase text-[10px] tracking-widest hover:bg-white/5 transition-all"
               >
                 Close Details
               </button>
-              {isManager && <button 
+              {isManager && <button
                 onClick={() => {
                   onClose();
                   navigate(`/dashboard/manager/dcf?symbol=${displayItem.symbol}`);
@@ -334,7 +332,7 @@ const DetailsModal = React.memo(({
           )}
         </div>
       </div>
-     
+
     </div>
   );
 });
