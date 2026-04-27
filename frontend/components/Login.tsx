@@ -13,7 +13,7 @@ import Loader from './loadericon/loader';
 import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
 import { SiGoogle } from "react-icons/si";
-import logo from "../public/mylogo.webp"
+
 
 
 

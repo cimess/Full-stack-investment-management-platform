@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { logout, useGetNotifications } from "../../hooks/useQuery";
-import logo from "../../public/mylogo.webp"
+
 import {
   LayoutDashboard,
   TrendingUp,
@@ -153,7 +153,7 @@ const DashboardSidebar: React.FC<DashboardSidebarProps> = ({
         {/* Logo */}
         <div className={`flex flex-col items-center gap-3 px-6 py-10 border-b border-white/5 ${collapsed ? 'px-2' : ''}`}>
           <div className="w-16 h-16 rounded-full flex items-center justify-center flex-shrink-0 border border-white/10 shadow-2xl overflow-hidden group hover:scale-110 transition-transform duration-500">
-            <img src={logo} className="w-full h-full object-cover" alt="logo" />
+            <img src="/mylogo.webp" className="w-full h-full object-cover" alt="logo" />
           </div>
           {!collapsed && (
             <div className="flex flex-col items-center text-center">

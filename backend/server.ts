@@ -53,7 +53,7 @@ app.use(express.json({ limit: "5mb" }));
 // In production, requests arrive via Netlify reverse proxy (/api/* → this server)
 // so the origin will be the Netlify domain. FRONTEND_URL must be set on Render.
 app.use(cors({
-  origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : "http://localhost:5173",
+  origin: process.env.NODE_ENV === "production" ? process.env.FRONTEND_URL : ["http://localhost:5173", "http://192.168.0.197:5173"],
   methods: ["GET", "POST", "PUT", "DELETE"],
   allowedHeaders: ["Content-Type"],
   credentials: true,

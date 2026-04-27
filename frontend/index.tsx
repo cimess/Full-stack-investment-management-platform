@@ -7,6 +7,17 @@ import { queryClient } from './lib/queryClient';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import CookieConsent from "react-cookie-consent";
+import { registerSW } from 'virtual:pwa-register';
+
+// Register PWA Service Worker for mobile installation
+registerSW({ 
+  onRegistered(r) { 
+    r && console.log('PWA Registered Successfully'); 
+  },
+  onRegisterError(error) {
+    console.error('PWA Registration Error:', error);
+  }
+});
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

@@ -12,7 +12,7 @@
     "test:seed": "tsx tests/setup/seed-test-users.ts"
   },
   "keywords": [],
-  "author": "",
+  "author": "Aimuan ThankGod",
   "license": "ISC",
   "description": "",
   "dependencies": {

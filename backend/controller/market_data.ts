@@ -1,11 +1,11 @@
-import type { Request, Response, NextFunction ,RequestHandler} from "express";
+import type { Request, Response, NextFunction, RequestHandler } from "express";
 import createError from "http-errors";
 import logger from "../winstonlog/logger.js";
 import { getQuotes, searchStock, getStockDetails, getHistoricalData } from "../services/marketservice.js";
 import { prisma } from "../lib/prisma.js";
 import { getSECFundamentals } from '../services/secservices.js';
 import { formatCurrency, formatCompactNumber, formatPercent } from "../lib/formatter.js";
-import { trace,context } from "@opentelemetry/api";
+import { trace, context } from "@opentelemetry/api";
 
 
 
@@ -40,7 +40,7 @@ export const getStockHistory = async (req: Request, res: Response, next: NextFun
 
 export const postStockDetails = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { symbol } = req.body ;
+    const { symbol } = req.body;
     if (!symbol) {
       return next(createError(400, "Symbol is required"));
     }
@@ -139,9 +139,9 @@ export const postMarketQuotes = async (req: Request, res: Response, next: NextFu
   }
 };
 export const getMarketQuotes = async (req: Request, res: Response, next: NextFunction) => {
-  const DEFAULT_SYMBOLS = ['AAPL','TSLA','GOOGL','MSFT','AMZN','META','NVDA','JPM','V','PG'];
+  const DEFAULT_SYMBOLS = ['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN', 'META', 'NVDA', 'JPM', 'V', 'PG'];
   const CACHE_KEY = "global:market:quotes:all";
-const span=trace.getSpan(context.active()); 
+  const span = trace.getSpan(context.active());
 
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -155,12 +155,12 @@ const span=trace.getSpan(context.active());
         const allStocks = JSON.parse(cachedData);
         if (Array.isArray(allStocks) && allStocks.length > 0) {
           logger.info(`[Market] Serving ${limit} stocks from Global Cache (Page: ${page})`);
-          
+
           // Slice the pre-computed array for pagination
           const paginatedStocks = allStocks.slice(skip, skip + limit);
           span?.setAttribute('cache.hit', true);
           span?.setAttribute('cache.key', CACHE_KEY);
-          
+
           return res.status(200).json({
             success: true,
             message: "Data fetched from cache",
@@ -169,7 +169,7 @@ const span=trace.getSpan(context.active());
         }
       }
     } catch (cacheErr) {
-      console.log("cache error",span);
+      console.log("cache error", span);
       span?.setAttribute('cache.hit', false);
       span?.setAttribute('cache.key', CACHE_KEY);
       logger.warn(`[Market] Cache lookup failed: ${cacheErr}`);
@@ -242,21 +242,23 @@ const span=trace.getSpan(context.active());
 export const searchStockController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { symbols } = req.body;
-    const result = await searchStock(symbols);
+    logger.info("this is the one we are interested the symbol", symbols)
+    const result = await getQuotes(symbols);
+    logger.info("this is the one we are interested if it fails", result)
 
     if (!result.success) {
       // If hit API limit, we return 429 Too Many Requests
-      if(result.message==="Query is required"){
-         return res.status(400).json({
-          success:false,
-          message:result.message,
-          data:[]
+      if (result.message === "Query is required") {
+        return res.status(400).json({
+          success: false,
+          message: result.message,
+          data: []
         });
-      }else{
+      } else {
         return res.status(429).json({
-          success:false,
-          message:result.message,
-          data:[]
+          success: false,
+          message: result.message,
+          data: []
         });
       }
     }
@@ -286,7 +288,7 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
       span?.setAttribute('cache.hit', true);
       span?.setAttribute('cache.key', cacheKey);
       return res.status(200).json(JSON.parse(cachedData));
-    }else{
+    } else {
       span?.setAttribute('cache.hit', false);
       span?.setAttribute('cache.key', cacheKey);
       logger.error("[Market] Cache miss/empty. Falling back to Database...");
@@ -334,7 +336,7 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
       orderBy: { changePercent: 'asc' },
       skip,
       take: pageSize
-    }); 
+    });
 
     // 4. Most Active / Largest Cap (excluding crypto)
     const mostActive = await prisma.stockTable.findMany({
@@ -343,7 +345,7 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
       skip,
       take: pageSize
     });
-        // 4. Most Active / Largest Cap (Crypto)
+    // 4. Most Active / Largest Cap (Crypto)
     const mostActiveCrypto = await prisma.stockTable.findMany({
       where: { symbol: { endsWith: '-USD' } },
       orderBy: { marketCap: 'desc' },
@@ -370,13 +372,13 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
         gainers: gainers.map(formatStock),
         losers: losers.map(formatStock),
         digital: crypto.map(formatStock),
-        equity:equity.map(formatStock),
+        equity: equity.map(formatStock),
         mostActive: mostActive.map(formatStock),
         mostActiveCrypto: mostActiveCrypto.map(formatStock),
         cryptoGainers: cryptoGainers.map(formatStock),
         cryptoLosers: cryptoLosers.map(formatStock),
       },
-      message:"Data fetched successfully"
+      message: "Data fetched successfully"
     };
 
     // 2. Cache response payload for 5 minutes (300 seconds)
@@ -390,7 +392,7 @@ export const getMarketCategories = async (req: Request, res: Response, next: Nex
   }
 };
 
-const getSingleStock = async (symbol:string ) => {
+const getSingleStock = async (symbol: string) => {
   try {
     const stock = await prisma.stockTable.findUnique({
       where: { symbol },
@@ -399,7 +401,7 @@ const getSingleStock = async (symbol:string ) => {
     return logger.info(stock);
   } catch (err: any) {
     logger.error("Error in getSingleStock controller:", err);
-    
+
   }
 };
 // getSingleStock('GOOGL')
@@ -410,107 +412,107 @@ const getSingleStock = async (symbol:string ) => {
 
 
 export const getFundamentals = async (req: Request, res: Response) => {
-    const { symbol } = req.body;
-    const REDIS_KEY = `stock:fundamentals:${symbol}`;
-    const span = trace.getSpan(context.active());
-    if(!symbol){
-      span?.setAttribute('cache.hit', false);
+  const { symbol } = req.body;
+  const REDIS_KEY = `stock:fundamentals:${symbol}`;
+  const span = trace.getSpan(context.active());
+  if (!symbol) {
+    span?.setAttribute('cache.hit', false);
+    span?.setAttribute('cache.key', REDIS_KEY);
+    return res.status(400).json({ success: false, message: "Symbol is required" });
+  }
+  try {
+    // 1. Check Redis Cache for speed
+    const cached = await getCache(REDIS_KEY);
+    if (cached) {
+      span?.setAttribute('cache.hit', true);
       span?.setAttribute('cache.key', REDIS_KEY);
-      return res.status(400).json({ success: false, message: "Symbol is required" });
+      return res.status(200).json({ success: true, data: JSON.parse(cached) });
     }
-    try {
-        // 1. Check Redis Cache for speed
-        const cached = await getCache(REDIS_KEY);
-        if (cached) {
-          span?.setAttribute('cache.hit', true);
-          span?.setAttribute('cache.key', REDIS_KEY);
-            return res.status(200).json({ success: true, data: JSON.parse(cached) });
-        }
-        // 2. Check the Database if not in Redis
-        const dbStock = await prisma.stockTable.findUnique({
-            where: { symbol: symbol.toUpperCase() }
-        });
-        // If we have it in DB and it's not null, use it!
-        if (dbStock && dbStock.revenue && dbStock.sharesOutstanding) {
-            const dbData = {
-                ticker: dbStock.symbol,
-                currentRevenue: Number(dbStock.revenue),
-                totalCash: Number(dbStock.totalCash),
-                totalDebt: Number(dbStock.totalDebt),
-                sharesOutstanding: Number(dbStock.sharesOutstanding),
-                dataSource: 'Database Cache',
-                currentPrice: Number(dbStock.price),
-            };
-            await setCache(REDIS_KEY, JSON.stringify(dbData), 86400); // Re-cache for 24h
-            return res.status(200).json({ success: true, data: dbData });
-        }
-        // 3. Not in DB? Fetch from SEC API permanently!
-        const secData = await getSECFundamentals(symbol);
+    // 2. Check the Database if not in Redis
+    const dbStock = await prisma.stockTable.findUnique({
+      where: { symbol: symbol.toUpperCase() }
+    });
+    // If we have it in DB and it's not null, use it!
+    if (dbStock && dbStock.revenue && dbStock.sharesOutstanding) {
+      const dbData = {
+        ticker: dbStock.symbol,
+        currentRevenue: Number(dbStock.revenue),
+        totalCash: Number(dbStock.totalCash),
+        totalDebt: Number(dbStock.totalDebt),
+        sharesOutstanding: Number(dbStock.sharesOutstanding),
+        dataSource: 'Database Cache',
+        currentPrice: Number(dbStock.price),
+      };
+      await setCache(REDIS_KEY, JSON.stringify(dbData), 86400); // Re-cache for 24h
+      return res.status(200).json({ success: true, data: dbData });
+    }
+    // 3. Not in DB? Fetch from SEC API permanently!
+    const secData = await getSECFundamentals(symbol);
 
-        
 
-        let stock:any=await prisma.stockTable.findUnique({
-            where: { symbol: symbol.toUpperCase() }
-        })
-        if(!stock || stock.price===0||!stock.price){
-          // 2. Get LIVE PRICE from your existing service
-          const quote = await getQuotes([symbol]); 
-          stock=quote.data?.[0];
-        }
-        const combinedData = {
-            ...secData,
-            currentPrice: Number(stock?.price)||null, // Add the live price here!
-        };
-        // 4. SAVE TO DATABASE!
-if (secData) {
-    await prisma.stockTable.upsert({
+
+    let stock: any = await prisma.stockTable.findUnique({
+      where: { symbol: symbol.toUpperCase() }
+    })
+    if (!stock || stock.price === 0 || !stock.price) {
+      // 2. Get LIVE PRICE from your existing service
+      const quote = await getQuotes([symbol]);
+      stock = quote.data?.[0];
+    }
+    const combinedData = {
+      ...secData,
+      currentPrice: Number(stock?.price) || null, // Add the live price here!
+    };
+    // 4. SAVE TO DATABASE!
+    if (secData) {
+      await prisma.stockTable.upsert({
         where: { symbol: symbol.toUpperCase() },
         update: {
-            revenue: BigInt(Math.floor(secData.currentRevenue)),
-            totalCash: BigInt(Math.floor(secData.totalCash)),
-            totalDebt: BigInt(Math.floor(secData.totalDebt)),
-            sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
-            ...(Number(stock?.price) && { price: Number(stock?.price) })
+          revenue: BigInt(Math.floor(secData.currentRevenue)),
+          totalCash: BigInt(Math.floor(secData.totalCash)),
+          totalDebt: BigInt(Math.floor(secData.totalDebt)),
+          sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
+          ...(Number(stock?.price) && { price: Number(stock?.price) })
         },
         create: {
-            symbol: symbol.toUpperCase(),
-            company: stock?.company || symbol.toUpperCase(),
-            revenue: BigInt(Math.floor(secData.currentRevenue)),
-            totalCash: BigInt(Math.floor(secData.totalCash)),
-            totalDebt: BigInt(Math.floor(secData.totalDebt)),
-            sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
-            price: Number(stock?.price) || 0
+          symbol: symbol.toUpperCase(),
+          company: stock?.company || symbol.toUpperCase(),
+          revenue: BigInt(Math.floor(secData.currentRevenue)),
+          totalCash: BigInt(Math.floor(secData.totalCash)),
+          totalDebt: BigInt(Math.floor(secData.totalDebt)),
+          sharesOutstanding: BigInt(Math.floor(secData.sharesOutstanding)),
+          price: Number(stock?.price) || 0
         }
-    });
-}
-        // 5. Cache the new data
-        await setCache(REDIS_KEY, JSON.stringify(combinedData), 86400);
-        return res.status(200).json({ success: true, data: combinedData });
-    } catch (error: any) {
-        // If the stock isn't known to the SEC (like Crypto), handle it safely
- console.error("DCF Error:", error.message);
+      });
+    }
+    // 5. Cache the new data
+    await setCache(REDIS_KEY, JSON.stringify(combinedData), 86400);
+    return res.status(200).json({ success: true, data: combinedData });
+  } catch (error: any) {
+    // If the stock isn't known to the SEC (like Crypto), handle it safely
+    console.error("DCF Error:", error.message);
     // 1. Handle SEC-specific "Not Found" errors
     if (error.message.includes("Ticker not found") || error.message.includes("404")) {
-        return res.status(404).json({ 
-            success: false, 
-            message: "Symbol not found in SEC database. (Note: Crypto and Foreign stocks are not supported by the SEC EDGAR API)." 
-        });
+      return res.status(404).json({
+        success: false,
+        message: "Symbol not found in SEC database. (Note: Crypto and Foreign stocks are not supported by the SEC EDGAR API)."
+      });
     }
     // 2. Handle Rate Limiting (SEC is strict)
     if (error.message.includes("429")) {
-        return res.status(429).json({ 
-            success: false, 
-            message: "SEC Rate limit reached. Please wait a few seconds and try again." 
-        });
+      return res.status(429).json({
+        success: false,
+        message: "SEC Rate limit reached. Please wait a few seconds and try again."
+      });
     }
     // 3. Fallback for other errors
-    return res.status(400).json({ 
-        success: false, 
-        message: error.message || "An unexpected error occurred while fetching fundamentals." 
+    return res.status(400).json({
+      success: false,
+      message: error.message || "An unexpected error occurred while fetching fundamentals."
     });
 
-       
-    }
+
+  }
 };
 
 export const getPeers = async (req: Request, res: Response, next: NextFunction) => {
@@ -522,7 +524,7 @@ export const getPeers = async (req: Request, res: Response, next: NextFunction) 
     const targetStock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
 
     if (!targetStock) {
-        return res.status(404).json({ success: false, message: "Stock not found in our database." });
+      return res.status(404).json({ success: false, message: "Stock not found in our database." });
     }
 
     // UPDATED: Let the backend handle the heavy lifting for formatting!
@@ -531,11 +533,11 @@ export const getPeers = async (req: Request, res: Response, next: NextFunction) 
       return {
         ...stock,
         marketCap: stock.marketCap ? stock.marketCap.toString() : null,
-        price: Number(stock.price), 
+        price: Number(stock.price),
         peRatio: stock.peRatio ? Number(stock.peRatio) : null,
         dividendYield: stock.dividendYield ? Number(stock.dividendYield) : null,
         changePercent: Number(stock.changePercent),
-        
+
         // Formatted strings ready for the UI
         displayMarketCap: stock.marketCap ? formatCompactNumber(Number(stock.marketCap), currency) : 'N/A',
         displayPrice: formatCurrency(Number(stock.price), currency),
@@ -544,48 +546,48 @@ export const getPeers = async (req: Request, res: Response, next: NextFunction) 
 
     // 1. Crypto Logic
     if (targetSymbol.endsWith('-USD') || targetStock.assetType === 'CRYPTOCURRENCY') {
-        const peers = await prisma.stockTable.findMany({
-            where: { 
-                symbol: { endsWith: '-USD' },
-                NOT: { symbol: targetSymbol },
-                marketCap: { not: null }
-            },
-            orderBy: { marketCap: 'desc' },
-            take: 5
-        });
-        return res.status(200).json({ success: true, data: peers.map(formatStock) });
+      const peers = await prisma.stockTable.findMany({
+        where: {
+          symbol: { endsWith: '-USD' },
+          NOT: { symbol: targetSymbol },
+          marketCap: { not: null }
+        },
+        orderBy: { marketCap: 'desc' },
+        take: 5
+      });
+      return res.status(200).json({ success: true, data: peers.map(formatStock) });
     }
 
     // 2. Equity Logic
     if (!targetStock.industry || !targetStock.sector) {
-       return res.status(200).json({ success: true, data: [], message: "Sector/Industry data missing for this asset." });
+      return res.status(200).json({ success: true, data: [], message: "Sector/Industry data missing for this asset." });
     }
 
     // PHASE 1: Try strict Industry match (The gold standard)
     let peers = await prisma.stockTable.findMany({
-        where: {
-            industry: targetStock.industry,
-            NOT: { symbol: targetSymbol },
-            marketCap: { not: null }
-        },
-        orderBy: { marketCap: 'desc' },
-        take: 10
+      where: {
+        industry: targetStock.industry,
+        NOT: { symbol: targetSymbol },
+        marketCap: { not: null }
+      },
+      orderBy: { marketCap: 'desc' },
+      take: 10
     });
 
     // PHASE 2: If Industry is too narrow (< 3 results), try Sector match
     // but ONLY as a secondary list and strictly matching the sector title.
     if (peers.length < 3) {
-       const sectorPeers = await prisma.stockTable.findMany({
-            where: {
-                sector: targetStock.sector,
-                industry: { not: targetStock.industry }, // Don't duplicate
-                NOT: { symbol: targetSymbol },
-                marketCap: { not: null }
-            },
-            orderBy: { marketCap: 'desc' },
-            take: 10 - peers.length
-        });
-        peers = [...peers, ...sectorPeers];
+      const sectorPeers = await prisma.stockTable.findMany({
+        where: {
+          sector: targetStock.sector,
+          industry: { not: targetStock.industry }, // Don't duplicate
+          NOT: { symbol: targetSymbol },
+          marketCap: { not: null }
+        },
+        orderBy: { marketCap: 'desc' },
+        take: 10 - peers.length
+      });
+      peers = [...peers, ...sectorPeers];
     }
 
     // PHASE 3: Strict Validation
@@ -593,7 +595,7 @@ export const getPeers = async (req: Request, res: Response, next: NextFunction) 
     // Industry peers are scarce, but Industry is always the gold standard.
     const industryPeers = peers.filter(p => p.industry === targetStock.industry);
     const sectorPeers = peers.filter(p => p.industry !== targetStock.industry && p.sector === targetStock.sector);
-    
+
     const finalPeers = [...industryPeers, ...sectorPeers].slice(0, 5);
 
     return res.status(200).json({ success: true, data: finalPeers.map(formatStock) });
@@ -607,7 +609,7 @@ export const getHistoricalFundamentalsController = async (req: any, res: any, ne
   try {
     const symbol = req.params.symbol;
     if (!symbol) return res.status(400).json({ success: false, message: "Symbol is required" });
-    
+
     // Grab the service method
     const marketService = await import('../services/marketservice.js');
     const data = await marketService.getHistoricalFundamentals(symbol);

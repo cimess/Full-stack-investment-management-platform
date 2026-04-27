@@ -84,38 +84,7 @@ async function withRetry<T>(fn: () => Promise<T>, retries = 2, delay = 1500): Pr
   }
 }
 
-// Alpha Vantage API base URL
-const ALPHA_VANTAGE_BASE_URL = 'https://www.alphavantage.co/query';
 
-// Fetch from Alpha Vantage for a single stock
-const getAlphaVantageQuote = async (symbol: string) => {
-  const params = new URLSearchParams({
-    function: 'GLOBAL_QUOTE',
-    symbol: symbol,
-    apikey: process.env.ALPHA_VANTAGE_API_KEY || ''
-  });
-
-  try {
-    const response = await fetch(`${ALPHA_VANTAGE_BASE_URL}?${params.toString()}`);
-    const data = await response.json() as any;
-
-    if (!data['Global Quote'] || !data['Global Quote']['05. price']) {
-      throw new Error(`No data found for ${symbol}`);
-    }
-
-    const quote = data['Global Quote'];
-    return {
-      symbol: symbol,
-      company: symbol,
-      price: parseFloat(quote['05. price']),
-      changePercent: parseFloat(quote['10. change percent']?.replace('%', '') || '0'),
-      currency: 'USD'
-    };
-  } catch (error: any) {
-    logger.error(`Alpha Vantage fetch failed for ${symbol}: ${error.message}`);
-    throw error;
-  }
-};
 
 const toDecimal = (val: any): number | null => {
   if (val == null) return null;
@@ -341,6 +310,7 @@ export const searchStock = async (query: string) => {
       const topSymbols = topResults.map((q: any) => q.symbol).filter(Boolean);
       try {
         const richQuotes = await withRetry(() => yahooFinance.quote(topSymbols));
+        logger.info("this is the one we are interested if it fails", richQuotes)
         const resultsArray = Array.isArray(richQuotes) ? richQuotes : [richQuotes];
         const simplifiedQuotes = resultsArray.map(simplifyQuote).map(mapToPrismaStock);
 
@@ -486,7 +456,7 @@ export const getStockDetails = async (symbol: string) => {
       dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
       fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
       fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
-      
+
       // Institutional metrics
       eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
       beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
@@ -641,7 +611,7 @@ export const getHistoricalFundamentals = async (symbol: string) => {
 
     // 2. Not in DB? Fetch from Yahoo Finance
     const summary = await yahooFinance.quoteSummary(targetSymbol, { modules: ['incomeStatementHistory'] });
-    
+
     if (!summary || !summary.incomeStatementHistory || !summary.incomeStatementHistory.incomeStatementHistory) {
       return [];
     }
