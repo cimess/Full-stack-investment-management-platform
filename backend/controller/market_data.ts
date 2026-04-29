@@ -243,7 +243,7 @@ export const searchStockController = async (req: Request, res: Response, next: N
   try {
     const { symbols } = req.body;
     logger.info("this is the one we are interested the symbol", symbols)
-    const result = await getQuotes(symbols);
+    const result = await searchStock(symbols);
     logger.info("this is the one we are interested if it fails", result)
 
     if (!result.success) {
