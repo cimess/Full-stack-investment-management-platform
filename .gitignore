@@ -9,4 +9,5 @@ dist/
 frontend/dist/
 backend/dist/
 certs/
+docs/
 *.pem
