@@ -474,7 +474,7 @@ export const updateManagerProfile = async (req: Request, res: Response, next: Ne
 };
 
 export const getPublicManagerProfile = async (req: Request, res: Response, next: NextFunction) => {
-  const managerId = req.params.managerId as string;
+  const {managerId} = req.body;
 
   if (!managerId) {
     return next(createError(400, "Manager ID is required"));

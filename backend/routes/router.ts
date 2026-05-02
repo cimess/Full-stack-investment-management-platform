@@ -63,11 +63,11 @@ router.get("/health", (req, res) => res.status(200).json({ success: true, messag
 
 // --- Market Data ---
 router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
-router.get("/market/quotes",verifyTokenOptional, getMarketQuotes);
+router.post("/market/quotes",verifyTokenOptional, getMarketQuotes);
 router.post("/market/search", verifyTokenOptional, searchStockController);
 router.post("/market/stock-details", verifyTokenOptional, postStockDetails);
-router.get("/market/history/:symbol", verifyTokenOptional, getStockHistory);
-router.get("/market/categories", verifyTokenOptional, getMarketCategories);
+router.post("/market/history", verifyTokenOptional, getStockHistory);
+router.post("/market/categories", verifyTokenOptional, getMarketCategories);
 
 // --- SEC Fundamentals ---
 router.post("/market/fundamentals", verifyTokenOptional, getFundamentals);
@@ -107,7 +107,7 @@ router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN,Roles.USER])
 router.post("/manager/handle/request", verifyToken, authorise([Roles.MANAGER]), handleRequest);
 router.get("/manager/dashboard", verifyToken, authorise([Roles.MANAGER]), getManagerAll);
 router.post("/manager/profile", verifyToken, authorise([Roles.MANAGER]), updateManagerProfile);
-router.get("/manager/public-profile/:managerId", verifyToken, getPublicManagerProfile);
+router.post("/manager/public-profile", verifyToken, getPublicManagerProfile);
 
 // --- Admin Routes ---
 // User/Manager Management

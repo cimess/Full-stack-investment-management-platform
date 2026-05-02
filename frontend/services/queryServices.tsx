@@ -90,7 +90,7 @@ export const restrictManager = async (restrictData: any) => {
 }
 
 export const getMarketQuotes = async (page: number = 1, limit: number = 20) => {
-  const response = await api.get(`/market/quotes?page=${page}&limit=${limit}`)
+  const response = await api.post(`/market/quotes`,{page,limit})
   return response.data
 }
 
@@ -115,7 +115,7 @@ export const fetchStockDetailsAPI = async (symbol: string) => {
 }
 
 export const fetchStockHistoryAPI = async (symbol: string, range: string = '1mo') => {
-  const response = await api.get(`/market/history/${symbol}?range=${range}`)
+  const response = await api.post(`/market/history`,{symbol,range})
   return response.data
 }
 
@@ -155,7 +155,7 @@ export const updateUserProfileAPI = async (profileData: any) => {
 }
 
 export const getPublicManagerProfileAPI = async (managerId: string) => {
-  const response = await api.get(`/manager/public-profile/${managerId}`);
+  const response = await api.post("/manager/public-profile",managerId);
   return response.data;
 }
 
@@ -170,7 +170,7 @@ export const deactivateAccountAPI = async () => {
 }
 
 export const getMarketCategories = async (page: number = 1) => {
-  const response = await api.get(`/market/categories?page=${page}`);
+  const response = await api.post("/market/categories",page);
   return response.data;
 }
 export const reportProblem = async (data: any) => {

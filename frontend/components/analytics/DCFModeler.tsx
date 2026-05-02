@@ -30,7 +30,7 @@ export default function DCFModeler() {
     // 3. Search Effect
     useEffect(() => {
         if (ticker.length < 1) return;
-        const delaySearch = setTimeout(() => getFundamentals(ticker), 800);
+        const delaySearch = setTimeout(() => getFundamentals(ticker), 1200);
         return () => clearTimeout(delaySearch);
     }, [ticker, getFundamentals]);
 

@@ -18,8 +18,7 @@ import { getCache, setCache } from "../lib/redis.js";
  */
 export const getStockHistory = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { symbol } = req.params;
-    const { range } = req.query;
+    const { symbol, range } = req.body;
 
     if (!symbol) {
       return next(createError(400, "Symbol is required"));
@@ -144,9 +143,8 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
   const span = trace.getSpan(context.active());
 
   try {
-    const page = parseInt(req.query.page as string) || 1;
-    const limit = parseInt(req.query.limit as string) || 20;
-    const skip = (page - 1) * limit;
+    const {page,limit} = req.body;
+    const skip = (parseInt(page as string) || 1 - 1) * parseInt(limit as string) || 20;
 
     // 1. Try to fetch from GLOBAL REDIS CACHE (populated by background worker)
     try {
@@ -275,7 +273,7 @@ export const searchStockController = async (req: Request, res: Response, next: N
 
 export const getMarketCategories = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const page = parseInt(req.query.page as string) || 1;
+    const page = parseInt(req.body.page as string) || 1;
     const pageSize = 20;
     const skip = (page - 1) * pageSize;
     const cacheKey = `marketCategories:page:${page}`;
@@ -413,6 +411,8 @@ const getSingleStock = async (symbol: string) => {
 
 export const getFundamentals = async (req: Request, res: Response) => {
   const { symbol } = req.body;
+
+
   const REDIS_KEY = `stock:fundamentals:${symbol}`;
   const span = trace.getSpan(context.active());
   if (!symbol) {
@@ -429,11 +429,12 @@ export const getFundamentals = async (req: Request, res: Response) => {
       return res.status(200).json({ success: true, data: JSON.parse(cached) });
     }
     // 2. Check the Database if not in Redis
-    const dbStock = await prisma.stockTable.findUnique({
-      where: { symbol: symbol.toUpperCase() }
+    const dbStock = await prisma.stockTable.findFirst({
+      where: { OR: [{ symbol: symbol.toUpperCase() }, { company: { equals: symbol, mode: 'insensitive' } }] }
     });
     // If we have it in DB and it's not null, use it!
     if (dbStock && dbStock.revenue && dbStock.sharesOutstanding) {
+      logger.info("Using Database directly for fundamentals");
       const dbData = {
         ticker: dbStock.symbol,
         currentRevenue: Number(dbStock.revenue),
@@ -446,9 +447,16 @@ export const getFundamentals = async (req: Request, res: Response) => {
       await setCache(REDIS_KEY, JSON.stringify(dbData), 86400); // Re-cache for 24h
       return res.status(200).json({ success: true, data: dbData });
     }
+    let secData;
+    if (dbStock?.company || dbStock?.symbol) {
+      logger.info("Using Database but the second option for fundamentals");
+      secData = await getSECFundamentals(dbStock?.symbol)
+    }
     // 3. Not in DB? Fetch from SEC API permanently!
-    const secData = await getSECFundamentals(symbol);
-
+    if (!secData) {
+      logger.info("Using SEC API for fundamentals");
+      secData = await getSECFundamentals(symbol);
+    }
 
 
     let stock: any = await prisma.stockTable.findUnique({
@@ -495,7 +503,7 @@ export const getFundamentals = async (req: Request, res: Response) => {
     if (error.message.includes("Ticker not found") || error.message.includes("404")) {
       return res.status(404).json({
         success: false,
-        message: "Symbol not found in SEC database. (Note: Crypto and Foreign stocks are not supported by the SEC EDGAR API)."
+        message: "Symbol not found in SEC database"
       });
     }
     // 2. Handle Rate Limiting (SEC is strict)
@@ -517,10 +525,14 @@ export const getFundamentals = async (req: Request, res: Response) => {
 
 export const getPeers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { symbol } = req.body; // Using what you changed to 'req.body'
+    const { symbol } = req.body; 
     if (!symbol) return res.status(400).json({ success: false, message: "Symbol is required" });
 
-    const targetSymbol = symbol.toUpperCase();
+      const dbStock = await prisma.stockTable.findFirst({
+      where: { OR: [{ symbol: symbol.toUpperCase() }, { company: { equals: symbol, mode: 'insensitive' } }] }
+    });
+
+    const targetSymbol = dbStock?dbStock.symbol.toUpperCase():symbol.toUpperCase();
     const targetStock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
 
     if (!targetStock) {
