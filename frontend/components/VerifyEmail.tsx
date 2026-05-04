@@ -10,6 +10,8 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
 import Loader from './loadericon/loader';
 import { resendVerificationToken } from '../hooks/useQuery';
+import { useAnalytics } from '../hooks/useAnalysis';
+
 
 export default function VerifyEmail({tokenRequired=false}: {tokenRequired?: boolean}) {
   const navigate = useNavigate();
@@ -27,6 +29,8 @@ export default function VerifyEmail({tokenRequired=false}: {tokenRequired?: bool
   // 1. Get the values from the URL
   const urlOtp = searchParams.get("otp");
   const urlEmail = searchParams.get("email");
+
+  const { trackEvent } = useAnalytics();
 
   useEffect(() => {
     // 2. If both exist, trigger the verification automatically
@@ -90,6 +94,7 @@ export default function VerifyEmail({tokenRequired=false}: {tokenRequired?: bool
         roles === "ADMIN" ? "/dashboard/admin" :
           "/dashboard/client";
       startRedirect(target);
+      trackEvent("REGISTRATION_USER_VERIFIED", { method: "email" });
     } else if (isError) {
       const specificError = (error as any)?.response?.data?.message || error?.message;
       toast.error(specificError, {

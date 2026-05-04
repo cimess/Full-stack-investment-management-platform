@@ -24,21 +24,22 @@ const ManagerDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
-  const [runTour,setRunTour]=useState(false)
+  const [runTour, setRunTour] = useState(false)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
 
   useEffect(() => {
-  const done = localStorage.getItem("tour_done");
-  if (!done) setRunTour(true);
-}, []);
+    const done = localStorage.getItem("tour_done");
+    if (!done) setRunTour(true);
+  }, []);
 
-const handleFinish = () => {
-  localStorage.setItem("tour_done", "true");
-  setRunTour(false);
-};
+  const handleFinish = () => {
+    localStorage.setItem("tour_done", "true");
+    setRunTour(false);
+  };
   const handleLogout = () => {
     performLogout();
+    queryClient.removeQueries();
     queryClient.clear();
     navigate('/login');
   };
@@ -47,19 +48,19 @@ const handleFinish = () => {
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
 
-    const {mutate:getVerificationToken}=resendVerificationToken()
+  const { mutate: getVerificationToken } = resendVerificationToken()
 
-    const handleResendVerificationEmail = () => {
-      const res:any=getVerificationToken(user?.email)
-      if(res?.data.success){
-        toast.success(res?.data.message)
-        setTimeout(() => {
-          navigate("/verify-email")
-        }, 2000);
-      }else{
-        toast.error(res?.data.message)
-      }
+  const handleResendVerificationEmail = () => {
+    const res: any = getVerificationToken(user?.email)
+    if (res?.data.success) {
+      toast.success(res?.data.message)
+      setTimeout(() => {
+        navigate("/verify-email")
+      }, 2000);
+    } else {
+      toast.error(res?.data.message)
     }
+  }
   return (
     <div className="flex h-screen bg-black overflow-hidden">
       <AppTour
@@ -69,9 +70,9 @@ const handleFinish = () => {
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
       />
-      <DashboardSidebar 
-        role="manager" 
-        userName={firstName || "Manager"} 
+      <DashboardSidebar
+        role="manager"
+        userName={firstName || "Manager"}
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
@@ -80,9 +81,9 @@ const handleFinish = () => {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar 
-          pageTitle="Dashboard" 
-          userName={firstName || "Manager"} 
+        <TopBar
+          pageTitle="Dashboard"
+          userName={firstName || "Manager"}
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
           role="MANAGER"
@@ -90,12 +91,12 @@ const handleFinish = () => {
           image={user?.avatar}
         />
         {/* Google Verify Banner - shown when user is NOT verified */}
-                 {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
+        {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
                  gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
-                    <button onClick={handleResendVerificationEmail} className='cursor-pointer hover:text-amber-500 hover:underline text-amber-300'>
-                    verify your email address
-                    </button>
-                  </div>}
+          <button onClick={handleResendVerificationEmail} className='cursor-pointer hover:text-amber-500 hover:underline text-amber-300'>
+            verify your email address
+          </button>
+        </div>}
         <main className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-6">
           <Routes>
             <Route index element={<MarketView />} />
@@ -110,9 +111,9 @@ const handleFinish = () => {
           </Routes>
         </main>
       </div>
-      <ReportProblemModal 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
+      <ReportProblemModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
       />
     </div>
   );

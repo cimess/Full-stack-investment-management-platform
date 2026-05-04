@@ -43,6 +43,7 @@ model User {
   manager_id String?
   restricted Boolean  @default(false)
   avatar     String?
+  termsAccepted Boolean @default(false)
 
   // Email Verification Fields
   isVerified               Boolean   @default(false)
@@ -50,6 +51,7 @@ model User {
   verificationTokenExpires DateTime?
 
   disabled Boolean @default(false)
+
 
   settings      UserSettings?  @relation("userSettings")
   notifications Notification[] @relation("user_notifications")
@@ -63,6 +65,13 @@ model User {
   Approved_Manager Approved_Manager? @relation("Approved_Manager")
 
   reportsSubmitted SystemReport[] @relation("reporter")
+
+  // --- Analytics Fields ---
+  analyticsConsent Boolean        @default(true)
+  sessions         UserSession[]  @relation("user_sessions")
+  pageVisits       PageVisit[]    @relation("user_page_visits")
+  featureEvents    FeatureEvent[] @relation("user_feature_events")
+  userFeedback     UserFeedback[] @relation("user_feedback")
 }
 
 model StockTable {
@@ -323,4 +332,68 @@ model SystemReport {
 
   @@index([reporterId])
   @@index([status])
+}
+
+
+model UserSession {
+  id            String         @id @default(cuid())
+  user          User           @relation("user_sessions", fields: [userId], references: [id])
+  userId        String
+  sessionToken  String         @unique
+  startedAt     DateTime       @default(now())
+  endedAt       DateTime?
+  ipCountry     String?
+  deviceType    String?        // desktop, mobile, tablet
+  isNewUser     Boolean        @default(false)
+  
+  pageVisits    PageVisit[]
+  featureEvents FeatureEvent[]
+
+  @@index([userId])
+  @@index([startedAt])
+}
+
+model PageVisit {
+  id            String       @id @default(cuid())
+  session       UserSession  @relation(fields: [sessionId], references: [id])
+  sessionId     String
+  user          User         @relation("user_page_visits", fields: [userId], references: [id])
+  userId        String
+  pageRoute     String
+  enteredAt     DateTime     @default(now())
+  exitedAt      DateTime?
+  timeSpentMs   Int?
+
+  @@index([userId])
+  @@index([pageRoute])
+  @@index([enteredAt])
+}
+
+model FeatureEvent {
+  id            String       @id @default(cuid())
+  session       UserSession? @relation(fields: [sessionId], references: [id])
+  sessionId     String?
+  user          User         @relation("user_feature_events", fields: [userId], references: [id])
+  userId        String
+  eventName     String
+  eventMetadata Json?
+  createdAt     DateTime     @default(now())
+
+  @@index([userId])
+  @@index([eventName])
+  @@index([createdAt])
+}
+
+model UserFeedback {
+  id              String   @id @default(cuid())
+  user            User     @relation("user_feedback", fields: [userId], references: [id])
+  userId          String
+  triggerContext  String
+  questionAsked   String
+  userResponse    String?  // Text response
+  score           Int?     // NPS or 1-5 score
+  submittedAt     DateTime @default(now())
+
+  @@index([userId])
+  @@index([triggerContext])
 }

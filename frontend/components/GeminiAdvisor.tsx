@@ -2,12 +2,14 @@ import React, { useState } from 'react';
 import { getAIInsights } from '../services/queryServices';
 import { Sparkles, Send, Loader2, AlertCircle } from 'lucide-react';
 import { LoadingState } from '../types';
-
+import { useAnalytics } from '../hooks/useAnalysis';
 const GeminiAdvisor: React.FC = () => {
   const [query, setQuery] = useState('');
   const [submittedQuery, setSubmittedQuery] = useState('');
   const [response, setResponse] = useState<string | null>(null);
   const [status, setStatus] = useState<LoadingState>(LoadingState.IDLE);
+
+   const { trackEvent } = useAnalytics();
 
   const predefinedQueries = [
     "What is dollar-cost averaging?",
@@ -18,6 +20,8 @@ const GeminiAdvisor: React.FC = () => {
 
   const handleSearch = async () => {
     if (!query.trim()) return;
+   
+    trackEvent("AI_ADVISOR_QUERY", { queryLength:query.length});
 
     setSubmittedQuery(query);
     setStatus(LoadingState.LOADING);
@@ -27,6 +31,7 @@ const GeminiAdvisor: React.FC = () => {
       const result = await getAIInsights(query);
       setResponse(result);
       setStatus(LoadingState.SUCCESS);
+
     } catch (error) {
       setStatus(LoadingState.ERROR);
     }

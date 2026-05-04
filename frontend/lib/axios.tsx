@@ -67,4 +67,36 @@ api.interceptors.response.use(
   }
 );
 
+
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+
+    if (error.response && error.response.status >= 500) {
+       const payload = {
+            type: 'FEATURE_EVENT',
+            eventName: 'api_crash',
+            metadata: { 
+                url: error.config?.url,
+                method: error.config?.method,
+                status: error.response?.status,
+                errorMessage: error.message
+            },
+            sessionId: sessionStorage.getItem('analytics_session_id') || 'untracked'
+        };
+
+        // We use fetch with keepalive to push the error silently without blocking the UI
+        fetch(api.defaults.baseURL + '/analytics/event', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload),
+            keepalive: true
+        }).catch(() => {});
+    }
+    return Promise.reject(error);
+  }
+);
+
+
 export default api

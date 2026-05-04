@@ -121,53 +121,6 @@ export const getUserDashboard = () => {
 
 // frontend/hooks/useQuery.tsx
 
-export const useGetMarketQuotes = (enabled: boolean = false, limit: number = 2000) => {
-  return useQuery({
-    queryKey: ["marketQuotes", limit],
-    queryFn: () => getMarketQuotes(1, limit),
-    enabled 
-  })
-}
-
-
-export const useGetMarketCategories = () => {
-  return useInfiniteQuery({
-    queryKey: ["marketCategories"],
-    queryFn: ({ pageParam = 1 }) => getMarketCategories(pageParam),
-    initialPageParam: 1,
-    getNextPageParam: (lastPage, allPages) => {
-      if (!allPages || !Array.isArray(allPages)) return undefined;
-      const pages = Array.isArray(allPages) ? allPages : [];
-      const data = lastPage?.data;
-
-      // FIX: The category API returns an OBJECT, not an array.
-      if (!data || typeof data !== 'object') return undefined;
-
-      // Check if any of the arrays inside the object have data
-      const hasData = Object.values(data).some((arr: any) => Array.isArray(arr) && arr.length > 0);
-      return hasData ? pages.length + 1 : undefined;
-    }
-  })
-}
-
-
-export const useSearchStock = () => {
-  return useMutation({
-    mutationFn: (query: string) => searchStock(query)
-  })
-}
-
-export const usePostMarketQuotes = () => {
-  return useMutation({
-    mutationFn: (symbols: string[]) => postMarketQuotes(symbols)
-  })
-}
-
-export const useFetchStockDetails = () => {
-  return useMutation({
-    mutationFn: (symbol: string) => fetchStockDetailsAPI(symbol)
-  })
-}
 
 export const useFetchStockHistory = () => {
   return useMutation({
@@ -265,6 +218,53 @@ export const useUpdateReportStatus = () => {
 export const useDeleteReport = () => {
   return useMutation({
     mutationFn: deleteReportAPI
+  })
+}
+
+// market quotes api
+export const useGetMarketQuotes = (enabled: boolean = false, limit: number = 2000) => {
+  return useMutation({
+    mutationFn: () => getMarketQuotes(1, limit),
+  })
+}
+
+
+export const useGetMarketCategories = () => {
+  return useInfiniteQuery({
+    queryKey: ["marketCategories"],
+    queryFn: ({ pageParam = 1 }) => getMarketCategories(pageParam),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage, allPages) => {
+      if (!allPages || !Array.isArray(allPages)) return undefined;
+      const pages = Array.isArray(allPages) ? allPages : [];
+      const data = lastPage?.data;
+
+      // FIX: The category API returns an OBJECT, not an array.
+      if (!data || typeof data !== 'object') return undefined;
+
+      // Check if any of the arrays inside the object have data
+      const hasData = Object.values(data).some((arr: any) => Array.isArray(arr) && arr.length > 0);
+      return hasData ? pages.length + 1 : undefined;
+    }
+  })
+}
+
+
+export const useSearchStock = () => {
+  return useMutation({
+    mutationFn: (query: string) => searchStock(query)
+  })
+}
+
+export const usePostMarketQuotes = () => {
+  return useMutation({
+    mutationFn: (symbols: string[]) => postMarketQuotes(symbols)
+  })
+}
+
+export const useFetchStockDetails = () => {
+  return useMutation({
+    mutationFn: (symbol: string) => fetchStockDetailsAPI(symbol)
   })
 }
 

@@ -170,7 +170,7 @@ export const deactivateAccountAPI = async () => {
 }
 
 export const getMarketCategories = async (page: number = 1) => {
-  const response = await api.post("/market/categories",page);
+  const response = await api.post("/market/categories",{page});
   return response.data;
 }
 export const reportProblem = async (data: any) => {

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from 'react';
 import { X, AlertCircle, Send, ShieldAlert, Bug, HelpCircle, UserX } from 'lucide-react';
 import { useReportProblem } from '../hooks/useQuery';
 import { toast } from 'react-toastify';
+import { useAnalytics } from '../hooks/useAnalysis';
 
 interface ReportProblemModalProps {
   isOpen: boolean;
@@ -18,12 +19,17 @@ const ReportProblemModal: React.FC<ReportProblemModalProps> = ({ isOpen, onClose
     description: '',
   });
 
+   const { trackEvent } = useAnalytics();
+   
   const { mutate: reportMutation, isPending } = useReportProblem();
 
   // Handle successful submission
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+   
+    trackEvent("USED REPORT PROBLEM MODAL", 
+      { type: formData.type });
+
     reportMutation({ ...formData, targetId }, {
       onSuccess: () => {
         toast.success('Report submitted! Our team will investigate.');

@@ -3,9 +3,11 @@ import { Mail, Phone, Calendar, Award, MessageSquare, ExternalLink, ShieldCheck,
 import { getUserDashboard, useAddManagerToClient, useRemoveManagerFromClient, useGetMe } from '../../../hooks/useQuery';
 import { toast } from 'react-toastify';
 import { useQueryClient } from '@tanstack/react-query';
+import { useAnalytics } from '../../../hooks/useAnalysis';
 
 const ManagerView: React.FC = () => {
 
+const { trackEvent } = useAnalytics();
 
   const queryClient = useQueryClient();
   const { data, isLoading: isDashboardLoading } = getUserDashboard();
@@ -23,6 +25,8 @@ const ManagerView: React.FC = () => {
 
   const handleAssign = () => {
     if (!managerId.trim()) return;
+    
+    trackEvent("ASSIGN MANAGER", { managerId });
     
     assignManager({ manager_id: managerId }, {
       onSuccess: () => {
@@ -42,6 +46,7 @@ const ManagerView: React.FC = () => {
   const handleRemove = () => {
     if (!managerData?.id) return;
     
+    trackEvent("REMOVE MANAGER", { managerId: managerData.id });
     const confirmed = window.confirm("Are you sure you want to remove your manager? You will lose access to specialized portfolio guidance.");
     if (confirmed) {
       detachManager({ manager_id: managerData.id }, {

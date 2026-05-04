@@ -1,10 +1,11 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useLocation } from 'react-router-dom';
 import { TrendingUp, TrendingDown, Loader2, X } from 'lucide-react';
-import { getUserDashboard, useGetMarketQuotes, useBuyStock, useSellStock ,useSearchStock} from "../../../hooks/useQuery";
+import { getUserDashboard, useGetMarketQuotes, useBuyStock, useSellStock, useSearchStock } from "../../../hooks/useQuery";
 import { toast } from 'react-toastify';
 import DetailsModal from '../../../components/DetailsModal';
-
+import { useAnalytics } from '../../../hooks/useAnalysis';
+import FeedbackSurveyModal from '../../../components/FeedbackSurveyModal';
 
 
 import { useVirtualizer } from '@tanstack/react-virtual';
@@ -32,15 +33,15 @@ const TradeModal = React.memo(({
   isMarketLoading?: boolean;
   holdings?: any[];
 }) => {
-  console.log(holdings)
   const [selectedStockId, setSelectedStockId] = React.useState(initialSelectedStockId || '');
   const [quantity, setQuantity] = React.useState(0);
   const [searchTerm, setSearchTerm] = React.useState('');
   const [detailedStock, setDetailedStock] = React.useState<any>(null);
   const [searchResults, setSearchResults] = React.useState<any[]>([]);
-  
+
   const parentRef = React.useRef<HTMLDivElement>(null);
   const { mutate: performSearch, isPending: isSearching } = useSearchStock();
+  const { trackEvent } = useAnalytics();
 
   // Reset state on open
   React.useEffect(() => {
@@ -61,8 +62,8 @@ const TradeModal = React.memo(({
     }
 
     const timer = setTimeout(() => {
-      const isLocallyFound = stocks.some(s => 
-        s?.symbol?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      const isLocallyFound = stocks.some(s =>
+        s?.symbol?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         s?.company?.toLowerCase().includes(searchTerm.toLowerCase())
       );
 
@@ -72,6 +73,7 @@ const TradeModal = React.memo(({
             if (res.success && res.data) {
               const results = Array.isArray(res.data) ? res.data : [res.data];
               setSearchResults(results);
+              trackEvent("USED TRADE-MODAL TO SEARCH FOR STOCKS", { type, stockId: selectedStockId, quantity });
             }
           }
         });
@@ -90,8 +92,8 @@ const TradeModal = React.memo(({
       const key = s.id || s.symbol || Math.random().toString();
       if (!uniqueMap.has(key)) uniqueMap.set(key, s);
     });
-    
-    const all = Array.from(uniqueMap.values()).sort((a, b) => 
+
+    const all = Array.from(uniqueMap.values()).sort((a, b) =>
       (a?.symbol || '').localeCompare(b?.symbol || '')
     );
 
@@ -113,18 +115,8 @@ const TradeModal = React.memo(({
   });
 
   const selectedStock = allStocks.find(s => s.id === selectedStockId || s.symbol === selectedStockId);
-  
-  // Debug: Monitor data arrival
-  React.useEffect(() => {
-    if (isOpen) {
-      console.log('📦 TradeModal Data Sync:', {
-        stocksCount: stocks.length,
-        isMarketLoading,
-        searchTerm,
-        type
-      });
-    }
-  }, [isOpen, stocks.length, isMarketLoading, searchTerm, type]);
+
+
 
   // Robust loading check: 
   // ONLY show Initializing if we are ACTIVELY loading and have nothing yet.
@@ -133,8 +125,8 @@ const TradeModal = React.memo(({
 
   if (!isOpen) return null;
 
-    // ✅ Calculate the "precise" quantity for the CURRENTLY selected stock
-  const currentHolding = holdings?.find((h: any) => 
+  // ✅ Calculate the "precise" quantity for the CURRENTLY selected stock
+  const currentHolding = holdings?.find((h: any) =>
     h.stock?.id === selectedStockId || h.stock?.symbol === selectedStockId
   );
   const preciseQuantity = currentHolding?.quantity || 0;
@@ -143,7 +135,7 @@ const TradeModal = React.memo(({
     <>
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/95 backdrop-blur-xl">
         <div className="glass-panel w-full max-w-md max-h-[90vh] rounded-[2.5rem] border border-white/10 p-5 sm:p-7 flex flex-col space-y-5 animate-in fade-in zoom-in duration-300">
-          
+
           {/* Header */}
           <div className="flex items-center justify-between shrink-0">
             <div>
@@ -158,7 +150,7 @@ const TradeModal = React.memo(({
                   </>
                 ) : (
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
-                    {type==='BUY'?filteredResults.length:preciseQuantity} {type==='BUY'?'Assets Available':'Available to Sell'}
+                    {type === 'BUY' ? filteredResults.length : preciseQuantity} {type === 'BUY' ? 'Assets Available' : 'Available to Sell'}
                   </span>
                 )}
               </div>
@@ -191,7 +183,7 @@ const TradeModal = React.memo(({
           <div
             ref={parentRef}
             className="flex-1 overflow-y-auto min-h-[350px] scrollbar-hide py-1 rounded-2xl relative">
-            
+
             {filteredResults.length > 0 ? (
               <div
                 style={{
@@ -205,7 +197,7 @@ const TradeModal = React.memo(({
                   const itemKey = s.id || s.symbol || `virtual-${virtualItem.index}`;
                   const isSelected = selectedStockId === s.id || (s.symbol && selectedStockId === s.symbol);
                   const price = Number(s.price || 0);
-                  
+
                   return (
                     <div
                       key={itemKey}
@@ -248,8 +240,8 @@ const TradeModal = React.memo(({
             ) : (isActuallyLoading ? (
               <div className="flex flex-col items-center justify-center h-full py-20 space-y-5">
                 <div className="relative">
-                   <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
-                   <div className="absolute inset-0 blur-lg bg-emerald-500/20 animate-pulse" />
+                  <Loader2 className="w-10 h-10 animate-spin text-emerald-500" />
+                  <div className="absolute inset-0 blur-lg bg-emerald-500/20 animate-pulse" />
                 </div>
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-[0.3em] animate-pulse">Initializing Data Stream</p>
               </div>
@@ -270,16 +262,20 @@ const TradeModal = React.memo(({
           <div className="pt-2 shrink-0 space-y-4">
             {selectedStock && (
               <button
-                onClick={() => setDetailedStock({
-                  ...selectedStock,
-                  label: selectedStock.company || selectedStock.symbol,
-                  image: selectedStock.image || `https://api.lineicons.com/v1/icons/investment/stock-${selectedStock.symbol?.toLowerCase()}`,
-                  stats: {
-                    industry: selectedStock.industry || 'Market Asset',
-                    hq: selectedStock.hq || 'Global Markets',
-                    more: 'Verified Financial Data'
-                  }
-                })}
+                onClick={() => {
+                  trackEvent("USED EXPLORE BUTTON TO VIEW TRADE DETAILS FROM TRADE-MODAL", { type, stockId: selectedStockId, quantity });
+                  setDetailedStock({
+                    ...selectedStock,
+                    label: selectedStock.company || selectedStock.symbol,
+                    image: selectedStock.image || `https://api.lineicons.com/v1/icons/investment/stock-${selectedStock.symbol?.toLowerCase()}`,
+                    stats: {
+                      industry: selectedStock.industry || 'Market Asset',
+                      hq: selectedStock.hq || 'Global Markets',
+                      more: 'Verified Financial Data'
+                    }
+                  })
+                }
+                }
                 className="w-full py-2.5 rounded-2xl border border-white/5 bg-white/[0.02] text-[10px] font-bold text-slate-500 hover:text-emerald-400 hover:border-emerald-500/30 hover:bg-emerald-500/5 transition-all uppercase tracking-[0.2em] animate-in fade-in slide-in-from-bottom-1"
               >
                 Explore {selectedStock.symbol} Details
@@ -313,15 +309,20 @@ const TradeModal = React.memo(({
 
           {/* Action Row */}
           <div className="flex gap-3 shrink-0">
-            <button disabled={isPending} onClick={onClose} className="flex-1 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold hover:text-white hover:bg-white/5 transition-all text-sm uppercase tracking-widest">
+            <button disabled={isPending} onClick={() => {
+              onClose();
+              trackEvent("TRADE_CANCELLED", { eventName: `TRADE_CANCELLED ${type}`, type, stockId: selectedStockId, quantity });
+            }} className="flex-1 py-4 rounded-2xl border border-white/10 text-slate-400 font-bold hover:text-white hover:bg-white/5 transition-all text-sm uppercase tracking-widest">
               Cancel
             </button>
             <button
-              disabled={!selectedStockId || quantity <= 0 || isPending || (Number(selectedStock?.price) <= 0)||(type === 'SELL' && quantity > preciseQuantity)}
-              onClick={() => onConfirm(selectedStockId, quantity)}
-              className={`flex-[2] py-4 rounded-2xl font-bold text-white transition-all text-sm uppercase tracking-widest shadow-2xl ${
-                type === 'BUY' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-red-500 shadow-red-500/20'
-              } disabled:opacity-10 disabled:grayscale`}
+              disabled={!selectedStockId || quantity <= 0 || isPending || (Number(selectedStock?.price) <= 0) || (type === 'SELL' && quantity > preciseQuantity)}
+              onClick={() => {
+                onConfirm(selectedStockId, quantity)
+                trackEvent("TRADE_CONFIRMED", { eventName: `TRADE_CONFIRMED ${type}`, type, stockId: selectedStockId, quantity });
+              }}
+              className={`flex-[2] py-4 rounded-2xl font-bold text-white transition-all text-sm uppercase tracking-widest shadow-2xl ${type === 'BUY' ? 'bg-emerald-500 shadow-emerald-500/20' : 'bg-red-500 shadow-red-500/20'
+                } disabled:opacity-10 disabled:grayscale`}
             >
               {isPending ? <Loader2 className="w-5 h-5 animate-spin mx-auto" /> : (type === 'BUY' ? 'Execute Purchase' : 'Liquidate Asset')}
             </button>
@@ -361,18 +362,25 @@ const PortfolioView: React.FC = () => {
 
   const { data, isLoading, isError, refetch } = getUserDashboard();
 
-  const { data: marketData, isLoading: isMarketLoading}
+  const { data: marketData, isPending: isMarketLoading }
     = useGetMarketQuotes(marketEnabled);
- 
+
 
 
   const location = useLocation();
+  const { trackEvent } = useAnalytics();
+  const [showTradeSurvey, setShowTradeSurvey] = useState(false);
 
+  const handleSaveTradeFeedback = async (rating: string | number) => {
+    trackEvent("TRADE_FEEDBACK_SUBMITTED", { rating });
+    localStorage.setItem('trade_survey_completed', 'true');
+  };
   // helper: open BUY modal and trigger the fetch
   const openBuyModal = () => {
     setMarketEnabled(true);  // start fetching market data
     setTradeType('BUY');
     setIsTradeModalOpen(true);
+
   };
 
   // Reset initialStockId when modal closes
@@ -388,7 +396,7 @@ const PortfolioView: React.FC = () => {
 
     if (state?.symbol && marketData?.data && Array.isArray(marketData.data)) {
       const stock = marketData.data.find((s: any) => s.symbol === state.symbol);
-      
+
       if (stock) {
         setMarketEnabled(true);
         setTradeType(state.mode || 'BUY');
@@ -437,6 +445,7 @@ const PortfolioView: React.FC = () => {
   }
 
   if (isError || !data?.data) {
+    trackEvent("PORTFOLIO_ERROR", { error: "Failed to load portfolio data" });
     return (
       <div className="flex h-full items-center justify-center p-12 text-slate-400">
         Failed to load portfolio data.
@@ -457,7 +466,10 @@ const PortfolioView: React.FC = () => {
         <div className="flex gap-2">
           {/* This button opens the Buy Stock modal */}
           <button
-            onClick={openBuyModal}
+            onClick={() => {
+              openBuyModal();
+              trackEvent("BUY_MODAL_OPEN", { method: "used the buy stock button" });
+            }}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-xs lg:text-sm font-medium hover:bg-emerald-500/20 transition-colors"
           >
             <TrendingUp className="w-4 h-4" /> Buy Stock
@@ -465,7 +477,10 @@ const PortfolioView: React.FC = () => {
 
           {/* This button opens the Sell Stock modal */}
           <button
-            onClick={() => { setTradeType('SELL'); setIsTradeModalOpen(true); }}
+            onClick={() => {
+              setTradeType('SELL'); setIsTradeModalOpen(true);
+              trackEvent("SELL_MODAL_OPEN", { method: "used the sell stock button" });
+            }}
             className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-4 py-2 rounded-xl bg-red-500/10 text-red-400 border border-red-500/20 text-xs lg:text-sm font-medium hover:bg-red-500/20 transition-colors"
           >
             <TrendingDown className="w-4 h-4" /> Sell Stock
@@ -590,8 +605,8 @@ const PortfolioView: React.FC = () => {
           type={tradeType || 'BUY'}
           holdings={holdings}
           stocks={
-            tradeType === 'SELL' 
-              ? (data?.data?.investments?.map((v: any) => v.stock) || []) 
+            tradeType === 'SELL'
+              ? (data?.data?.investments?.map((v: any) => v.stock) || [])
               : (marketData?.data || [])
           }
           isMarketLoading={isMarketLoading}
@@ -605,12 +620,27 @@ const PortfolioView: React.FC = () => {
                 setIsTradeModalOpen(false);
                 refetch(); // Refresh dashboard to see pending request
                 toast.success("Trade request sent successfully!");
+
+                // Trigger survey after first Buy trade
+                if (tradeType === 'BUY' && !localStorage.getItem('trade_survey_completed')) {
+                  setShowTradeSurvey(true);
+                }
               },
               onError: (err: any) => {
                 toast.error(err?.response?.data?.message || "Trade request failed. Make sure you have a manager assigned.");
               }
             });
           }}
+        />
+      )}
+      {showTradeSurvey && (
+        <FeedbackSurveyModal
+          isOpen={showTradeSurvey}
+          onClose={() => setShowTradeSurvey(false)}
+          question="How was your trading experience?"
+          type="rating"
+          onSave={handleSaveTradeFeedback}
+          title="Trade Experience"
         />
       )}
     </div>

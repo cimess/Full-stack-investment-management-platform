@@ -198,3 +198,25 @@ export const deactivateAccount = async (req: Request, res: Response, next: NextF
   }
 };
 
+
+export const updateTerms = async (req: Request, res: Response, next: NextFunction) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    return next(createError(401, "Unauthorized"));
+  }
+
+  try {
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        termsAccepted: true
+      }
+    });
+    return res.status(200).json({
+      success: true,
+    });
+  } catch (err: any) {
+    logger.error("Failed to update terms: ", err);
+    return next(createError(500, "Internal Server Error"));
+  }
+};

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useGetMe } from '../hooks/useQuery';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'react-toastify';
+import api from '../lib/axios';
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[]; // e.g., ['USER', 'MANAGER', 'ADMIN']
@@ -12,6 +13,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRoles 
   const { data, isLoading, isError } = useGetMe();
   const location = useLocation();
   const user = data?.data;
+ 
+
+  useEffect(()=>{
+
+const userTerms = localStorage.getItem(`${user?.email}-cimessinvest-userTerms`);
+const pendingGoogle = localStorage.getItem("pending-google-terms");
+
+if (!user?.termsAccepted && (userTerms !== null || pendingGoogle !== null)) {
+    api.post("/user/terms", { termsAccepted: true })
+      .then(() => {
+          localStorage.setItem(`${user?.email}-cimessinvest-userTerms`, "true");
+          localStorage.removeItem("pending-google-terms"); // clean up temp key
+      })
+      .catch(console.log);
+}
+
+
+},[user?.termsAccepted])
   // 1. Handle Loading State
   if (isLoading) {
     return (

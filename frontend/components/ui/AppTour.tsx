@@ -1,6 +1,5 @@
-import React, { useMemo } from 'react';
 import { Joyride, type Step, STATUS } from 'react-joyride';
-
+import { useAnalytics } from '../../hooks/useAnalysis';
 // Handle library variations in export style (named vs default)
 const JoyrideComponent: any = (Joyride as any).Joyride || Joyride;
 
@@ -350,6 +349,7 @@ export default function AppTour({ role, run, onFinish, mobileOpen, setMobileOpen
     role === 'ADMIN' ? adminSteps :
       clientSteps;
 
+const { trackEvent } = useAnalytics();
 
   const handleEvent = (data: any) => {
     const { status, step, type, action, index } = data;
@@ -374,6 +374,9 @@ export default function AppTour({ role, run, onFinish, mobileOpen, setMobileOpen
       }
      
     }
+
+    
+    trackEvent("USED APP TOUR", { status});
 
 
     if (status === STATUS.FINISHED || status === STATUS.SKIPPED) {

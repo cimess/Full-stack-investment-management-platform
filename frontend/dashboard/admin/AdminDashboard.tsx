@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Route, Routes } from 'react-router-dom';
 import {
   Users,
@@ -29,21 +29,22 @@ const AdminDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
-  const [runTour,setRunTour]=useState(false)
+  const [runTour, setRunTour] = useState(false)
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
 
 
   useEffect(() => {
-  const done = localStorage.getItem("tour_done");
-  if (!done) setRunTour(true);
-}, []);
+    const done = localStorage.getItem("tour_done");
+    if (!done) setRunTour(true);
+  }, []);
 
-const handleFinish = () => {
-  localStorage.setItem("tour_done", "true");
-  setRunTour(false);
-};
+  const handleFinish = () => {
+    localStorage.setItem("tour_done", "true");
+    setRunTour(false);
+  };
   const handleLogout = () => {
     performLogout();
+    queryClient.removeQueries();
     queryClient.clear();
     navigate('/login');
   };
@@ -60,9 +61,9 @@ const handleFinish = () => {
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
       />
-      <DashboardSidebar 
-        role={"admin"} 
-        userName={firstName || "Admin"} 
+      <DashboardSidebar
+        role={"admin"}
+        userName={firstName || "Admin"}
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
@@ -71,9 +72,9 @@ const handleFinish = () => {
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar 
-          pageTitle="Dashboard" 
-          userName={firstName || "Admin"} 
+        <TopBar
+          pageTitle="Dashboard"
+          userName={firstName || "Admin"}
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
           image={user?.avatar}
@@ -134,9 +135,9 @@ const handleFinish = () => {
         </main>
       </div>
 
-      <ReportProblemModal 
-        isOpen={isReportModalOpen} 
-        onClose={() => setIsReportModalOpen(false)} 
+      <ReportProblemModal
+        isOpen={isReportModalOpen}
+        onClose={() => setIsReportModalOpen(false)}
       />
     </div>
   );

@@ -6,7 +6,8 @@ import { Search, Loader2, ArrowUpRight, ArrowDownRight, Info, Calculator } from 
 import { toast } from "react-toastify"
 import PeerComparison from './peerComparison';
 import HistoricalTrends from './HistoricalTrends';
-
+import { useAnalytics } from '../../hooks/useAnalysis';
+import FeedbackSurveyModal from '../FeedbackSurveyModal';
 
 export default function DCFModeler() {
     const location = useLocation();
@@ -26,25 +27,24 @@ export default function DCFModeler() {
     // 2. Data Fetching
     const { mutate: getFundamentals, isPending: isLoading, data: fundamentalsResponse, error } = useGetFundamentals();
     const stockData = fundamentalsResponse?.data;
+// handle tracking of user action
+
+    const { trackEvent } = useAnalytics();
+    const [showDCFSurvey, setShowDCFSurvey] = useState(false);
 
     // 3. Search Effect
     useEffect(() => {
         if (ticker.length < 1) return;
         const delaySearch = setTimeout(() => getFundamentals(ticker), 1200);
+        trackEvent("searched_ticker", { ticker });
         return () => clearTimeout(delaySearch);
     }, [ticker, getFundamentals]);
 
-    useEffect(() => {
+    const handleSaveDCFFeedback = async (rating: string | number) => {
+        trackEvent("DCF_FEEDBACK_SUBMITTED", { rating, symbol: ticker });
+        localStorage.setItem('dcf_survey_completed', 'true');
+    };
 
-        if (error) {
-
-            // Important: Axios/Fetch errors are usually in error.response.data
-            const message = (error as any)?.response?.data?.message || "Failed to fetch stock data";
-            toast.info(`${message}  pls try again later`);
-        }
-    }, [error]);
-
-    // 4. DCF Calculation Engine
     const dcfResult = useMemo(() => {
         if (!stockData) return null;
 
@@ -71,8 +71,31 @@ export default function DCFModeler() {
     const upside = currentPrice > 0 ? ((fairValue - currentPrice) / currentPrice) * 100 : 0;
     const isUndervalued = upside > 0;
 
+    // Trigger survey after first successful calculation
+    useEffect(() => {
+        if (dcfResult && !localStorage.getItem('dcf_survey_completed')) {
+            trackEvent("dcf_model_run", { symbol: ticker, upside, isUndervalued });
+            setShowDCFSurvey(true);
+        }
+    }, [dcfResult]); // Fires when calculation result appears
+
+    useEffect(() => {
+        if (error) {
+            const message = (error as any)?.response?.data?.message || "Failed to fetch stock data";
+            toast.info(`${message}  pls try again later`);
+        }
+    }, [error]);
+
     return (
         <div className="flex flex-col gap-4 border border-white/10 rounded-2xl p-8 text-white max-w-4xl mx-auto shadow-2xl ">
+            <FeedbackSurveyModal
+                isOpen={showDCFSurvey}
+                onClose={() => setShowDCFSurvey(false)}
+                question="Was this fair value easy to understand?"
+                type="rating"
+                onSave={handleSaveDCFFeedback}
+                title="Model Feedback"
+            />
 
             {/* Search Top Bar */}
             <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 mb-10 pb-10 border-b border-white/5">

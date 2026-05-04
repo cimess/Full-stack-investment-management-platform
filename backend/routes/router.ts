@@ -12,12 +12,14 @@ import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManager
 import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals, getPeers, getHistoricalFundamentalsController } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
-import { updateProfile, deactivateAccount } from "../controller/userController.js";
+import { updateProfile, deactivateAccount, updateTerms } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
 import rateLimit from "express-rate-limit";
 import passport from "passport";
 import { getAIInsightsController } from "../controller/aiController.js";
 import { createReport, getAllReports, updateReportStatus, deleteReport } from "../controller/reportController.js";
+import { trackFrontendEvent, submitFeedback, getAnalyticsOverview } from "../controller/analytics.js";
+
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -95,13 +97,14 @@ router.post("/user/deactivate", verifyToken, deactivateAccount);
 router.get("/user/notifications", verifyToken, getNotifications);
 router.patch("/user/notifications/read", verifyToken, markNotificationsRead);
 
-// --- Client (User) Routes ---
+// --- Client /(User) Routes ---
 router.post("/client/add/manager", verifyToken, authorise([Roles.USER]), add_manager_to_client);
 router.post("/client/remove/manager", verifyToken, authorise([Roles.USER]), remove_manager_to_client);
 router.post("/client/buy/stock", verifyToken, authorise([Roles.USER]), buyStock);
 router.post("/client/sell/stock", verifyToken, authorise([Roles.USER]), sellStock);
 router.get("/client/dashboard", verifyToken, authorise([Roles.USER]), getClientAll);
 router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN,Roles.USER]), addAdmin)
+router.post("/user/terms", verifyToken, updateTerms);
 
 // --- Manager Routes ---
 router.post("/manager/handle/request", verifyToken, authorise([Roles.MANAGER]), handleRequest);
@@ -125,6 +128,12 @@ router.get("/admin/reports", verifyToken, authorise([Roles.ADMIN]), getAllReport
 router.patch("/admin/reports/status", verifyToken, authorise([Roles.ADMIN]), updateReportStatus);
 router.delete("/admin/reports/delete", verifyToken, authorise([Roles.ADMIN]), deleteReport); // Controller handles Super Admin check
 
+
+// --- Analytics (User Facing) ---
+router.post("/analytics/event", verifyToken, trackFrontendEvent);
+router.post("/analytics/feedback", verifyToken, submitFeedback);
+// --- Analytics (Admin Facing) ---
+router.get("/admin/analytics/overview", verifyToken, authorise([Roles.ADMIN, Roles.MANAGER]), getAnalyticsOverview);
 
 
 export default router;

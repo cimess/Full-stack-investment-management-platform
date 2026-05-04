@@ -102,7 +102,8 @@ const strategy = new GoogleStrategy(
             isVerified: true,
             verificationToken: null,
             verificationTokenExpires: null,
-            avatar: avatar
+            avatar: avatar,
+            termsAccepted: true,
           },
         });
         logger.info('Google OAuth successful for user: ', user);

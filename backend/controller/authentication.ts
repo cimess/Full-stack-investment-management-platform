@@ -140,7 +140,8 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           roles: userRole ? userRole : 'USER',
           isVerified: false,
           verificationToken: otp,
-          verificationTokenExpires: otpExpires
+          verificationTokenExpires: otpExpires,
+          termsAccepted: true,
         }
       })
       
@@ -518,6 +519,7 @@ export const getMe = async (req: Request, res: Response, next: NextFunction) => 
       settings: true,
       manager: true, // The manager's OWN profile
       to_admin: true,   // The admin's OWN profile
+      termsAccepted: true,
       client_manager: { // The manager attached TO this client
         select: {
           id: true,

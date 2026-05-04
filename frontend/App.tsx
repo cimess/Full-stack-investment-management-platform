@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Route, Routes, useLocation } from 'react-route
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ErrorBoundary } from 'react-error-boundary';
+import Analytics from './components/Analytics';
 
 // 1. Critical component that needs to load immediately
 import ProtectedRoute from './components/protectedRoute';
@@ -83,6 +84,7 @@ const App = () => {
       />
 
       <Router>
+        <Analytics />
         <ScrollToTop />
         < ErrorBoundaryWithLocation>
           <Suspense fallback={<PageLoader />}>

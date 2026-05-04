@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useAnalytics } from '../../../hooks/useAnalysis';
 import {
   Search,
   ArrowUpRight,
@@ -36,6 +37,8 @@ const MarketView: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [fetchingSymbol, setFetchingSymbol] = useState<boolean>(false);
 
+  const { trackEvent } = useAnalytics();
+
   const {
     data,
     isLoading: isMarketLoading,
@@ -60,8 +63,12 @@ const MarketView: React.FC = () => {
 
   // Search Debounce
   useEffect(() => {
+
+
     const delayDebounceFn = setTimeout(() => {
       if (searchTerm.length > 0) {
+            trackEvent("SEARCH STOCK FROM MANAGER MARKET", { searchTerm });
+            
         searchStocks(searchTerm, {
           onSuccess: (res) => {
             if (res.success && res.data) {
@@ -85,6 +92,7 @@ const MarketView: React.FC = () => {
   },[isFetchingDetails])
 
   const handleStockClick = (symbol: string, basicName: string, change: string) => {
+    trackEvent("VIEW STOCK FROM MANAGER MARKET", { symbol });
 
    
     fetchDetails(symbol, {

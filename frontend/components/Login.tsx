@@ -6,13 +6,14 @@ import { toast, Zoom } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { isEmail, isPassword, isName } from '../hooks/validator';
 import { Eye, EyeOff, User, ChevronDown, AlertCircle } from "lucide-react"
-
+import { useAnalytics } from '../hooks/useAnalysis';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import Loader from './loadericon/loader';
 import { getClientAll, getManagerAll, getAdminDashboard } from '../services/queryServices';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
 import { SiGoogle } from "react-icons/si";
+import api from '../lib/axios';
 
 
 
@@ -78,14 +79,31 @@ export default function Login({ loginUi }: { loginUi: boolean }) {
 
   const { mutate: registerMutate, isSuccess: registerSuccess, data: registerData, isError: isRegisterError, error: registerError, isPending: registerPending } = register();
 
-
+const { trackEvent } = useAnalytics();
 
 
 
 
   const apiMessage = loginData?.message ?? registerData?.message
-useEffect(() => {
-  if ((loginError as any)?.response?.data?.message?.includes("Please verify your email address to log in")
+
+  useEffect(() => {
+    if (!email) {
+      setTermsAccepted(false); // Reset if email is empty
+      return;
+    }
+    
+    const userTerms = localStorage.getItem(`${email}-cimessinvest-userTerms`);
+    
+    if (userTerms) {
+       setTermsAccepted(true);
+    } else {
+       setTermsAccepted(false);
+    }
+  }, [email]);
+
+  
+  useEffect(() => {
+    if ((loginError as any)?.response?.data?.message?.includes("Please verify your email address to log in")
       && (loginError as any).response.status === 403) {
       // 1. Cache the email so the next page knows who to send the code to
       queryClient.setQueryData(["userEmail"], email);
@@ -95,7 +113,7 @@ useEffect(() => {
         navigate("/verify", { state: { tokenRequired: true } });
       }, 2000);
     }
-}, [loginError])
+  }, [loginError])
 
   useEffect(() => {
     if (loginSuccess || registerSuccess) {
@@ -143,14 +161,18 @@ useEffect(() => {
       queryClient.setQueryData(["userEmail"], email);
       startRedirect("/verify");
     }
-    if (loginSuccess && loginData?.success) {
+    if (loginSuccess && loginData?.success) { 
+        if (termsAccepted && !loginData?.data?.termsAccepted) {
+            api.post("/user/terms").catch(() => {}); // fire and forget, best effort
+        }
+
       const roles = loginData?.data?.roles;
       const target = roles === "MANAGER" ? "/dashboard/manager" :
         roles === "ADMIN" ? "/dashboard/admin" :
           "/dashboard/client";
       startRedirect(target);
     }
-   
+
 
 
     if (isLoginError || isRegisterError) {
@@ -163,11 +185,24 @@ useEffect(() => {
       setMessage("Authenticating...");
     }
     if (loginSuccess || registerSuccess) {
+      localStorage.setItem(`${email}-cimessinvest-userTerms`, "true"); 
       setSuccess(true);
       setMessage(loginSuccess ? "Login successful! Redirecting..." : "Registration successful! Redirecting to verification...");
     }
 
+    if(loginSuccess){
+      trackEvent("USER_LOGIN", { method: "email" });
+    }
+    if(registerSuccess){
+      trackEvent("USER_REGISTER_STARTED", { method: "email" });
+    }
+
   }, [loginSuccess, isLoginError, registerSuccess, isRegisterError]);
+
+
+
+// handle tracking of user action
+
 
 
 
@@ -279,22 +314,7 @@ useEffect(() => {
         setTimeout(() => setShake(false), 500);
         return;
       }
-      if (!termsAccepted) {
-        setMessage("Please read and accept the terms and policies!");
-        toast.error("Please read and accept the terms and policies!", {
-          position: "top-center",
-          autoClose: 5000,
-          hideProgressBar: true,
-          closeOnClick: true,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "colored",
-          transition: Zoom,
-        });
-        setShake(true);
-        setTimeout(() => setShake(false), 500);
-        return;
-      }
+      
 
       if (role !== "CLIENT" && role !== "MANAGER") {
         console.log(role)
@@ -330,10 +350,28 @@ useEffect(() => {
         setTimeout(() => setShake(false), 500);
         return;
       }
+      
     }
+    if (!termsAccepted) {
+        setMessage("Please read and accept the terms and policies!");
+        toast.error("Please read and accept the terms and policies!", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Zoom,
+        });
+        setShake(true);
+        setTimeout(() => setShake(false), 500);
+        return;
+      }
 
     if (loginUi) {
-      loginMutate({ email: email, password });
+    
+        loginMutate({ email: email, password });
     } else {
       setShowConfirm(true);
     }
@@ -348,7 +386,6 @@ useEffect(() => {
       name: firstName + " " + lastName,
       role
     });
-
   };
 
 
@@ -369,7 +406,7 @@ useEffect(() => {
         ${shake ? "animate-shake" : ""}`}
         >
           {/* Badge */}
- 
+
 
           <h1 className="text-center text-white text-2xl sm:text-3xl font-bold mb-2 tracking-tighter">
             {loginUi ? "Welcome back" : "Create your account"}
@@ -384,7 +421,28 @@ useEffect(() => {
             <button
               type="button"
               className="flex items-center justify-center gap-3 w-full py-3.5 rounded-xl bg-white text-black font-bold border border-white hover:bg-slate-100 transition-all active:scale-[0.98]"
-              onClick={() => (window.location.href = "/api/auth/google")}
+              onClick={() => {
+                if (termsAccepted) {
+                   localStorage.setItem("pending-google-terms", "true"); 
+                  window.location.href = "/api/auth/google"
+                  trackEvent("user_login", { method: "google" });
+                }
+                else if (!termsAccepted) {
+                  setMessage("Please read and accept the terms and policies!");
+                  toast.error("Please read and accept the terms and policies!", {
+                    position: "top-center",
+                    autoClose: 5000,
+                    hideProgressBar: true,
+                    closeOnClick: true,
+                    pauseOnHover: true,
+                    draggable: true,
+                    theme: "colored",
+                    transition: Zoom,
+                  });
+                  setShake(true);
+                  setTimeout(() => setShake(false), 500);
+                }
+              }}
             >
               <SiGoogle size={18} />
               <span className="text-sm">Continue with Google</span>
@@ -553,6 +611,7 @@ useEffect(() => {
                 </Link>
               </p>
             </div>
+            
           </form>
 
           {loginUi ? <p className="text-center text-gray-400 text-xs sm:text-sm mt-6">

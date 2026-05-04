@@ -30,7 +30,8 @@
     "react-toastify": "^11.0.5",
     "recharts": "^3.8.1",
     "vite": "^6.2.0",
-    "zustand": "^5.0.12"
+    "zustand": "^5.0.12",
+    "vite-plugin-pwa": "^1.2.0"
   },
   "devDependencies": {
     "@playwright/test": "^1.58.2",
@@ -39,6 +40,5 @@
     "@types/react-dom": "^19.2.3",
     "@types/recharts": "^1.8.29",
     "typescript": "~5.8.2",
-    "vite-plugin-pwa": "^1.2.0"
   }
 }

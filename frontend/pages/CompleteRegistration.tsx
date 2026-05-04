@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import Loader from '../components/loadericon/loader';
 import { useLoadingRedirect } from '../hooks/useLoadingRedirect';
 import { isPassword } from '../hooks/validator';
+import { useAnalytics } from '../hooks/useAnalysis';
 
 export default function CompleteRegistration() {
   const navigate = useNavigate();
@@ -31,6 +32,9 @@ export default function CompleteRegistration() {
     loadingMessage: "Preparing your dashboard...",
     target: role === "MANAGER" ? "/dashboard/manager" : "/dashboard/client"
   });
+
+  const { trackEvent } = useAnalytics();
+
 
   useEffect(() => {
     // If user already has a password, redirect them away
@@ -82,6 +86,7 @@ export default function CompleteRegistration() {
       onSuccess: async() => {
         await queryClient.invalidateQueries({ queryKey: ['me'] });
         role === "MANAGER" ? startRedirect("/dashboard/manager") : startRedirect();
+        trackEvent("REGISTRATION_COMPLETED");
       },
       onError: (error: any) => {
         const msg = (error as any)?.response?.data?.message || "Failed to set password";

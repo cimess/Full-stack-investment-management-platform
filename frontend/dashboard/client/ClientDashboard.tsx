@@ -1,8 +1,8 @@
 import React from 'react';
-import { Link, Route, Routes ,useLocation} from 'react-router-dom';
+import {Route, Routes } from 'react-router-dom';
 import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
-import { toast,Zoom } from 'react-toastify';
+import { toast, Zoom } from 'react-toastify';
 import { useEffect } from 'react';
 import { resendVerificationToken } from '../../hooks/useQuery';
 ``
@@ -27,32 +27,27 @@ import AppTour from '../../components/ui/AppTour';
 
 const ClientDashboard: React.FC = () => {
 
-    const location = useLocation();
-  
-  React.useEffect(() => {
-    console.log("📍 ClientDashboard: Root routing updated", location.pathname);
-  }, [location.pathname]);
-
   const shown = localStorage.getItem("welcome_toast_shown");
   const { mutate: performLogout } = logout();
   const queryClient = useQueryClient();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const [isWelcomeToastShown, setIsWelcomeToastShown] = React.useState(shown);
   const navigate = useNavigate();
-  const [runTour,setRunTour]=useState(false)
- 
+  const [runTour, setRunTour] = useState(false)
+
 
   useEffect(() => {
-  const done = localStorage.getItem("tour_done");
-  if (!done) setRunTour(true);
-}, []);
+    const done = localStorage.getItem("tour_done");
+    if (!done) setRunTour(true);
+  }, []);
 
-const handleFinish = () => {
-  localStorage.setItem("tour_done", "true");
-  setRunTour(false);
-};
+  const handleFinish = () => {
+    localStorage.setItem("tour_done", "true");
+    setRunTour(false);
+  };
   const handleLogout = () => {
     performLogout();
+    queryClient.removeQueries();
     queryClient.clear();
     navigate('/login');
   };
@@ -60,36 +55,36 @@ const handleFinish = () => {
   const user = meData?.data;
   const firstName = user?.fullname?.split(" ")[0];
   const [isReportModalOpen, setIsReportModalOpen] = useState(false);
-    useEffect(()=>{
-     
-      if (!shown) {
-   toast.success("Welcome to CimessInvestment Management Platform .", {
-        position:"top-center",
-        autoClose:5000,
-        hideProgressBar:true,
-        closeOnClick:true,
-        pauseOnHover:true,
-        draggable:true,
-        theme:"colored",
-        transition:Zoom,
-        });
-        localStorage.setItem("welcome_toast_shown", "true");
-      }
-    },[!isWelcomeToastShown]
-    )
-const {mutate:getVerificationToken}=resendVerificationToken()
+  useEffect(() => {
 
-    const handleResendVerificationEmail = () => {
-      const res:any=getVerificationToken(user?.email)
-      if(res?.data.success){
-        toast.success(res?.data.message)
-        setTimeout(() => {
-          navigate("/verify-email")
-        }, 2000);
-      }else{
-        toast.error(res?.data.message)
-      }
+    if (!shown) {
+      toast.success("Welcome to CimessInvestment Management Platform .", {
+        position: "top-center",
+        autoClose: 5000,
+        hideProgressBar: true,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        theme: "colored",
+        transition: Zoom,
+      });
+      localStorage.setItem("welcome_toast_shown", "true");
     }
+  }, [!isWelcomeToastShown]
+  )
+  const { mutate: getVerificationToken } = resendVerificationToken()
+
+  const handleResendVerificationEmail = () => {
+    const res: any = getVerificationToken(user?.email)
+    if (res?.data.success) {
+      toast.success(res?.data.message)
+      setTimeout(() => {
+        navigate("/verify-email")
+      }, 2000);
+    } else {
+      toast.error(res?.data.message)
+    }
+  }
 
   return (
     <div className="flex h-screen bg-black overflow-hidden">
@@ -100,9 +95,9 @@ const {mutate:getVerificationToken}=resendVerificationToken()
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
       />
-      <DashboardSidebar 
-        role="client" 
-        userName={firstName || "Investor"} 
+      <DashboardSidebar
+        role="client"
+        userName={firstName || "Investor"}
         mobileOpen={isMobileMenuOpen}
         setMobileOpen={setIsMobileMenuOpen}
         handleLogout={handleLogout}
@@ -111,24 +106,24 @@ const {mutate:getVerificationToken}=resendVerificationToken()
       />
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <TopBar 
-          pageTitle="Dashboard" 
-          userName={firstName || "Investor"} 
+        <TopBar
+          pageTitle="Dashboard"
+          userName={firstName || "Investor"}
           onToggleSidebar={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           handleLogout={handleLogout}
           role="CLIENT"
           image={user?.avatar}
         />
-           {/* Google Verify Banner - shown when user is NOT verified */}
-                 {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
+        {/* Google Verify Banner - shown when user is NOT verified */}
+        {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
                  gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
-                    <button onClick={handleResendVerificationEmail} className='cursor-pointer hover:text-amber-500 hover:underline text-amber-300'>
-                    verify your email address
-                    </button>
-                  </div>}
+          <button onClick={handleResendVerificationEmail} className='cursor-pointer hover:text-amber-500 hover:underline text-amber-300'>
+            verify your email address
+          </button>
+        </div>}
         <main className="flex-1 overflow-y-auto p-4 lg:p-6 space-y-6">
           <Routes>
-            <Route index element={<MarketView/>} />
+            <Route index element={<MarketView />} />
             <Route path="overview" element={<Overview />} />
             <Route path="market" element={<MarketView />} />
             <Route path="portfolio" element={<PortfolioView />} />
@@ -140,10 +135,10 @@ const {mutate:getVerificationToken}=resendVerificationToken()
         </main>
       </div>
 
-      <ReportProblemModal 
-        isOpen={isReportModalOpen} 
+      <ReportProblemModal
+        isOpen={isReportModalOpen}
         onClose={() => setIsReportModalOpen(false)}
-        targetId={user?.client_manager?.id} 
+        targetId={user?.client_manager?.id}
       />
     </div>
   );
