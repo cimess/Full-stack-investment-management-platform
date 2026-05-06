@@ -17,6 +17,7 @@ import ReportsView from './views/ReportsView';
 import StocksView from './views/StocksView';
 import NotificationsView from '../../components/NotificationsView';
 import ReportProblemModal from '../../components/ReportProblemModal';
+import AnalyticsView from './views/AnalyticsView';
 
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
@@ -89,6 +90,7 @@ const AdminDashboard: React.FC = () => {
             <Route path="transactions" element={<TransactionsView />} />
             <Route path="reports" element={<ReportsView />} />
             <Route path="notifications" element={<NotificationsView />} />
+            <Route path="analytics" element={<AnalyticsView />} />
             {/* Fallbacks for other routes */}
             <Route path="portfolios" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Portfolios Management - Coming Soon</div>} />
             <Route path="trade-requests" element={<div className="text-white p-6 glass-panel rounded-2xl border border-white/5">Trade Requests - Coming Soon</div>} />

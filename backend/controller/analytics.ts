@@ -4,6 +4,7 @@ import { pushAnalyticsEvent } from "../analytics/queue.js";
 import logger from "../winstonlog/logger.js";
 
 export const trackFrontendEvent = (req: Request, res: Response) => {
+
   try {
     const { eventName, metadata, sessionId, type = 'FEATURE_EVENT' } = req.body;
     

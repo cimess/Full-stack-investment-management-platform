@@ -66,6 +66,7 @@ const adminNav: NavItem[] = [
   { label: 'System Reports', icon: <ShieldAlert className="w-5 h-5" />, path: '/dashboard/admin/reports', dataTour: 'sidebar-reports' },
   { label: 'Notifications', icon: <Bell className="w-5 h-5" />, path: '/dashboard/admin/notifications', dataTour: 'sidebar-notifications' },
   { label: 'Security', icon: <ShieldCheck className="w-5 h-5" />, path: '/dashboard/admin/security', dataTour: 'sidebar-security' },
+  { label: 'Analytics', icon: <Activity className="w-5 h-5" />, path: '/dashboard/admin/analytics', dataTour: 'sidebar-analytics' },
 ];
 
 const navByRole: Record<UserRole, NavItem[]> = {

@@ -204,4 +204,7 @@ export const getHistoricalFundamentals = async (symbol: string) => {
   return response.data;
 }
 
-
+export const contactUsAPI = async (contactData: { user_name: string, user_email: string, subject: string, message: string }) => {
+  const response = await api.post("/contact-us", contactData);
+  return response.data;
+}

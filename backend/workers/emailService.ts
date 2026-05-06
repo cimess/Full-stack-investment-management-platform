@@ -337,4 +337,49 @@ export const broadcastSystemMessage = async (toEmails: string[], subject: string
   }
 };
 
-export default { sendEmail, sendWelcomeEmail, broadcastSystemMessage };
+// ─────────────────────────────────────────────────────────────────────────────
+// 5. CONTACT US EMAIL (Guest/User Inquiries)
+// ─────────────────────────────────────────────────────────────────────────────
+export const sendContactUsEmail = async (name: string, email: string, subject: string, message: string) => {
+  const adminEmail = process.env.ADMIN_EMAIL || 'cimessdev@gmail.com';
+  const emailSubject = `New Contact Inquiry: ${subject}`;
+
+  const content = `
+    <h1 style="margin:0 0 6px;font-size:22px;font-weight:700;color:#0f172a;letter-spacing:-0.4px;">New Inquiry Received</h1>
+    <p style="margin:0 0 32px;font-size:15px;color:#64748b;line-height:1.6;">
+      You have received a new message from the CimessInvest landing page contact form.
+    </p>
+
+    <!-- Details Table -->
+    <table width="100%" cellpadding="0" cellspacing="0" style="border:1px solid #e2e8f0;border-radius:10px;overflow:hidden;margin-bottom:28px;">
+      <tr>
+        <td style="padding:14px 20px;border-bottom:1px solid #f1f5f9;background-color:#f8fafc;">
+          <p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.1em;color:#94a3b8;text-transform:uppercase;">From</p>
+          <p style="margin:0;font-size:14px;font-weight:600;color:#0f172a;">${name} (${email})</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;border-bottom:1px solid #f1f5f9;">
+          <p style="margin:0 0 2px;font-size:11px;font-weight:600;letter-spacing:0.1em;color:#94a3b8;text-transform:uppercase;">Subject</p>
+          <p style="margin:0;font-size:14px;color:#334155;">${subject}</p>
+        </td>
+      </tr>
+      <tr>
+        <td style="padding:14px 20px;background-color:#ffffff;">
+          <p style="margin:0 0 6px;font-size:11px;font-weight:600;letter-spacing:0.1em;color:#94a3b8;text-transform:uppercase;">Message</p>
+          <p style="margin:0;font-size:14px;color:#334155;line-height:1.65;white-space:pre-wrap;">${message}</p>
+        </td>
+      </tr>
+    </table>
+
+    <hr style="border:none;border-top:1px solid #f1f5f9;margin:0 0 24px;" />
+    <p style="margin:0;font-size:12px;color:#94a3b8;line-height:1.6;">
+      Please respond to the user directly at <a href="mailto:${email}" style="color:#2563eb;">${email}</a>.
+    </p>
+  `;
+
+  const html = emailWrapper(emailSubject, content, "This inquiry was sent through the CimessInvest contact form.");
+  return sendEmail(adminEmail, emailSubject, `Message from ${name} (${email}): ${message}`, html);
+};
+
+export default { sendEmail, sendWelcomeEmail, broadcastSystemMessage, sendContactUsEmail };

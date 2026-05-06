@@ -7,7 +7,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast,Zoom } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import AnalyticsWorker from '../../../workers/analytics.worker?worker';
-
+import { useAnalytics } from '../../../hooks/useAnalysis';
 
 type User = {
   id: string;
@@ -78,6 +78,8 @@ const ClientOverview: React.FC = () => {
   const [selectedRange, setSelectedRange] = React.useState('1W');
   const [isCalculating, setIsCalculating] = React.useState(false);
 
+  const { trackEvent } = useAnalytics();
+
   useEffect(() => {
     if (!data?.data || !transactions.length) return;
 
@@ -124,7 +126,12 @@ const ClientOverview: React.FC = () => {
           className=" rounded-xl font-bold text-gray-300 transition-all 
           shadow-lg p-5 lg:p-8 bg-gradient-to-r from-green-600 to-emerald-600 
           hover:from-green-500 shadow-green-500/20"
-          onClick={() => navigate("/dashboard/client/portfolio")}
+          onClick={() => {
+            trackEvent("client_started_trading_first_time",{
+              
+            });
+            navigate("/dashboard/client/portfolio")}
+          }
         >
           Start Trading
         </button>
@@ -205,13 +212,16 @@ const ClientOverview: React.FC = () => {
         <div className="glass-panel rounded-2xl p-4 lg:p-6 border border-white/5 space-y-4 lg:space-y-6">
           <h2 className="text-white font-bold text-sm lg:text-lg">Quick Actions</h2>
         <div className="grid grid-cols-2 gap-3">
-            {[{name:'Market',nav:"/dashboard/client/market" }, {name: 'Portfolio', nav:"/dashboard/client/portfolio" },
-             {name: 'Transactions', nav:"/dashboard/client/transactions" },
-             {name: 'Manager', nav:"/dashboard/client/manager" }].map((item) => (
+            {[{name:'Market',nav:"/dashboard/client/market" , track:"client clicked to view market in the client overview" }, {name: 'Portfolio', nav:"/dashboard/client/portfolio" , track:"client clicked to view portfolio in the client overview" },
+             {name: 'Transactions', nav:"/dashboard/client/transactions" , track:"client clicked to view transactions in the client overview"},
+             {name: 'Manager', nav:"/dashboard/client/manager" , track:"client clicked to view manager in the client overview"}].map((item) => (
               <button key={item.name} className="flex flex-col items-center justify-center
                gap-2 p-3 rounded-xl bg-white/3 border 
                border-white/5 hover:bg-white/5 transition-all group"
-               onClick={() => navigate(item.nav)}>
+               onClick={() => {
+                trackEvent(item.track);
+                navigate(item.nav)
+               }}>
                 <div className="w-9 h-9 rounded-lg bg-white/5 flex items-center justify-center text-slate-400 group-hover:text-white transition-colors">
                   <ArrowUpRight className="w-4 h-4" />
                 </div>
@@ -227,7 +237,10 @@ const ClientOverview: React.FC = () => {
                   <p className="text-slate-500 text-xs mb-4">{user.client_manager.user.fullname} is overseeing your account.</p>
                   <button className="w-full py-2.5 bg-white text-black 
                   rounded-lg text-xs font-bold hover:bg-slate-200 transition-colors"
-                  onClick={() => navigate("/dashboard/client/manager")}>
+                  onClick={() =>{
+                    trackEvent("client clicked to contact manager in the client overview");
+                    navigate("/dashboard/client/manager")
+                  }}>
                     Contact Manager
                   </button>
                </>
@@ -236,7 +249,10 @@ const ClientOverview: React.FC = () => {
                   <p className="text-slate-500 text-xs mb-4">No dedicated manager assigned yet.</p>
                   <button className="w-full py-2.5 bg-white/5 text-white border 
                   border-white/10 rounded-lg text-xs font-bold hover:bg-white/10 transition-colors"
-                  onClick={() => navigate("/dashboard/client/manager")}>
+                  onClick={() =>{
+                    trackEvent("client clicked to assign manager in the client overview");
+                    navigate("/dashboard/client/manager")
+                  }}>
                     Assign Manager
                   </button>
                </>

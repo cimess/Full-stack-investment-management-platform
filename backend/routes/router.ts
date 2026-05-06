@@ -19,6 +19,7 @@ import passport from "passport";
 import { getAIInsightsController } from "../controller/aiController.js";
 import { createReport, getAllReports, updateReportStatus, deleteReport } from "../controller/reportController.js";
 import { trackFrontendEvent, submitFeedback, getAnalyticsOverview } from "../controller/analytics.js";
+import { handleContactUs } from "../controller/generalController.js";
 
 
 const authLimiter = rateLimit({
@@ -62,6 +63,9 @@ router.get(
 router.post("/ai", getAIInsightsController);
 // --- Health Check ---
 router.get("/health", (req, res) => res.status(200).json({ success: true, message: "Server is healthy" }));
+
+// --- Public / General Routes ---
+router.post("/contact-us", handleContactUs);
 
 // --- Market Data ---
 router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
@@ -130,10 +134,10 @@ router.delete("/admin/reports/delete", verifyToken, authorise([Roles.ADMIN]), de
 
 
 // --- Analytics (User Facing) ---
-router.post("/analytics/event", verifyToken, trackFrontendEvent);
-router.post("/analytics/feedback", verifyToken, submitFeedback);
+router.post("/stream/event", verifyTokenOptional, trackFrontendEvent);
+router.post("/stream/feedback", verifyToken, submitFeedback);
 // --- Analytics (Admin Facing) ---
-router.get("/admin/analytics/overview", verifyToken, authorise([Roles.ADMIN, Roles.MANAGER]), getAnalyticsOverview);
+router.get("/admin/stream/overview", verifyToken, authorise([Roles.ADMIN, Roles.MANAGER]), getAnalyticsOverview);
 
 
 export default router;

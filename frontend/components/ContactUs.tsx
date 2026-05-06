@@ -1,31 +1,39 @@
 import React, { useState, useRef } from 'react';
 import { FiSend, FiMail, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
-import emailjs from '@emailjs/browser';
+import { contactUsAPI } from '../services/queryServices';
 
 function ContactUs() {
   const form = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
 
-  const sendEmail = (e: React.FormEvent<HTMLFormElement>) => {
+  const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!form.current) return;
     setStatus('sending');
 
-    const serviceId = import.meta.env.VITE_EMAILJS_SERVICE_ID || 'YOUR_SERVICE_ID';
-    const templateId = import.meta.env.VITE_EMAILJS_TEMPLATE_ID || 'YOUR_TEMPLATE_ID';
-    const publicKey = import.meta.env.VITE_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+    const formData = new FormData(form.current);
+    const data = {
+      user_name: formData.get('user_name') as string,
+      user_email: formData.get('user_email') as string,
+      subject: formData.get('subject') as string,
+      message: formData.get('message') as string,
+    };
 
-    emailjs.sendForm(serviceId, templateId, form.current, publicKey)
-      .then((result) => {
-          console.log(result.text);
-          setStatus('success');
-          e.currentTarget.reset();
-          setTimeout(() => setStatus('idle'), 5000);
-      }, (error) => {
-          console.log(error.text);
-          setStatus('error');
-          setTimeout(() => setStatus('idle'), 5000);
-      });
+    try {
+      const result = await contactUsAPI(data);
+      if (result.success) {
+        setStatus('success');
+        e.currentTarget.reset();
+        setTimeout(() => setStatus('idle'), 5000);
+      } else {
+        setStatus('error');
+        setTimeout(() => setStatus('idle'), 5000);
+      }
+    } catch (error) {
+      console.error('Contact form error:', error);
+      setStatus('error');
+      setTimeout(() => setStatus('idle'), 5000);
+    }
   };
 
   return (

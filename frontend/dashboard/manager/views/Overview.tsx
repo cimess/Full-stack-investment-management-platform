@@ -5,6 +5,7 @@ import StatCard from '../../../components/ui/StatCard';
 import { useGetManagerDashboard } from '../../../hooks/useQuery';
 import { useQueryClient } from '@tanstack/react-query';
 import AnalyticsWorker from '../../../workers/analytics.worker?worker';
+import { useAnalytics } from '../../../hooks/useAnalysis';
 
 const CustomTooltip = ({ active, payload, label }: any) => {
   if (active && payload && payload.length) {
@@ -29,6 +30,8 @@ const ManagerOverview: React.FC = () => {
   const queryClient = useQueryClient();
   const [copied, setCopied] = React.useState(false);
 
+  const {trackEvent} = useAnalytics();
+
   const meData: any = queryClient.getQueryData(["me"]);
   const userId = meData?.data?.manager?.id;
 
@@ -37,6 +40,7 @@ const ManagerOverview: React.FC = () => {
       navigator.clipboard.writeText(userId);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
+      trackEvent("manager_copy_referral_id");
     }
   };
   
