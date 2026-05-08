@@ -55,8 +55,11 @@ self.onmessage = (e: MessageEvent) => {
         }, 0);
 
       result.push({
+        time: i + 1,
         name: label,
-        value: Math.max(0, portfolioValue - netChangeSinceThen)
+        value: Math.max(0, portfolioValue - netChangeSinceThen),
+        // Assume initial cost basis is somewhat static or changes with net buy/sell
+        profit: (portfolioValue - netChangeSinceThen) - (payload.initialInvestment || 0)
       });
     }
 

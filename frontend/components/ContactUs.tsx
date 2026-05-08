@@ -1,32 +1,64 @@
 import React, { useState, useRef } from 'react';
 import { FiSend, FiMail, FiTwitter, FiLinkedin, FiInstagram, FiLoader, FiCheckCircle, FiAlertCircle } from 'react-icons/fi';
 import { contactUsAPI } from '../services/queryServices';
+import { toast, Zoom } from 'react-toastify';
 
 function ContactUs() {
   const form = useRef<HTMLFormElement>(null);
   const [status, setStatus] = useState<'idle' | 'sending' | 'success' | 'error'>('idle');
+  const [formData, setFormData] = useState({
+    user_name: '',
+    user_email: '',
+    subject: '',
+    message: '',
+  });
 
   const sendEmail = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (!form.current) return;
+    if (!formData.user_name || !formData.user_email || !formData.subject || !formData.message) return;
     setStatus('sending');
 
-    const formData = new FormData(form.current);
     const data = {
-      user_name: formData.get('user_name') as string,
-      user_email: formData.get('user_email') as string,
-      subject: formData.get('subject') as string,
-      message: formData.get('message') as string,
+      user_name: formData.user_name,
+      user_email: formData.user_email,
+      subject: formData.subject,
+      message: formData.message,
     };
 
     try {
       const result = await contactUsAPI(data);
+      console.log(result)
       if (result.success) {
         setStatus('success');
-        e.currentTarget.reset();
+        toast.success(result.message, {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Zoom,
+        });
+     setFormData({
+      user_name: '',
+      user_email: '',
+      subject: '',
+      message: '',
+     })
         setTimeout(() => setStatus('idle'), 5000);
       } else {
         setStatus('error');
+        toast.error("Failed to send email. Please try again later.", {
+          position: "top-center",
+          autoClose: 5000,
+          hideProgressBar: true,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          theme: "colored",
+          transition: Zoom,
+        });
         setTimeout(() => setStatus('idle'), 5000);
       }
     } catch (error) {
@@ -86,7 +118,7 @@ function ContactUs() {
 
           {/* Contact Form */}
           <div className="premium-card p-10 bg-white/[0.02] border border-white/5 rounded-[2.5rem]">
-            <form ref={form} onSubmit={sendEmail} className="flex flex-col gap-6 relative z-10">
+            <form onSubmit={sendEmail} className="flex flex-col gap-6 relative z-10">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-3">
                   <label htmlFor="user_name" className="premium-label ml-1 text-slate-400">Full Name</label>
@@ -95,6 +127,8 @@ function ContactUs() {
                     id="user_name"
                     type="text"
                     required
+                    value={formData.user_name}
+                    onChange={(e) => setFormData({ ...formData, user_name: e.target.value })}
                     placeholder="John Doe"
                     className="w-full bg-black border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
                   />
@@ -105,6 +139,8 @@ function ContactUs() {
                     name="user_email"
                     id="user_email"
                     type="email"
+                    value={formData.user_email}
+                    onChange={(e) => setFormData({ ...formData, user_email: e.target.value })}
                     required
                     placeholder="john@example.com"
                     className="w-full bg-black border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
@@ -118,6 +154,8 @@ function ContactUs() {
                   name="subject"
                   id="subject"
                   type="text"
+                  value={formData.subject}
+                  onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                   required
                   placeholder="How can we help?"
                   className="w-full bg-black border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-medium"
@@ -130,6 +168,8 @@ function ContactUs() {
                   name="message"
                   id="message"
                   rows={4}
+                  value={formData.message}
+                  onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                   required
                   placeholder="Tell us more about your inquiry..."
                   className="w-full bg-black border border-white/10 rounded-xl px-5 py-3.5 text-white placeholder-slate-700 focus:outline-none focus:border-emerald-500/50 transition-all font-medium resize-none"

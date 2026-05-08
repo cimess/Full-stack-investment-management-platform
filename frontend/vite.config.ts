@@ -20,7 +20,7 @@ export default defineConfig(({ mode }) => {
       plugins: [react(),
         VitePWA({
           registerType: 'autoUpdate',
-          includeAssets: ['favicon.ico', 'mylogo.webp'],
+          includeAssets: ['favicon.ico', 'mylogo.png'],
           manifest: {
             name: 'CimessInvest',
             short_name: 'CimessInvest',
@@ -30,22 +30,22 @@ export default defineConfig(({ mode }) => {
             display: 'standalone',
             orientation: 'portrait',
             icons: [
-              {
-                src: 'mylogo.webp',
+              { 
+                src: 'mylogo.png',
                 sizes: '192x192',
-                type: 'image/webp',
+                type: 'image/png',
                 purpose: 'any'
               },
               {
-                src: 'mylogo.webp',
+                src: 'mylogo.png',
                 sizes: '512x512',
-                type: 'image/webp',
+                type: 'image/png',
                 purpose: 'any'
               },
               {
-                src: 'mylogo.webp',
+                src: 'mylogo.png',
                 sizes: '512x512',
-                type: 'image/webp',
+                type: 'image/png',
                 purpose: 'maskable'
               }
             ]

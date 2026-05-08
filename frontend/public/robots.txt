@@ -1,6 +1,8 @@
 User-agent: *
 Allow: /
 Disallow: /dashboard/
-Disallow: /admin/
+Disallow: /dashboard/admin/
+Disallow: /dashboard/client/
+Disallow: /dashboard/manager/
 
 Sitemap: https://cimessinvest.com/sitemap.xml

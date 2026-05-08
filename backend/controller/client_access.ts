@@ -511,7 +511,33 @@ export const getAll = async (req: Request, res: Response, next: NextFunction) =>
       }
     })
 
-
+const symbolsToUpdate = investments.map(inv => inv.stock.symbol);
+if (symbolsToUpdate.length > 0) {
+  try {
+    const { getStockDetails } = await import("../services/marketservice.js");
+    // This will trigger the background update for these stocks
+    // We do it one by one for now or we could implement a batch logic
+    await Promise.all(symbolsToUpdate.map(symbol => getStockDetails(symbol)));
+    
+    // 3. Re-fetch the investments with fresh prices from the DB
+    const freshInvestments = await prisma.investment.findMany({
+      where: { portfolio_id: portfolio.id },
+      select: {
+        id: true,
+        quantity: true,
+        avgPrice: true,
+        stock: {
+          select: { symbol: true, company: true, price: true }
+        }
+      }
+    });
+    
+    // Assign back to the variable used in your response
+    investments.splice(0, investments.length, ...freshInvestments);
+  } catch (err) {
+    logger.error("Failed to auto-refresh portfolio prices:", err);
+  }
+}
 
 
     const responseData = {

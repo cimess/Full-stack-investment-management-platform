@@ -18,7 +18,6 @@ export const useAnalytics = () => {
   // Track specific features (e.g., ran a calculation)
   const trackEvent = useCallback(async (eventName: string, metadata?: any) => {
     try {
-      console.log("am correntling tracking")
         await api.post('/stream/event', {
             type: 'FEATURE_EVENT',
             eventName,
@@ -26,7 +25,6 @@ export const useAnalytics = () => {
             sessionId: getSessionId()
         });
     } catch (e) {
-      console.log("error",e)
         // Silently fail
     }
   }, []);
@@ -40,12 +38,11 @@ export const useAnalytics = () => {
     const trackPage = async () => {
       
       try {
-        const response = await api.post('/stream/event', {
+        await api.post('/stream/event', {
             type: 'PAGE_VISIT',
             eventName: currentPath,
             sessionId: getSessionId()
         });
-        console.log("response",response)
       } catch (e) {
         
          // Silently fail

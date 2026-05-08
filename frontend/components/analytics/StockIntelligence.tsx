@@ -67,11 +67,35 @@ export const StockIntelligence: React.FC<StockIntelligenceProps> = ({ intelligen
     }
   }
 
-  const formatTime = (time: string | number) => {
-    if (!time) return '';
-    const date = new Date(typeof time === 'number' && time < 10000000000 ? time * 1000 : time);
-    return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
-  };
+ // frontend/components/analytics/StockIntelligence.tsx
+
+const formatTime = (time: string | number) => {
+  if (!time) return '';
+  
+  // Convert to Date object (handle seconds vs milliseconds)
+  const date = new Date(typeof time === 'number' && time < 10000000000 ? time * 1000 : time);
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  // Less than a minute
+  if (diffInSeconds < 60) return 'Just now';
+  
+  // Less than an hour
+  if (diffInSeconds < 3600) {
+    const mins = Math.floor(diffInSeconds / 60);
+    return `${mins}m ago`;
+  }
+  
+  // Less than 24 hours
+  if (diffInSeconds < 86400) {
+    const hrs = Math.floor(diffInSeconds / 3600);
+    return `${hrs}h ago`;
+  }
+
+  // Fallback to Date for older news
+  return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+};
+
 
   return (
     <div className="mt-8 space-y-6">

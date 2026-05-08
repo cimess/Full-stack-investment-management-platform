@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { X, Globe, Building2, Briefcase, TrendingUp, Info, Activity, Loader2, Wallet } from 'lucide-react';
+import { X, Globe, Building2, Briefcase, TrendingUp, Info, Activity, Loader2, Wallet, Calendar } from 'lucide-react';
 import { StockCardProps } from '../types';
 import { useNavigate } from 'react-router-dom';
 import PriceChart from './PriceChart';
@@ -29,6 +29,7 @@ const DetailsModal = React.memo(({
   const navigate = useNavigate();
   const [range, setRange] = useState('1mo');
   const [quantity, setQuantity] = useState<number>(initialQuantity);
+  const [chartType, setChartType] = useState<'area' | 'candles'>('area');
 
   const { data: userData, isLoading: isUserLoading } = useGetMe();
   const { mutate: buyStock, isPending: isBuying } = useBuyStock();
@@ -90,6 +91,8 @@ const DetailsModal = React.memo(({
     isCrypto
       ? { label: 'Circ. Supply', value: getStat('circulatingSupply') }
       : { label: 'P/E Ratio', value: getStat('peRatio') },
+    { label: 'Open', value: getStat('open') },
+    { label: 'Previous Close', value: getStat('previousClose') },
 
     isCrypto
       ? { label: 'Rank', value: getStat('marketCapRank') !== 'N/A' ? `#${getStat('marketCapRank')}` : 'N/A' }
@@ -103,7 +106,9 @@ const DetailsModal = React.memo(({
       label: '52W Low',
       value: getStat('display52wLow', getStat('fiftyTwoWeekLow'))
     },
-  ];
+    !isCrypto && { label: 'Eps', value: getStat('eps') },
+    !isCrypto && { label: "Beta", value: getStat("beta") }
+  ].filter(Boolean);
 
 
 
@@ -159,6 +164,7 @@ const DetailsModal = React.memo(({
     );
   }
 
+
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="absolute inset-0 bg-black/60 backdrop-blur-xl transition-opacity animate-in fade-in duration-500" onClick={onClose} />
@@ -172,10 +178,13 @@ const DetailsModal = React.memo(({
               <img src={item.image} alt={item.label} className="w-full h-full object-contain" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight truncate">{item.label}</h2>
+              <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight shrink-0">{item.label}</h2>
               <div className="flex items-center gap-2">
                 <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-1.5 py-0.5 rounded border border-emerald-500/20 uppercase letter tracking-wider">{item.symbol}</span>
                 <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{item.type}</span>
+                <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded bg-white/5 border border-white/10 uppercase tracking-wider ${displayItem.risk?.color || 'text-slate-400'}`}>
+                  Risk: {displayItem.risk?.label || 'Variable'}
+                </span>
               </div>
             </div>
           </div>
@@ -191,18 +200,35 @@ const DetailsModal = React.memo(({
           <div className="p-6 sm:p-8">
             <div className="flex items-baseline gap-3 mb-6">
               <span className="text-4xl sm:text-5xl font-bold text-white tracking-tighter">{price}</span>
-              <span className={`text-sm font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{changeDisplay}</span>
+              <span className={`text-sm font-bold px-2 py-1 rounded-lg ${isUp ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>{Number(parseFloat(changeDisplay) || 0).toFixed(2)}%</span>
             </div>
 
-            <div className="flex gap-2 mb-6 bg-white/[0.03] p-1 rounded-xl w-fit border border-white/5">
-              {['1d', '1w', '1mo', '1y', 'max'].map((t) => (
-                <button key={t} onClick={() => setRange(t)} className={`px-4 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${range === t ? 'bg-white text-black' : 'text-slate-500 hover:text-white'}`}>{t}</button>
-              ))}
+            <div className="flex items-center justify-between gap-2 mb-6 max-w-full overflow-x-auto custom-scrollbar-hide">
+              <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-xl border border-white/5 shrink-0">
+                {['1d', '1w', '1mo', '1y', 'max'].map((t) => (
+                  <button key={t} onClick={() => setRange(t)} className={`px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase tracking-widest transition-all ${range === t ? 'bg-white text-black' : 'text-slate-500 hover:text-white'}`}>{t}</button>
+                ))}
+              </div>
+
+              <div className="flex gap-1.5 bg-white/[0.03] p-1 rounded-xl border border-white/5 shrink-0">
+                <button 
+                  onClick={() => setChartType('area')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${chartType === 'area' ? 'bg-indigo-500 text-white' : 'text-slate-500 hover:text-white'}`}
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />
+                </button>
+                <button 
+                  onClick={() => setChartType('candles')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${chartType === 'candles' ? 'bg-indigo-500 text-white' : 'text-slate-500 hover:text-white'}`}
+                >
+                  <Activity className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             <div className={`h-[250px] w-full transition-opacity ${isHistoryLoading ? 'opacity-30' : 'opacity-100'}`}>
               {chartData.length > 0 ? (
-                <PriceChart data={chartData} containerHeight={250} isUp={isUp} />
+                <PriceChart data={chartData} containerHeight={250} isUp={isUp} type={chartType} />
               ) : (
                 <div className="h-full flex items-center justify-center border border-dashed border-white/10 rounded-3xl bg-white/[0.01]">
                   <p className="text-slate-600 text-xs font-bold tracking-widest uppercase">Loading Analytics...</p>
@@ -240,7 +266,7 @@ const DetailsModal = React.memo(({
                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">HQ / Origin</p>
                 <div className="flex items-center gap-2 text-white font-bold">
                   <Globe className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="text-sm">{displayItem.hq || 'Global'}</span>
+                  <span className="text-sm">{displayItem.stats.hq || 'Global'}</span>
                 </div>
               </div>
               <div>
@@ -249,7 +275,21 @@ const DetailsModal = React.memo(({
                 </p>
                 <div className="flex items-center gap-2 text-white font-bold">
                   <Building2 className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="text-sm">{displayItem.ceo || 'N/A'}</span>
+                  <span className="text-sm">{displayItem.stats.ceo || 'N/A'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Industry</p>
+                <div className="flex items-center gap-2 text-white font-bold">
+                  <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-sm">{displayItem.stats.industry || 'N/A'}</span>
+                </div>
+              </div>
+              <div>
+                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">Sector</p>
+                <div className="flex items-center gap-2 text-white font-bold">
+                  <Building2 className="w-3.5 h-3.5 text-slate-500" />
+                  <span className="text-sm">{displayItem.stats.more?.replace("Sector:", "").trim() || 'N/A'}</span>
                 </div>
               </div>
             </div>

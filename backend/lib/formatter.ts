@@ -75,6 +75,23 @@ export const formatPercent = (number: number | undefined): string => {
   const formatted = (number).toFixed(2) + "%";
   return number > 0 ? `+${formatted}` : formatted;
 };
+/**
+ * 
+ * 
+ * Dynamic Risk Calculation
+ * Based on Beta (Volatility) and Asset Class
+ */
+export const calculateRisk = (beta: number | null, isCrypto: boolean): { label: string; color: string } => {
+  if (isCrypto) return { label: 'High', color: 'text-rose-400' };
+  
+  if (!beta || beta === 0) return { label: 'Moderate', color: 'text-amber-400' };
+
+  if (beta < 1.0) return { label: 'Low', color: 'text-emerald-400' };
+  if (beta <= 1.5) return { label: 'Moderate', color: 'text-amber-400' };
+  
+  return { label: 'High', color: 'text-rose-400' };
+};
+
 
 /**
  * Master formatter to clean up a raw Yahoo Quote object
@@ -132,6 +149,7 @@ export const simplifyQuote = (quote: any) => {
     display52wLow: formatCurrency(quote.fiftyTwoWeekLow, quote.currency),
     displayDayHigh: formatCurrency(quote.regularMarketDayHigh, quote.currency),
     displayDayLow: formatCurrency(quote.regularMarketDayLow, quote.currency),
+    risk: calculateRisk(quote.beta || null, isCrypto), 
 
     // UI Display Fields
     displayPrice: formatCurrency(price, quote.currency),
@@ -155,76 +173,53 @@ export const simplifyQuote = (quote: any) => {
 };
 
 
-`{
-  language: 'en-US',
-  region: 'US',
-  quoteType: 'ETF',
-  typeDisp: 'ETF',
-  quoteSourceName: 'Nasdaq Real Time Price',
-  triggerable: true,
-  customPriceAlertConfidence: 'HIGH',
-  currency: 'USD',
-  regularMarketChangePercent: -3.00704,
-  regularMarketPrice: 7.58,
-  exchange: 'NGM',
-  messageBoardId: 'finmb_1847925930',
-  exchangeTimezoneName: 'America/New_York',
-  exchangeTimezoneShortName: 'EDT',
-  gmtOffSetMilliseconds: -14400000,
-  market: 'us_market',
-  esgPopulated: false,
-  fiftyDayAverage: 7.0915,
-  fiftyDayAverageChange: 0.48850012,
-  fiftyDayAverageChangePercent: 0.068885304,
-  twoHundredDayAverage: 9.162775,
-  twoHundredDayAverageChange: -1.5827751,
-  twoHundredDayAverageChangePercent: -0.17273971,
-  netExpenseRatio: 1.35,
-  sourceInterval: 15,
-  exchangeDataDelayedBy: 0,
-  ipoExpectedDate: 2023-08-22T00:00:00.000Z,
-  tradeable: false,
-  cryptoTradeable: false,
-  marketState: 'PRE',
-  hasPrePostMarketData: true,
-  firstTradeDateMilliseconds: 2023-08-22T13:30:00.000Z,
-  priceHint: 2,
-  preMarketChange: -0.01999998,
-  preMarketChangePercent: -0.263852,
-  preMarketPrice: 7.56,
-  regularMarketChange: -0.235,
-  regularMarketDayHigh: 7.6424,
-  regularMarketDayRange: { low: 7.3203, high: 7.6424 },
-  regularMarketDayLow: 7.3203,
-  regularMarketVolume: 97152829,
-  regularMarketPreviousClose: 7.815,
-  bid: 7.36,
-  ask: 7.39,
-  bidSize: 89,
-  askSize: 1,
-  fullExchangeName: 'NasdaqGM',
-  regularMarketOpen: 7.43,
-  averageDailyVolume3Month: 67503369,
-  averageDailyVolume10Day: 97172230,
-  fiftyTwoWeekLowChange: 1.46,
-  fiftyTwoWeekLowChangePercent: 0.2385621,
-  fiftyTwoWeekRange: { low: 6.12, high: 51.615 },
-  fiftyTwoWeekHighChange: -44.035004,
-  fiftyTwoWeekHighChangePercent: -0.8531435,
-  fiftyTwoWeekLow: 6.12,
-  fiftyTwoWeekHigh: 51.615,
-  fiftyTwoWeekChangePercent: -73.215546,
-  trailingAnnualDividendRate: 0,
-  trailingAnnualDividendYield: 0,
-  dividendYield: 0,
-  ytdReturn: 5.17483,
-  trailingThreeMonthReturns: -16.99779,
-  trailingThreeMonthNavReturns: -16.99779,
-  netAssets: 89366208,
-  corporateActions: [],
-  preMarketTime: 2026-03-24T10:06:32.000Z,
-  regularMarketTime: 2026-03-23T20:00:00.000Z,
-  shortName: 'GraniteShares 2x Short NVDA Dai',
-  longName: 'Graniteshares 2x Short NVDA Daily ETF',
-  symbol: 'NVD'
-}`
+
+  
+   ` {
+      "symbol": "AAPL",
+      "company": "Apple",
+      "name": "Apple",
+      "price": 287.44,
+      "changePercent": -0.0080046,
+      "marketCap": 4221733699584,
+      "volume": 40410371,
+      "peRatio": 34.841213,
+      "dividendYield": 0.0036178567,
+      "fiftyTwoWeekLow": 193.46,
+      "fiftyTwoWeekHigh": 292.13,
+      "currency": "USD",
+      "exchange": "NMS",
+      "lastUpdated": "2026-05-07T20:00:02.000Z",
+      "assetType": "EQUITY",
+      "change": -0.0230103,
+      "open": 289.27,
+      "previousClose": 287.463,
+      "dayLow": 285.78,
+      "dayHigh": 292.13,
+      "bid": 287.3,
+      "ask": 287.75,
+      "bidSize": 3,
+      "askSize": 3,
+      "eps": 8.25,
+      "fiftyTwoWeekChangePercent": 44.784164,
+      "displayChange": "-$0.02 (-0.01%)",
+      "displayDayRange": "$285.78 - $292.13",
+      "display52wRange": "$193.46 - $292.13",
+      "display52wHigh": "$292.13",
+      "display52wLow": "$193.46",
+      "displayDayHigh": "$292.13",
+      "displayDayLow": "$285.78",
+      "displayPrice": "$287.44",
+      "displayMarketCap": "$4.2T",
+      "displayVolume": "40.4M",
+      "isUp": false,
+      "type": "STOCK",
+      "isCrypto": false,
+      "industry": "N/A",
+      "sector": "N/A",
+      "ceo": "N/A",
+      "circulatingSupply": null,
+      "maxSupply": null,
+      "marketCapRank": null
+    }
+    `

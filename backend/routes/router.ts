@@ -68,7 +68,7 @@ router.get("/health", (req, res) => res.status(200).json({ success: true, messag
 router.post("/contact-us", handleContactUs);
 
 // --- Market Data ---
-router.post("/market/quotes", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
+router.post("/market/add-stock", verifyToken,authorise([Roles.ADMIN,Roles.MANAGER]), postMarketQuotes);
 router.post("/market/quotes",verifyTokenOptional, getMarketQuotes);
 router.post("/market/search", verifyTokenOptional, searchStockController);
 router.post("/market/stock-details", verifyTokenOptional, postStockDetails);

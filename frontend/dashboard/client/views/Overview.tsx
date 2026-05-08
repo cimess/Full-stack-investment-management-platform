@@ -76,6 +76,7 @@ const ClientOverview: React.FC = () => {
 
   const [chartData, setChartData] = React.useState<any[]>([]);
   const [selectedRange, setSelectedRange] = React.useState('1W');
+  const [selectedMetric, setSelectedMetric] = React.useState<'value' | 'profit'>('value');
   const [isCalculating, setIsCalculating] = React.useState(false);
 
   const { trackEvent } = useAnalytics();
@@ -96,7 +97,7 @@ const ClientOverview: React.FC = () => {
 
     worker.postMessage({
       type: 'CALCULATE_CHART_DATA',
-      payload: { portfolioValue, transactions, range: selectedRange }
+      payload: { portfolioValue, transactions, range: selectedRange, initialInvestment }
     });
 
     return () => worker.terminate();
@@ -158,7 +159,7 @@ const ClientOverview: React.FC = () => {
         />
         <StatCard
           title="Total Profit"
-          value={`${totalProfit >= 0 ? '+' : ''}$${Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+          value={`${totalProfit >= 0 ? '+' : '-'}$${Math.abs(totalProfit).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
           change={`${percentageChange >= 0 ? '+' : ''}${percentageChange.toFixed(2)}%`}
           changeType={totalProfit >= 0 ? "up" : "down"}
           icon={<TrendingUp className="w-4 h-4 text-blue-400" />}
@@ -182,9 +183,30 @@ const ClientOverview: React.FC = () => {
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
         <div className="xl:col-span-2 glass-panel rounded-2xl p-4 lg:p-6 border border-white/5">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-            <div>
-              <h2 className="text-white font-bold text-sm lg:text-lg tracking-tight">Portfolio Performance</h2>
-              <p className="text-slate-500 text-[9px] sm:text-xs uppercase tracking-widest font-bold mt-0.5">{rangeLabels[selectedRange]}</p>
+            <div className="flex items-center gap-6">
+              <div>
+                <h2 className="text-white font-bold text-sm lg:text-lg tracking-tight">Portfolio Performance</h2>
+                <p className="text-slate-500 text-[9px] sm:text-xs uppercase tracking-widest font-bold mt-0.5">{rangeLabels[selectedRange]}</p>
+              </div>
+              
+              <div className="flex bg-white/5 p-1 rounded-xl border border-white/5">
+                <button 
+                  onClick={() => setSelectedMetric('value')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    selectedMetric === 'value' ? 'bg-emerald-500 text-white' : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  Net Worth
+                </button>
+                <button 
+                  onClick={() => setSelectedMetric('profit')}
+                  className={`px-3 py-1.5 rounded-lg text-[10px] font-bold transition-all ${
+                    selectedMetric === 'profit' ? 'bg-blue-500 text-white' : 'text-slate-500 hover:text-white'
+                  }`}
+                >
+                  Total Profit
+                </button>
+              </div>
             </div>
             <div className="flex bg-white/5 p-1 rounded-xl border border-white/5 w-fit">
               {['1W', '1M', '6M', '1Y', 'ALL'].map((r) => (
@@ -202,7 +224,12 @@ const ClientOverview: React.FC = () => {
           </div>
           <div className="relative">
             <DashboardChart 
-              series={[{ type: 'area', data: chartData, color: '#10b981', dataKey: 'value' }]} 
+              series={[{ 
+                type: 'area', 
+                data: chartData, 
+                color: selectedMetric === 'value' ? '#10b981' : '#3b82f6', 
+                dataKey: selectedMetric 
+              }]} 
               height={300} 
               loading={isCalculating} 
             />

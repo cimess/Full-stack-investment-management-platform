@@ -22,6 +22,8 @@ const PrivacyPage = lazy(() => import('./pages/terms/privacyPage'));
 const RiskPage = lazy(() => import('./pages/terms/riskPage'));
 const ConsentPreferencesPage = lazy(() => import('./pages/terms/consent-preference'));
 const ErrorPage = lazy(() => import('./pages/errorPages/errorPage'));
+const AboutPage = lazy(() => import('./pages/AboutPage'));
+const BlogPage = lazy(() => import('./pages/BlogPage'));
 
 // 3. A simple loading fallback to show while the chunk is downloading
 const PageLoader = () => (
@@ -99,6 +101,8 @@ const App = () => {
               <Route path="/privacy" element={<PrivacyPage />} />
               <Route path="/risk" element={<RiskPage />} />
               <Route path="/cookies" element={<ConsentPreferencesPage />} />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="/blog" element={<BlogPage />} />
               {/* Client Dashboard */}
 
               <Route path="/dashboard/client/*" element={

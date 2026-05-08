@@ -64,7 +64,7 @@ const MarketView: React.FC = () => {
 
   // Search Debounce
   useEffect(() => {
-      const delayDebounceFn = setTimeout(() => {
+    const delayDebounceFn = setTimeout(() => {
       if (searchTerm.length > 0) {
         trackEvent("SEARCH STOCK FROM CLIENT MARKET", { searchTerm });
 
@@ -85,7 +85,7 @@ const MarketView: React.FC = () => {
   }, [searchTerm, searchStocks]);
 
   const handleStockClick = (symbol: string, basicName: string) => {
-    
+
     trackEvent("VIEW STOCK FROM CLIENT MARKET", { symbol });
 
 
@@ -95,6 +95,7 @@ const MarketView: React.FC = () => {
         setFetchingSymbol(null);
         if (res.success && res.data) {
           const apiData = res.data;
+
           // A much more reliable way for stocks:
           const domain = apiData.website?.replace(/^(?:https?:\/\/)?(?:www\.)?/i, "").split('/')[0] || 'google.com';
           const logoUrl = `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
@@ -103,7 +104,9 @@ const MarketView: React.FC = () => {
             image: logoUrl,
             type: assetClass === 'equity' ? "STOCK" : "CRYPTO",
             return: `${apiData.changePercent >= 0 ? '+' : ''}${apiData.changePercent?.toFixed(2)}%`,
-            risk: "Variable",
+            risk: apiData.risk,
+            open: apiData.open,
+            previousClose: apiData.previousClose,
             invest: apiData.displayPrice,
             price: apiData.price,
             symbol: apiData.symbol || symbol,
@@ -111,12 +114,11 @@ const MarketView: React.FC = () => {
             about: apiData.about || "No description available.",
             stats: {
               ceo: apiData.ceo || "N/A",
-              more: `Sector: ${apiData.sector || "N/A"}`,
+              more: apiData.sector || "N/A",
               industry: apiData.industry || "N/A",
               hq: apiData.hq || "N/A",
               founded: apiData.founded || "N/A"
             },
-            startDate: apiData.startDate || "N/A",
             circulatingSupply: apiData.circulatingSupply || "N/A",
             maxSupply: apiData.maxSupply || "N/A",
             marketCapRank: apiData.marketCapRank || "N/A",

@@ -374,12 +374,13 @@ export const getStockDetails = async (symbol: string) => {
     const haveDetails = isCryptoSym
       ? (stock?.about && stock?.marketCapRank)
       : (stock?.about && stock?.ceo);
+    const missingKeyStats = !isCryptoSym && stock?.beta === null;
     const isStale = stock && stock.updatedAt &&
       (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
 
     let intelligence: any = null;
 
-    if (!stock || !haveDetails || isStale) {
+    if (!stock || !haveDetails || isStale || missingKeyStats) {
       logger.info("am getting from yahoo finance", stock)
       const [quote, summary, intel] = await Promise.all([
         withRetry(() => yahooFinance.quote(targetSymbol)),
@@ -396,6 +397,7 @@ export const getStockDetails = async (symbol: string) => {
         const profile = (summary?.assetProfile as any) || {};
         const financialData = (summary?.financialData as any) || {};
         const keyStats = (summary?.defaultKeyStatistics as any) || {};
+        logger.info("this is the one we are interested in beta", keyStats.beta)
 
         const updateData = {
           ...mapToPrismaStock(simpleQuote),
@@ -409,6 +411,8 @@ export const getStockDetails = async (symbol: string) => {
           circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
           maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
           startDate: quote.startDate ? new Date(quote.startDate) : null,
+          beta: keyStats?.beta ?? null,
+          eps: keyStats?.trailingEps ?? keyStats?.forwardEps ?? null,
 
           forwardPE: keyStats?.forwardPE ?? null,
           priceToBook: keyStats?.priceToBook ?? null,
@@ -456,6 +460,8 @@ export const getStockDetails = async (symbol: string) => {
       dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
       fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
       fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
+      open: stock.open ? formatCurrency(Number(stock.open), stock.currency) : 'N/A',
+      previousClose: stock.previousClose ? formatCurrency(Number(stock.previousClose), stock.currency) : 'N/A',
 
       // Institutional metrics
       eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
@@ -472,8 +478,6 @@ export const getStockDetails = async (symbol: string) => {
       maxSupply: simpleQuote.isCrypto && stock.maxSupply
         ? formatCompactNumber(Number(stock.maxSupply))
         : 'N/A',
-      startDate: stock.startDate ? new Date(stock.startDate).toLocaleDateString() : 'N/A',
-
       financialSummary: simpleQuote.isCrypto
         ? `${stock.symbol} is a decentralized asset currently ranked #${stock.marketCapRank || 'N/A'} by market cap.`
         : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}, ${stock.company} has a 52-week range of 

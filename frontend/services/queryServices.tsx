@@ -101,7 +101,7 @@ export const searchStock = async (symbols: string) => {
 }
 
 export const postMarketQuotes = async (symbols: string[]) => {
-  const response = await api.post("/market/quotes", { symbols })
+  const response = await api.post("/market/add-stock", { symbols })
   return response.data
 }
 export const getFundamentals = async (symbol: string) => {

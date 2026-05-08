@@ -36,7 +36,21 @@ const DashboardChart: React.FC<DashboardChartProps> = ({
         horzLines: { color: 'rgba(255, 255, 255, 0.05)' },
       },
       rightPriceScale: {
-        visible: false,
+        visible: true,
+        borderVisible: false,
+      },
+      crosshair: {
+        mode: 0,
+        vertLine: {
+          width: 1,
+          color: 'rgba(255, 255, 255, 0.2)',
+          style: 3,
+        },
+        horzLine: {
+          width: 1,
+          color: 'rgba(255, 255, 255, 0.2)',
+          style: 3,
+        },
       },
       leftPriceScale: {
         visible: false,
@@ -55,6 +69,8 @@ const DashboardChart: React.FC<DashboardChartProps> = ({
     const handleResize = () => {
       chart.applyOptions({ width: chartContainerRef.current?.clientWidth });
     };
+
+    const seriesInsts: any[] = [];
 
     series.forEach((s) => {
       let seriesInst: any;
@@ -82,6 +98,31 @@ const DashboardChart: React.FC<DashboardChartProps> = ({
       }));
 
       seriesInst.setData(formattedData);
+      seriesInsts.push(seriesInst);
+    });
+
+    const tooltip = document.createElement('div');
+    tooltip.className = 'absolute z-50 p-2 bg-slate-900/90 border border-white/10 rounded-lg text-[10px] text-white pointer-events-none hidden';
+    tooltip.style.boxShadow = '0 4px 12px rgba(0,0,0,0.5)';
+    chartContainerRef.current?.appendChild(tooltip);
+
+    chart.subscribeCrosshairMove((param) => {
+      if (!param.time || param.point === undefined || !param.seriesData.size) {
+        tooltip.style.display = 'none';
+        return;
+      }
+
+      const seriesData = param.seriesData.get(seriesInsts[0]);
+      if (seriesData) {
+        const val = (seriesData as any).value || 0;
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${param.point.x + 15}px`;
+        tooltip.style.top = `${param.point.y + 15}px`;
+        tooltip.innerHTML = `
+          <div class="font-bold mb-0.5">${series[0].dataKey === 'profit' ? 'P&L' : 'Net Worth'}</div>
+          <div class="text-emerald-400 font-mono">$${val.toLocaleString(undefined, { minimumFractionDigits: 2 })}</div>
+        `;
+      }
     });
 
     chart.timeScale().fitContent();
@@ -89,6 +130,7 @@ const DashboardChart: React.FC<DashboardChartProps> = ({
 
     return () => {
       window.removeEventListener('resize', handleResize);
+      tooltip.remove();
       chart.remove();
     };
   }, [series, height]);
