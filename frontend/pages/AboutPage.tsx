@@ -74,27 +74,32 @@ const AboutPage = () => {
             ))}
           </div>
 
-          {/* Deep Content for Crawlers */}
+          {/* Value Proposition Section */}
           <div className="glass-panel rounded-[3rem] p-10 lg:p-20 border border-white/5 relative overflow-hidden">
-            <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-indigo-500/5 to-transparent pointer-events-none" />
+            <div className="absolute top-0 right-0 w-full h-full bg-gradient-to-br from-indigo-500/10 to-transparent pointer-events-none" />
             <div className="relative z-10 grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
               <div>
-                <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8 tracking-tighter">Our Engineering Ethos</h2>
-                <div className="space-y-6 text-slate-400 font-medium leading-relaxed">
-                  <p>
-                    At the core of CimessInvest is a full-stack architecture built for reliability. We utilize 
-                    <span className="text-indigo-400"> React 19</span> and <span className="text-indigo-400">Vite</span> for our lightning-fast frontend experience, 
-                    ensuring complex financial charts render smoothly on any device.
+                <h2 className="text-3xl lg:text-5xl font-bold text-white mb-8 tracking-tighter">Institutional Intelligence. <br/><span className="text-indigo-400">Zero Cost.</span></h2>
+                <div className="space-y-6 text-slate-300 font-medium leading-relaxed">
+                  <p className="text-lg">
+                    Why pay hundreds for a Bloomberg terminal or premium subscriptions when the world's most sophisticated analytics are now at your fingertips—<span className="text-white border-b border-indigo-500">100% Free?</span>
                   </p>
+                  <ul className="space-y-4">
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2.5 shrink-0" />
+                      <span><strong className="text-white">Real-Time Everything:</strong> Get live quotes, deep EPS data, and analyst consensus without the 15-minute delay found on other platforms.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2.5 shrink-0" />
+                      <span><strong className="text-white">Peer Benchmarking:</strong> Instantly compare any stock against its sector rivals to find the hidden gems and avoid the value traps.</span>
+                    </li>
+                    <li className="flex items-start gap-3">
+                      <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 mt-2.5 shrink-0" />
+                      <span><strong className="text-white">Daily Intelligence Feed:</strong> Curated professional news and market sentiment data delivered directly to your dashboard.</span>
+                    </li>
+                  </ul>
                   <p>
-                    Our backend is powered by <span className="text-indigo-400">Node.js</span> and <span className="text-indigo-400">PostgreSQL</span>, 
-                    with <span className="text-indigo-400">Prisma ORM</span> managing a complex relational database 
-                    that tracks millions of dollars in virtual transactions across our user base.
-                  </p>
-                  <p>
-                    To ensure real-time accuracy, we integrate directly with Yahoo Finance and various SEC-authorized 
-                    aggregators, processing live quotes, analyst ratings, and historical performance data 
-                    through a sophisticated worker-thread pipeline.
+                    CimessInvest isn't just an app; it's your unfair advantage in an increasingly complex market. We've democratized the tools used by hedge funds so you can trade with confidence, precision, and zero overhead.
                   </p>
                 </div>
               </div>
