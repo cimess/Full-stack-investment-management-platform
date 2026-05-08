@@ -11,13 +11,35 @@ const Header: React.FC = () => {
 
   const navigate=useNavigate()
 
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 20);
     };
+
+    const handleBeforeInstall = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('beforeinstallprompt', handleBeforeInstall);
+
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+    }
+  };
 
   const navLinks = [
     { name: 'Discover', href: '/#discover' },
@@ -62,6 +84,15 @@ const Header: React.FC = () => {
 
         {/* Desktop Auth Buttons */}
         <div className="hidden md:flex items-center gap-3">
+          {deferredPrompt && (
+            <button
+              onClick={handleInstallClick}
+              className="flex items-center gap-2 bg-white/5 border border-white/10 text-white text-[10px] font-bold uppercase tracking-widest px-4 py-2.5 rounded-xl hover:bg-white/10 transition-all"
+            >
+              <TrendingUp className="w-3 h-3 rotate-90" /> {/* Using TrendingUp as a makeshift download/install icon */}
+              Install App
+            </button>
+          )}
           <button
             onClick={() => navigate('/login')}
             className="text-slate-400 hover:text-white text-xs font-bold uppercase tracking-widest transition-colors px-4 py-2"

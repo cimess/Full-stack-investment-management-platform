@@ -9,6 +9,14 @@
   <meta name="keywords" content="professional portfolio tracker, stock market analytics, crypto wealth management, DCF valuation tool, financial intelligence dashboard, real-time stock quotes" />
   <meta name="author" content="Cimess" />
   <meta name="theme-color" content="#000000" />
+  <link rel="manifest" href="/manifest.json" />
+  <script>
+    window.addEventListener('error', (e) => {
+      if (e.message?.includes('dynamically imported module') || e.message?.includes('importing module')) {
+        location.reload();
+      }
+    }, true);
+  </script>
 
 <!-- Apple Web App Meta -->
 <meta name="apple-mobile-web-app-capable" content="yes">
