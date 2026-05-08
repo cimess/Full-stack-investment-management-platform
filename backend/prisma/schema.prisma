@@ -44,6 +44,7 @@ model User {
   restricted Boolean  @default(false)
   avatar     String?
   termsAccepted Boolean @default(false)
+  acquisitionSource String?  // Track where the user came from (e.g. TikTok, LinkedIn)
 
   // Email Verification Fields
   isVerified               Boolean   @default(false)

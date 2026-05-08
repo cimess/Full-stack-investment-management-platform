@@ -7,6 +7,7 @@ const registerSchema = z.object({
     name: z.string({ error: "Name is required" }).min(1, { message: "Name is required" }).max(20, { message: "Name must not exceed 20 characters long" }),
     username: z.string({ error: "Username is required" }).min(3, { message: "Username must be at least 3 characters long" }).max(20, { message: "Username must not exceed 20 characters long" }),
     role: z.enum(["CLIENT", "MANAGER"]).optional(),
+    source: z.string().optional(),
 })
 
 

@@ -186,6 +186,30 @@ export const getAdminDashboard = async (req: Request, res: Response, next: NextF
 
 }
 
+export const getUserAcquisitionData = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const counts = await prisma.user.groupBy({
+      by: ['acquisitionSource'],
+      _count: {
+        id: true,
+      },
+    });
+
+    const formattedData = counts.map((item) => ({
+      source: !item.acquisitionSource || item.acquisitionSource === 'direct' ? 'Organic' : item.acquisitionSource,
+      count: item._count.id,
+    }));
+
+    return res.status(200).json({
+      success: true,
+      data: formattedData,
+    });
+  } catch (err: any) {
+    logger.error("Error in getUserAcquisitionData:", err);
+    return next(createError(500, "Internal Server Error"));
+  }
+}
+
 
 
 export const addSuperAdmin = async (req: Request, res: Response, next: NextFunction) => {

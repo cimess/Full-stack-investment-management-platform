@@ -113,7 +113,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     logger.warn(`Validation failed for ${req.originalUrl}: ${result.error.issues[0]?.message}`);
     return next(createError(400, result.error.issues[0]?.message as string));
   }
-  const { username, name, password, email, role } = result.data;
+  const { username, name, password, email, role, source } = result.data;
   const userRole = role === "CLIENT" ? "USER" : 'MANAGER';
 
   const hashedPassword = await argon2.hash(password, {
@@ -121,8 +121,6 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
     memoryCost: 2 ** 12, // 4MB
     parallelism: 1,
   });
-
-
 
 
   try {
@@ -142,6 +140,7 @@ export const registerUser = async (req: Request, res: Response, next: NextFuncti
           verificationToken: otp,
           verificationTokenExpires: otpExpires,
           termsAccepted: true,
+          acquisitionSource: source || "direct",
         }
       })
       

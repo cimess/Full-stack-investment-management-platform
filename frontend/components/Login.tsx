@@ -378,13 +378,15 @@ const { trackEvent } = useAnalytics();
   };
 
   const handleFinalSubmit = () => {
+    const source = sessionStorage.getItem('acquisition_source') || 'direct';
     setShowConfirm(false);
     registerMutate({
       username,
       password,
       email,
       name: firstName + " " + lastName,
-      role
+      role,
+      source
     });
   };
 

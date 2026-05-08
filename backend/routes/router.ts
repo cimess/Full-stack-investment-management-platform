@@ -9,7 +9,7 @@ import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
 import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
-import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin } from "../controller/admin_access.js";
+import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin, getUserAcquisitionData } from "../controller/admin_access.js";
 import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals, getPeers, getHistoricalFundamentalsController } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount, updateTerms } from "../controller/userController.js";
@@ -125,6 +125,7 @@ router.post("/add-super-admin", verifyToken, addSuperAdmin);
 router.post("/admin/add/admin", verifyToken, authorise([Roles.ADMIN]), addAdmin)
 router.post("/manager/approval/key", verifyToken, authorise([Roles.ADMIN]), generateAccessKey)
 router.post("/admin/emergency-shutdown", verifyToken, authorise([Roles.ADMIN]), remoteShutdown);
+router.get("/admin/acquisition-analytics", verifyToken, authorise([Roles.ADMIN]), getUserAcquisitionData);
 
 // --- Report & Incident Routes ---
 router.post("/reports", verifyToken, createReport); // Users & Managers can report a problem

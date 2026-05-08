@@ -5,6 +5,11 @@ import {
 import { Activity, Users, Zap, AlertCircle, RefreshCw } from 'lucide-react';
 import api from '../../../lib/axios';
 
+interface AcquisitionData {
+  source: string;
+  count: number;
+}
+
 interface AnalyticsData {
   totalUsers: number;
   dau: number;
@@ -13,6 +18,7 @@ interface AnalyticsData {
 
 export default function AnalyticsView() {
   const [data, setData] = useState<AnalyticsData | null>(null);
+  const [acquisitionData, setAcquisitionData] = useState<AcquisitionData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,9 +26,16 @@ export default function AnalyticsView() {
     setIsLoading(true);
     setError(null);
     try {
-      const res = await api.get('/admin/stream/overview');
-      if (res.data.success) {
-        setData(res.data.data);
+      const [analyticsRes, acquisitionRes] = await Promise.all([
+        api.get('/admin/stream/overview'),
+        api.get('/admin/acquisition-analytics')
+      ]);
+
+      if (analyticsRes.data.success) {
+        setData(analyticsRes.data.data);
+      }
+      if (acquisitionRes.data.success) {
+        setAcquisitionData(acquisitionRes.data.data);
       }
     } catch (err: any) {
       setError(err?.response?.data?.message || "Failed to load analytics dashboard.");
@@ -106,47 +119,58 @@ export default function AnalyticsView() {
             </div>
           </div>
 
-          {/* Main Chart Bento Box */}
-          <div className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl">
-            <h3 className="text-lg font-bold text-white mb-6">Top Platform Interactions</h3>
-            <div className="h-[400px] w-full">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
-                  <XAxis 
-                    dataKey="name" 
-                    stroke="#94a3b8" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickMargin={12}
-                  />
-                  <YAxis 
-                    stroke="#94a3b8" 
-                    fontSize={12} 
-                    tickLine={false} 
-                    axisLine={false}
-                    tickFormatter={(val) => `${val}`}
-                  />
-                  <Tooltip 
-                    cursor={{fill: 'rgba(255,255,255,0.02)'}}
-                    contentStyle={{
-                      backgroundColor: 'rgba(9, 9, 11, 0.95)',
-                      backdropFilter: 'blur(10px)',
-                      border: '1px solid rgba(255,255,255,0.1)',
-                      borderRadius: '16px',
-                      color: '#fff',
-                      boxShadow: '0 0 30px rgba(0,0,0,0.5)'
-                    }}
-                    itemStyle={{ color: '#34d399', fontWeight: 'bold' }}
-                  />
-                  <Bar dataKey="events" radius={[6, 6, 0, 0]}>
-                    {chartData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={index === 0 ? '#34d399' : '#3b82f6'} fillOpacity={0.8} />
-                    ))}
-                  </Bar>
-                </BarChart>
-              </ResponsiveContainer>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Main Chart Bento Box */}
+            <div className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl">
+              <h3 className="text-lg font-bold text-white mb-6">Top Platform Interactions</h3>
+              <div className="h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" vertical={false} />
+                    <XAxis 
+                      dataKey="name" 
+                      stroke="#94a3b8" 
+                      fontSize={11} 
+                      tickLine={false} 
+                      axisLine={false}
+                    />
+                    <YAxis 
+                      stroke="#94a3b8" 
+                      fontSize={11} 
+                      tickLine={false} 
+                      axisLine={false}
+                    />
+                    <Tooltip 
+                      cursor={{fill: 'rgba(255,255,255,0.02)'}}
+                      contentStyle={{
+                        backgroundColor: '#09090b',
+                        border: '1px solid rgba(255,255,255,0.1)',
+                        borderRadius: '12px'
+                      }}
+                    />
+                    <Bar dataKey="events" fill="#34d399" radius={[4, 4, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Acquisition Source Chart */}
+            <div className="p-6 bg-white/[0.02] border border-white/10 rounded-2xl">
+              <div className="flex justify-between items-center mb-6">
+                <h3 className="text-lg font-bold text-white">Acquisition Sources</h3>
+                <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-1 bg-blue-500/10 text-blue-400 rounded-md">Growth Data</span>
+              </div>
+              <div className="h-[350px] w-full">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={acquisitionData} layout="vertical" margin={{ top: 5, right: 30, left: 40, bottom: 5 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.05)" horizontal={false} />
+                    <XAxis type="number" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                    <YAxis type="category" dataKey="source" stroke="#94a3b8" fontSize={11} tickLine={false} axisLine={false} />
+                    <Tooltip cursor={{fill: 'rgba(255,255,255,0.05)'}} contentStyle={{ backgroundColor: '#09090b', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px' }} />
+                    <Bar dataKey="count" fill="#3b82f6" radius={[0, 4, 4, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
             </div>
           </div>
         </>

@@ -32,15 +32,23 @@ const PageLoader = () => (
   </div>
 );
 function ScrollToTop(): any {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
 
   useEffect(() => {
+    // 1. Capture UTM source from URL
+    const params = new URLSearchParams(search);
+    const source = params.get('utm_source');
+    if (source) {
+      sessionStorage.setItem('acquisition_source', source);
+    }
+
+    // 2. Scroll to top
     window.scrollTo({
       top: 0,
       left: 0,
-      behavior: "smooth", // optional
+      behavior: "smooth",
     });
-  }, [pathname]);
+  }, [pathname, search]);
 
   return null;
 }
