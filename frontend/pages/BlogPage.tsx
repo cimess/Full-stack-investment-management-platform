@@ -64,8 +64,34 @@ const BlogPage = () => {
       try {
         const res = await api.get('/blog/posts');
         const apiPosts = res.data.data || [];
+
+        const normalizedApiPosts = apiPosts.map((post: any) => ({
+          ...post,
+
+          imageUrl:
+            post.imageUrl ||
+            post.image ||
+            '/placeholder.jpg',
+
+          sourceUrl:
+            post.sourceUrl ||
+            post.source_url ||
+            '',
+
+          content:
+            post.content ||
+            post.body ||
+            post.excerpt ||
+            '',
+
+          tags:
+            post.tags || [],
+
+          author:
+            post.author || { fullname: 'Unknown Author' },
+        }));
         // ✅ Always merge: API posts first, then static ones after
-        setPosts([...apiPosts, ...STATIC_POSTS]);
+        setPosts([...normalizedApiPosts, ...STATIC_POSTS]);
       } catch {
         // If network fails, just show static posts
         setPosts(STATIC_POSTS);
@@ -75,6 +101,33 @@ const BlogPage = () => {
     };
     fetchPosts();
   }, []);
+
+
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedPost(null);
+      }
+    };
+
+    window.addEventListener('keydown', handleEsc);
+
+    return () => {
+      window.removeEventListener('keydown', handleEsc);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (selectedPost) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [selectedPost]);
 
 
   const filtered = posts.filter((p) => {
@@ -218,7 +271,7 @@ const BlogPage = () => {
           {/* Articles Grid */}
           {!loading && restPosts.length > 0 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-8 sm:gap-12 mb-16 sm:mb-24">
-              {posts.map((post) => (
+              {restPosts.map((post) => (
                 console.log(post),
                 <div key={post.id} className="group cursor-pointer">
                   <div className="relative aspect-video rounded-2xl sm:rounded-[2.5rem] overflow-hidden border border-white/5 mb-4 sm:mb-6">
@@ -341,21 +394,21 @@ const BlogPage = () => {
       </main>
 
       {/* ARTICLE MODAL */}
-{selectedPost && (
-  <div
-    className="
+      {selectedPost && (
+        <div
+          className="
       fixed inset-0 z-50
       bg-black/80 backdrop-blur-sm
       flex items-center justify-center
       p-4
       animate-in fade-in duration-300
     "
-    onClick={() => setSelectedPost(null)}
-  >
-    {/* MODAL CONTAINER */}
-    <div
-      onClick={(e) => e.stopPropagation()}
-      className="
+          onClick={() => setSelectedPost(null)}
+        >
+          {/* MODAL CONTAINER */}
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="
         relative
         w-full max-w-4xl
         max-h-[90vh]
@@ -365,22 +418,22 @@ const BlogPage = () => {
         bg-[#0B0B0F]
         shadow-2xl
       "
-    >
+          >
 
-      {/* HERO IMAGE */}
-      <div className="relative h-64 sm:h-80 overflow-hidden">
-        <img
-          src={selectedPost.imageUrl}
-          alt={selectedPost.title}
-          className="w-full h-full object-cover"
-        />
+            {/* HERO IMAGE */}
+            <div className="relative h-64 sm:h-80 overflow-hidden">
+              <img
+                src={selectedPost.imageUrl}
+                alt={selectedPost.title}
+                className="w-full h-full object-cover"
+              />
 
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-black/30 to-transparent" />
+              <div className="absolute inset-0 bg-gradient-to-t from-[#0B0B0F] via-black/30 to-transparent" />
 
-        {/* CLOSE BUTTON */}
-        <button
-          onClick={() => setSelectedPost(null)}
-          className="
+              {/* CLOSE BUTTON */}
+              <button
+                onClick={() => setSelectedPost(null)}
+                className="
             absolute top-4 right-4
             w-10 h-10
             rounded-full
@@ -391,15 +444,15 @@ const BlogPage = () => {
             transition-all
             flex items-center justify-center
           "
-        >
-          ✕
-        </button>
+              >
+                ✕
+              </button>
 
-        {/* TITLE OVER IMAGE */}
-        <div className="absolute bottom-6 left-6 right-6">
-          <div className="flex flex-wrap items-center gap-3 mb-3">
+              {/* TITLE OVER IMAGE */}
+              <div className="absolute bottom-6 left-6 right-6">
+                <div className="flex flex-wrap items-center gap-3 mb-3">
 
-            <span className="
+                  <span className="
               px-3 py-1
               rounded-full
               bg-indigo-500
@@ -409,78 +462,75 @@ const BlogPage = () => {
               uppercase
               tracking-widest
             ">
-              {selectedPost.category}
-            </span>
+                    {selectedPost.category}
+                  </span>
 
-            {selectedPost.readTime && (
-              <div className="flex items-center gap-2 text-white/70 text-xs">
-                <Clock className="w-3 h-3" />
-                {selectedPost.readTime}
-              </div>
-            )}
-          </div>
+                  {selectedPost.readTime && (
+                    <div className="flex items-center gap-2 text-white/70 text-xs">
+                      <Clock className="w-3 h-3" />
+                      {selectedPost.readTime}
+                    </div>
+                  )}
+                </div>
 
-          <h2 className="
+                <h2 className="
             text-2xl sm:text-4xl
             font-bold
             text-white
             leading-tight
             tracking-tight
           ">
-            {selectedPost.title}
-          </h2>
-        </div>
-      </div>
+                  {selectedPost.title}
+                </h2>
+              </div>
+            </div>
 
-      {/* CONTENT */}
-      <div className="p-6 sm:p-10">
+            {/* CONTENT */}
+            <div className="p-6 sm:p-10">
 
-        {/* META */}
-        <div className="
+              {/* META */}
+              <div className="
           flex flex-wrap items-center gap-4
           text-xs text-slate-500
           mb-8
           border-b border-white/5
           pb-6
         ">
-          <div className="flex items-center gap-2">
-            <Calendar className="w-4 h-4" />
-            {formatDate(selectedPost.publishedAt)}
-          </div>
+                <div className="flex items-center gap-2">
+                  <Calendar className="w-4 h-4" />
+                  {formatDate(selectedPost.publishedAt)}
+                </div>
 
-          {selectedPost.views > 0 && (
-            <div className="flex items-center gap-2">
-              <Eye className="w-4 h-4" />
-              {selectedPost.views}
-            </div>
-          )}
+                {selectedPost.views > 0 && (
+                  <div className="flex items-center gap-2">
+                    <Eye className="w-4 h-4" />
+                    {selectedPost.views}
+                  </div>
+                )}
 
-          {selectedPost.author && (
-            <div>
-              by {selectedPost.author.fullname}
-            </div>
-          )}
-        </div>
+                {selectedPost.author && (
+                  <div>
+                    by {selectedPost.author.fullname}
+                  </div>
+                )}
+              </div>
 
-        {/* ARTICLE CONTENT */}
-        <div className="
-          prose prose-invert
-          prose-p:text-slate-300
-          prose-headings:text-white
-          max-w-none
-        ">
-          <p className="text-lg text-slate-300 leading-8">
-            {selectedPost.content || selectedPost.excerpt}
-          </p>
-        </div>
+              {/* ARTICLE CONTENT */}
+              <div className="space-y-6 text-slate-300 leading-8 text-lg">
+                {selectedPost.content
+                  ?.split('\n')
+                  .map((paragraph: string, idx: number) => (
+                    <p key={idx}>{paragraph}</p>
+                  ))}
+              </div>
 
-        {/* TAGS */}
-        {selectedPost.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-8">
-            {selectedPost.tags.map((tag: string) => (
-              <span
-                key={tag}
-                className="
+              {/* TAGS */}
+              {selectedPost.tags?.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-8">
+                  {selectedPost.tags.map((tag: string) => (
+                    <span
+                      key={tag}
+                      className="
                   px-3 py-1
                   rounded-full
                   bg-white/5
@@ -488,15 +538,15 @@ const BlogPage = () => {
                   text-slate-400
                   text-xs
                 "
-              >
-                #{tag}
-              </span>
-            ))}
-          </div>
-        )}
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              )}
 
-        {/* ACTIONS */}
-        <div className="
+              {/* ACTIONS */}
+              <div className="
           flex flex-col sm:flex-row
           gap-4
           mt-10
@@ -504,12 +554,13 @@ const BlogPage = () => {
           border-t border-white/5
         ">
 
-          {/* EXTERNAL SOURCE */}
-          <a
-            href={selectedPost.sourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="
+                {/* EXTERNAL SOURCE */}
+                {selectedPost.sourceUrl && (
+                <a
+                  href={selectedPost.sourceUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="
               inline-flex items-center justify-center gap-2
               px-6 py-4
               rounded-2xl
@@ -523,15 +574,15 @@ const BlogPage = () => {
               transition-all
               hover:scale-[1.02]
             "
-          >
-            Visit Source
-            <ArrowRight className="w-4 h-4" />
-          </a>
-
-          {/* CLOSE */}
-          <button
-            onClick={() => setSelectedPost(null)}
-            className="
+                >
+                  Visit Source
+                  <ArrowRight className="w-4 h-4" />
+                </a>
+                )}
+                {/* CLOSE */}
+                <button
+                  onClick={() => setSelectedPost(null)}
+                  className="
               inline-flex items-center justify-center gap-2
               px-6 py-4
               rounded-2xl
@@ -545,14 +596,14 @@ const BlogPage = () => {
               text-xs
               transition-all
             "
-          >
-            Close Article
-          </button>
+                >
+                  Close Article
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
-  </div>
-)}
+      )}
 
       <Footer />
     </div>
