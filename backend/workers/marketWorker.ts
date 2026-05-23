@@ -139,9 +139,9 @@ export const refreshMarketData = async () => {
             where: { symbol: stock.symbol },
             data: fields,
           });
-           await delCache(`stock:details:${stock.symbol}`);
+          await delCache(`stock:details:${stock.symbol}`);
           // Prevent Database Hammer by yielding event loop and resting between single row DB locks
-          await sleep(20); 
+          await sleep(20);
         } catch (err) {
           logger.error(`Update failed for ${stock.symbol}`, err);
         }

@@ -1,5 +1,5 @@
 import React from 'react';
-import {Route, Routes } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import DashboardSidebar from '../../components/ui/DashboardSidebar';
 import TopBar from '../../components/ui/TopBar';
 import { toast, Zoom } from 'react-toastify';
@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import { useState } from 'react';
 import AppTour from '../../components/ui/AppTour';
-
+import Watchlist from '../../components/WatchList';
 
 
 
@@ -58,7 +58,7 @@ const ClientDashboard: React.FC = () => {
   useEffect(() => {
 
     if (!shown) {
-      toast.success("Welcome to CimessInvestment Management Platform .", {
+      toast.success("Welcome! Your Watchlist is empty right now. Here are 3 trending stocks our managers are looking at today. Click the '+' to watch them.", {
         position: "top-center",
         autoClose: 5000,
         hideProgressBar: true,
@@ -114,6 +114,7 @@ const ClientDashboard: React.FC = () => {
           role="CLIENT"
           image={user?.avatar}
         />
+        
         {/* Google Verify Banner - shown when user is NOT verified */}
         {user && !user?.isVerified && <div className="flex justify-center mb-4 items-center 
                  gap-2 text-sm text-amber-400 md:text-base mt-2 underline">
@@ -125,6 +126,7 @@ const ClientDashboard: React.FC = () => {
           <Routes>
             <Route index element={<MarketView />} />
             <Route path="overview" element={<Overview />} />
+            <Route path="watchlist" element={<Watchlist />} />
             <Route path="market" element={<MarketView />} />
             <Route path="portfolio" element={<PortfolioView />} />
             <Route path="transactions" element={<TransactionsView />} />

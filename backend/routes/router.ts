@@ -8,9 +8,14 @@ import { verifyToken,verifyTokenOptional } from "../middlewear/auth.js";
 import { authorise } from "../middlewear/checkRoles.js";
 import { Roles } from "@prisma/client";
 import { add_manager_to_client, remove_manager_to_client, buyStock, sellStock, getAll as getClientAll } from "../controller/client_access.js";
-import { getManagerAccess, handleRequest, getAll as getManagerAll, updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
-import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey, remoteShutdown, addSuperAdmin, getUserAcquisitionData } from "../controller/admin_access.js";
-import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails, getMarketCategories, getStockHistory, getFundamentals, getPeers, getHistoricalFundamentalsController } from "../controller/market_data.js";
+import { getManagerAccess, handleRequest, getAll as getManagerAll, 
+  updateManagerProfile, getPublicManagerProfile } from "../controller/manager_Access.js";
+import { restrictManager, restrictUser, addAdmin, getAdminDashboard, generateAccessKey,
+   remoteShutdown, addSuperAdmin, getUserAcquisitionData } from "../controller/admin_access.js";
+import { getMarketQuotes, searchStockController, postMarketQuotes, postStockDetails,
+   getMarketCategories, getStockHistory, getFundamentals, getPeers,
+    getHistoricalFundamentalsController, getFeaturedStocks, getWatchlist, 
+    addToWatchlist, removeFromWatchlist } from "../controller/market_data.js";
 import { updateUserSettings } from "../controller/settingsController.js";
 import { updateProfile, deactivateAccount, updateTerms } from "../controller/userController.js";
 import { getNotifications, markNotificationsRead } from "../controller/notificationController.js";
@@ -140,5 +145,11 @@ router.post("/stream/feedback", verifyToken, submitFeedback);
 // --- Analytics (Admin Facing) ---
 router.get("/admin/stream/overview", verifyToken, authorise([Roles.ADMIN, Roles.MANAGER]), getAnalyticsOverview);
 
+
+// Watchlist Routes
+router.get("/watchlist/featured", verifyToken, authorise([Roles.USER, Roles.MANAGER]), getFeaturedStocks);
+router.get("/watchlist", verifyToken, authorise([Roles.USER, Roles.MANAGER]), getWatchlist);
+router.post("/watchlist/add", verifyToken, authorise([Roles.USER, Roles.MANAGER]), addToWatchlist);
+router.delete("/watchlist/remove", verifyToken, authorise([Roles.USER, Roles.MANAGER]), removeFromWatchlist);
 
 export default router;

@@ -19,6 +19,9 @@ import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
 import DCFModeler from '../../components/analytics/DCFModeler';
+import Watchlist from '../../components/WatchList';
+
+
 const ManagerDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false);
   const navigate = useNavigate();
@@ -102,6 +105,7 @@ const ManagerDashboard: React.FC = () => {
             <Route index element={<MarketView />} />
             <Route path="overview" element={<Overview />} />
             <Route path="clients" element={<ClientsView />} />
+            <Route path="watchlist" element={<Watchlist />} />
             <Route path="requests" element={<RequestsView />} />
             <Route path="stocks" element={<StocksView />} />
             <Route path="settings" element={<SettingsView />} />

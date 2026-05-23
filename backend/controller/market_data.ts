@@ -6,10 +6,124 @@ import { prisma } from "../lib/prisma.js";
 import { getSECFundamentals } from '../services/secservices.js';
 import { formatCurrency, formatCompactNumber, formatPercent } from "../lib/formatter.js";
 import { trace, context } from "@opentelemetry/api";
-
-
-
 import { getCache, setCache } from "../lib/redis.js";
+import { Prisma } from "@prisma/client";
+
+export const getFeaturedStocks = async (req: Request, res: Response, next: NextFunction) => {
+  const DEFAULT_SYMBOLS = ['AAPL', 'TSLA', 'GOOGL', 'MSFT', 'AMZN', 'META', 'NVDA', 'JPM', 'V', 'PG'];
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(createError(401, "Unauthorized"));
+    }
+    const stocks = await prisma.stockTable.findMany({
+      where: { symbol: { in: DEFAULT_SYMBOLS } },
+
+    });
+    if (!stocks) {
+      return next(createError(404, "Stocks not found"));
+    }
+    return res.status(200).json({ success: true, data: stocks });
+  } catch (error) {
+    logger.error("Error in getFeaturedStocks controller:", error);
+    return next(error);
+  }
+}
+
+export const getWatchlist = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return next(createError(401, "Unauthorized"));
+    }
+
+    // Adjust Prisma / DB query to match your schema
+    const watchlist = await prisma.watchlist.findMany({
+      where: { userId: userId },
+      select:
+    {
+      symbol:true,    
+    }
+    });
+  const symbols = watchlist.map(s => s.symbol);
+    // 2. Fetch the rich data for those symbols from the StockTable
+    const stocks = await prisma.stockTable.findMany({
+      where: { symbol: { in: symbols } }
+    });
+    // 3. Return in consistent format { success: true, data: [...] }
+    res.status(200).json({ success: true, data: stocks });
+  } catch (error) {
+    res.status(500).json({ message: "Error fetching watchlist" });
+  }
+};
+
+// POST: Add a new stock to the watchlist
+export const addToWatchlist = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+
+
+    if (!userId) {
+      return next(createError(401, "Unauthorized"));
+    }
+    const { symbol, name } = req.body;
+
+    if (!symbol) {
+      return next(createError(400, "Symbol is required"));
+    }
+    await getStockDetails(symbol);
+
+    const newStock = await prisma.watchlist.create({
+      data: {
+        userId,
+        symbol,
+        name
+      }
+    });
+
+    res.status(201).json({ message: "Added to watchlist", stock: newStock });
+  } catch (error) {
+    // Check if it already exists to prevent duplicates
+    logger.error("Error in addToWatchlist controller:", error);
+
+       if (
+      error instanceof Prisma.PrismaClientKnownRequestError &&
+      error.code === "P2002"
+    ) {
+      return next(
+        createError(409, "Stock already exists in watchlist")
+      );
+    }
+    res.status(400).json({ message: "Failed to add or already exists" });
+  }
+};
+
+// DELETE: Remove from watchlist
+export const removeFromWatchlist = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const userId = req.user?.id;
+    const { symbol } = req.body;
+    if (!userId) {
+      return next(createError(401, "Unauthorized"));
+    }
+
+
+   const deletedStock = await prisma.watchlist.deleteMany({
+      where: {
+        userId: userId,
+        symbol: symbol
+      }
+    });
+    if (deletedStock.count===0) {
+      return next(createError(404, "Stock not found"));
+    }
+
+    res.status(200).json({ success: true, message: "Removed successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Error removing stock" });
+  }
+};
+
 
 
 /**
@@ -143,7 +257,7 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
   const span = trace.getSpan(context.active());
 
   try {
-    const {page,limit} = req.body;
+    const { page, limit } = req.body;
     const skip = (parseInt(page as string) || 1 - 1) * parseInt(limit as string) || 20;
 
     // 1. Try to fetch from GLOBAL REDIS CACHE (populated by background worker)
@@ -240,9 +354,7 @@ export const getMarketQuotes = async (req: Request, res: Response, next: NextFun
 export const searchStockController = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { symbols } = req.body;
-    logger.info("this is the one we are interested the symbol", symbols)
     const result = await searchStock(symbols);
-    logger.info("this is the one we are interested if it fails", result)
 
     if (!result.success) {
       // If hit API limit, we return 429 Too Many Requests
@@ -525,14 +637,14 @@ export const getFundamentals = async (req: Request, res: Response) => {
 
 export const getPeers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const { symbol } = req.body; 
+    const { symbol } = req.body;
     if (!symbol) return res.status(400).json({ success: false, message: "Symbol is required" });
 
-      const dbStock = await prisma.stockTable.findFirst({
+    const dbStock = await prisma.stockTable.findFirst({
       where: { OR: [{ symbol: symbol.toUpperCase() }, { company: { equals: symbol, mode: 'insensitive' } }] }
     });
 
-    const targetSymbol = dbStock?dbStock.symbol.toUpperCase():symbol.toUpperCase();
+    const targetSymbol = dbStock ? dbStock.symbol.toUpperCase() : symbol.toUpperCase();
     const targetStock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
 
     if (!targetStock) {

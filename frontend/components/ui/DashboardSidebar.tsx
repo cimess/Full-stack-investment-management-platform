@@ -36,6 +36,7 @@ interface NavItem {
 const clientNav: NavItem[] = [
   { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client/overview', dataTour: 'sidebar-overview' },
   { label: 'Portfolio', icon: <TrendingUp className="w-5 h-5" />, path: '/dashboard/client/portfolio', dataTour: 'sidebar-portfolio' },
+  { label: 'Watchlist', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/client/watchlist', dataTour: 'sidebar-watchlist' },
   { label: 'Transactions', icon: <ArrowLeftRight className="w-5 h-5" />, path: '/dashboard/client/transactions', dataTour: 'sidebar-transactions' },
   { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/client/market', dataTour: 'sidebar-market' },
   { label: 'My Manager', icon: <UserCheck className="w-5 h-5" />, path: '/dashboard/client/manager', dataTour: 'sidebar-manager' },
@@ -45,6 +46,7 @@ const clientNav: NavItem[] = [
 
 const managerNav: NavItem[] = [
   { label: 'Overview', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager/overview', dataTour: 'sidebar-overview' },
+  { label: 'Watchlist', icon: <LayoutDashboard className="w-5 h-5" />, path: '/dashboard/manager/watchlist', dataTour: 'sidebar-watchlist' },
   { label: 'My Clients', icon: <Users className="w-5 h-5" />, path: '/dashboard/manager/clients', dataTour: 'sidebar-clients' },
   { label: 'Requests', icon: <Briefcase className="w-5 h-5" />, path: '/dashboard/manager/requests', dataTour: 'sidebar-requests' },
   { label: 'Market', icon: <BarChart3 className="w-5 h-5" />, path: '/dashboard/manager/market', dataTour: 'sidebar-market' },

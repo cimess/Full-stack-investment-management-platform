@@ -97,7 +97,7 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
             {role === "MANAGER" ? "Total Manager Slots" : "Total Portfolio"}
           </h2>
           <div className="text-sm md:text-lg font-bold text-white tracking-tighter font-mono" data-tour={role === "CLIENT" ? "topbar-portfolio-value" : role === "MANAGER" ? "topbar-manager-slots" : role === "ADMIN" ? "topbar-admin-slots" : null}>
-            {role === "MANAGER" ? `Manager Slots: ` : `portfolio-value: `}
+            {role === "MANAGER" ? `Manager Slots: ` : `Assets Value: `}
             <span className="">
               {role === "CLIENT"
                 ? `$${Number(portfolioValue).toLocaleString()}`
@@ -112,15 +112,6 @@ const TopBar: React.FC<TopBarProps> = ({ pageTitle, userName = 'User', onToggleS
 
       {/* Right Controls */}
       <div className="flex items-center gap-2 sm:gap-4">
-        {/* Search */}
-        <div className="relative hidden md:block">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" strokeWidth={1.5} />
-          <input
-            type="text"
-            placeholder="Search symbols..."
-            className="bg-white/[0.03] border border-white/10 text-slate-200 placeholder-slate-600 text-xs pl-9 pr-4 py-2 rounded-xl w-48 focus:outline-none focus:border-white/20 focus:bg-white/[0.05] transition-all"
-          />
-        </div>
 
         {/* Notifications */}
         <div className="relative">

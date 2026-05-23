@@ -15,7 +15,6 @@ import {
 import { useGetMarketCategories, useSearchStock, useFetchStockDetails } from '../../../hooks/useQuery';
 import DetailsModal from '../../../components/DetailsModal';
 import { StockCardProps } from '../../../types';
-import { toast, Zoom } from 'react-toastify';
 import { useVirtualizer } from '@tanstack/react-virtual';
 
 type AssetClass = 'equity' | 'digital';

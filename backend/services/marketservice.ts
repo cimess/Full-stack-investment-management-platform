@@ -310,7 +310,6 @@ export const searchStock = async (query: string) => {
       const topSymbols = topResults.map((q: any) => q.symbol).filter(Boolean);
       try {
         const richQuotes = await withRetry(() => yahooFinance.quote(topSymbols));
-        logger.info("this is the one we are interested if it fails", richQuotes)
         const resultsArray = Array.isArray(richQuotes) ? richQuotes : [richQuotes];
         const simplifiedQuotes = resultsArray.map(simplifyQuote).map(mapToPrismaStock);
 
@@ -363,136 +362,219 @@ export const searchStock = async (query: string) => {
 
 export const getStockDetails = async (symbol: string) => {
   const REDIS_KEY = `stock:details:${symbol}`;
+
   try {
-    const cached = await getCache(REDIS_KEY);
-    if (cached) return { success: true, message: "Fetched from Redis", data: JSON.parse(cached) };
-
+    let detailData: any = null;
     const targetSymbol = symbol.toUpperCase();
-    let stock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
 
-    const isCryptoSym = targetSymbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
-    const haveDetails = isCryptoSym
-      ? (stock?.about && stock?.marketCapRank)
-      : (stock?.about && stock?.ceo);
-    const missingKeyStats = !isCryptoSym && stock?.beta === null;
-    const isStale = stock && stock.updatedAt &&
-      (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
+    // 1. Try to get the BASE stock details from cache (No intelligence)
+    const cached = await getCache(REDIS_KEY);
 
-    let intelligence: any = null;
-
-    if (!stock || !haveDetails || isStale || missingKeyStats) {
-      logger.info("am getting from yahoo finance", stock)
-      const [quote, summary, intel] = await Promise.all([
-        withRetry(() => yahooFinance.quote(targetSymbol)),
-        withRetry(() => yahooFinance.quoteSummary(targetSymbol, {
-          modules: ['assetProfile', 'financialData', 'defaultKeyStatistics']
-        })).catch(() => null),
-        getStockIntelligence(targetSymbol) // <-- Grabs live News & Ratings!
-      ]);
-
-      intelligence = intel;
-
-      if (quote) {
-        const simpleQuote = simplifyQuote(quote);
-        const profile = (summary?.assetProfile as any) || {};
-        const financialData = (summary?.financialData as any) || {};
-        const keyStats = (summary?.defaultKeyStatistics as any) || {};
-        logger.info("this is the one we are interested in beta", keyStats.beta)
-
-        const updateData = {
-          ...mapToPrismaStock(simpleQuote),
-          industry: profile.industry || null,
-          sector: profile.sector || null,
-          hq: profile.city ? `${profile.city}, ${profile.country}` : null,
-          ceo: profile.companyOfficers?.[0]?.name || null,
-          about: profile.longBusinessSummary || quote.description || null,
-          website: profile.website || null,
-          marketCapRank: quote.marketCapRank || null,
-          circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
-          maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
-          startDate: quote.startDate ? new Date(quote.startDate) : null,
-          beta: keyStats?.beta ?? null,
-          eps: keyStats?.trailingEps ?? keyStats?.forwardEps ?? null,
-
-          forwardPE: keyStats?.forwardPE ?? null,
-          priceToBook: keyStats?.priceToBook ?? null,
-          priceToSales: financialData?.revenuePerShare && financialData?.currentPrice
-            ? (financialData.currentPrice / financialData.revenuePerShare) : null,
-          enterpriseValue: keyStats?.enterpriseValue ?? null,
-          ebitda: financialData?.ebitda ?? null,
-          grossMargin: financialData?.grossMargins ?? null,
-          operatingMargin: financialData?.operatingMargins ?? null,
-          profitMargin: financialData?.profitMargins ?? null,
-          returnOnEquity: financialData?.returnOnEquity ?? null,
-          returnOnAssets: financialData?.returnOnAssets ?? null,
-          currentRatio: financialData?.currentRatio ?? null,
-          debtToEquity: financialData?.debtToEquity ?? null,
-          freeCashflow: financialData?.freeCashflow ?? null,
-        };
-
-        stock = await prisma.stockTable.upsert({
-          where: { symbol: targetSymbol },
-          update: updateData,
-          create: { ...updateData as any, symbol: targetSymbol }
-        }) as any;
-      }
+    if (cached) {
+      detailData = JSON.parse(cached);
     } else {
-      // Data is fresh in DB, but always fetch fresh news/ratings
-      intelligence = await getStockIntelligence(targetSymbol);
+      // 2. Cache Miss: Fetch from DB / Yahoo Finance
+      let stock = await prisma.stockTable.findUnique({ where: { symbol: targetSymbol } });
+
+      const isCryptoSym = targetSymbol.endsWith('-USD') || stock?.assetType === 'CRYPTOCURRENCY';
+      const haveDetails = isCryptoSym
+        ? (stock?.about && stock?.marketCapRank)
+        : (stock?.about && stock?.ceo);
+      const missingKeyStats = !isCryptoSym && stock?.beta === null;
+      const isStale = stock && stock.updatedAt &&
+        (new Date().getTime() - new Date(stock.updatedAt).getTime() > 24 * 60 * 60 * 1000);
+
+      if (!stock || !haveDetails || isStale || missingKeyStats) {
+        logger.info("Fetching fresh details from Yahoo Finance", stock);
+
+        const [quote, summary] = await Promise.all([
+          withRetry(() => yahooFinance.quote(targetSymbol)),
+          withRetry(() => yahooFinance.quoteSummary(targetSymbol, {
+            modules: ['assetProfile', 'financialData', 'defaultKeyStatistics']
+          })).catch(() => null),
+        ]);
+
+        if (quote) {
+          const simpleQuote = simplifyQuote(quote);
+          const profile = (summary?.assetProfile as any) || {};
+          const financialData = (summary?.financialData as any) || {};
+          const keyStats = (summary?.defaultKeyStatistics as any) || {};
+
+          const currentPrice = simpleQuote.price || 0;
+          const targetPrice = financialData?.targetMeanPrice ?? null;
+
+          // --- ADVANCED INTRINSIC VALUE CALCULATION (Simplified DCF) ---
+          let calculatedIntrinsic = null;
+          const fcfBytes = financialData?.freeCashflow ?? financialData?.operatingCashflow;
+          const sharesOut = quote?.sharesOutstanding || keyStats?.sharesOutstanding;
+
+          if (!isCryptoSym && fcfBytes && sharesOut && sharesOut > 0) {
+            const fcfPerShare = fcfBytes / sharesOut;
+            const baseGrowth = financialData?.revenueGrowth ?? financialData?.earningsGrowth ?? 0.04;
+
+            let initialGrowthRate = Math.min(
+              Math.max(baseGrowth, 0.02),
+              0.15
+            );
+
+            if (financialData?.profitMargins < 0) {
+              initialGrowthRate = Math.min(initialGrowthRate, 0.08);
+            }
+
+            const stockBeta = Math.min(Math.max(keyStats?.beta ?? 1.0, 0.8), 2.5);
+            const riskFreeRate = 0.04;
+            const marketPremium = 0.05;
+            const discountRate = riskFreeRate + (stockBeta * marketPremium);
+
+            const safeDiscountRate = Math.max(discountRate, 0.07);
+            const terminalGrowth = 0.02;
+
+            if (safeDiscountRate > terminalGrowth + 0.01) {
+              let presentValueOfFutureCashFlows = 0;
+              let projectedFCF = fcfPerShare;
+
+              for (let year = 1; year <= 10; year++) {
+                const currentYearGrowth = initialGrowthRate - ((initialGrowthRate - terminalGrowth) * ((year - 1) / 9));
+                projectedFCF *= (1 + currentYearGrowth);
+                presentValueOfFutureCashFlows += projectedFCF / Math.pow((1 + safeDiscountRate), year);
+              }
+
+              const terminalValue = (projectedFCF * (1 + terminalGrowth)) / (safeDiscountRate - terminalGrowth);
+              const presentValueOfTerminalValue = terminalValue / Math.pow((1 + safeDiscountRate), 10);
+
+              const finalValue = presentValueOfFutureCashFlows + presentValueOfTerminalValue;
+
+              if (Number.isFinite(finalValue) && finalValue > 0) {
+                calculatedIntrinsic = Number(finalValue.toFixed(2));
+              }
+            }
+          }
+
+          let upsidePercentage = null;
+          if (targetPrice && currentPrice > 0) {
+            upsidePercentage = Number((((targetPrice - currentPrice) / currentPrice) * 100).toFixed(2));
+          }
+
+          const updateData = {
+            ...mapToPrismaStock(simpleQuote),
+            industry: profile.industry || null,
+            sector: profile.sector || null,
+            hq: profile.city ? `${profile.city}, ${profile.country}` : null,
+            ceo: profile.companyOfficers?.[0]?.name || null,
+            about: profile.longBusinessSummary || quote.description || null,
+            website: profile.website || null,
+            marketCapRank: quote.marketCapRank || null,
+            circulatingSupply: quote.circulatingSupply ? BigInt(Math.floor(quote.circulatingSupply)) : null,
+            maxSupply: quote.maxSupply ? BigInt(Math.floor(quote.maxSupply)) : null,
+            startDate: quote.startDate ? new Date(quote.startDate) : null,
+            beta: keyStats?.beta ?? null,
+            eps: keyStats?.trailingEps ?? keyStats?.forwardEps ?? null,
+            forwardPE: keyStats?.forwardPE ?? null,
+            priceToBook: keyStats?.priceToBook ?? null,
+            priceToSales: financialData?.revenuePerShare && financialData?.currentPrice
+              ? (financialData.currentPrice / financialData.revenuePerShare) : null,
+            enterpriseValue: keyStats?.enterpriseValue ?? null,
+            ebitda: financialData?.ebitda ?? null,
+            grossMargin: financialData?.grossMargins ?? null,
+            operatingMargin: financialData?.operatingMargins ?? null,
+            profitMargin: financialData?.profitMargins ?? null,
+            returnOnEquity: financialData?.returnOnEquity ?? null,
+            returnOnAssets: financialData?.returnOnAssets ?? null,
+            currentRatio: financialData?.currentRatio ?? null,
+            debtToEquity: financialData?.debtToEquity ?? null,
+            freeCashflow: financialData?.freeCashflow ?? null,
+            intrinsicValue: calculatedIntrinsic,
+            wallStTarget: targetPrice,
+            targetUpside: upsidePercentage,
+          };
+
+          stock = await prisma.stockTable.upsert({
+            where: { symbol: targetSymbol },
+            update: updateData,
+            create: { ...updateData as any, symbol: targetSymbol }
+          }) as any;
+        }
+      }
+
+      if (!stock) throw new Error("Stock not found");
+
+      // Build out the details payload (excluding intelligence)
+      const simpleQuote = simplifyQuote(stock);
+
+      const iv = stock.intrinsicValue ? Number(stock.intrinsicValue) : null;
+      const price = Number(stock.price);
+
+      let buyPrice = null;
+      let buyLabel = 'N/A';
+      let intrinsicValuation = 'N/A';
+
+      if (iv && iv > 0) {
+        buyPrice = iv * 0.8;
+        const discountPercent = ((iv - price) / iv) * 100;
+
+        if (price <= buyPrice) {
+          buyLabel = `${Math.abs(discountPercent).toFixed(0)}% Discount (Buy Zone)`;
+          intrinsicValuation = 'Undervalued';
+        } else if (price < iv) {
+          buyLabel = 'Near Fair Value';
+          intrinsicValuation = `${Math.abs(discountPercent).toFixed(0)}% Discount`;
+        } else {
+          buyLabel = 'Wait';
+          intrinsicValuation = `${Math.abs(discountPercent).toFixed(0)}% Overvalued`;
+        }
+      }
+
+      detailData = {
+        ...simpleQuote,
+        about: stock.about || `Information for ${stock.company} is currently being updated.`,
+        website: stock.website || 'N/A',
+        hq: stock.hq || (simpleQuote.isCrypto ? 'Global' : 'N/A'),
+        marketCap: formatCompactNumber(Number(stock.marketCap || 0), stock.currency),
+        volume: formatCompactNumber(Number(stock.volume || 0)),
+        peRatio: stock.peRatio ? Number(stock.peRatio).toFixed(2) : 'N/A',
+        dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
+        fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
+        fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
+        open: stock.open ? formatCurrency(Number(stock.open), stock.currency) : 'N/A',
+        previousClose: stock.previousClose ? formatCurrency(Number(stock.previousClose), stock.currency) : 'N/A',
+        eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
+        beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
+        enterpriseValue: stock.enterpriseValue ? formatCompactNumber(Number(stock.enterpriseValue), stock.currency) : 'N/A',
+        ebitda: stock.ebitda ? formatCompactNumber(Number(stock.ebitda), stock.currency) : 'N/A',
+        freeCashflow: stock.freeCashflow ? formatCompactNumber(Number(stock.freeCashflow), stock.currency) : 'N/A',
+        profitMargin: stock.profitMargin ? (Number(stock.profitMargin) * 100).toFixed(2) + '%' : 'N/A',
+        operatingMargin: stock.operatingMargin ? (Number(stock.operatingMargin) * 100).toFixed(2) + '%' : 'N/A',
+        circulatingSupply: simpleQuote.isCrypto && stock.circulatingSupply ? formatCompactNumber(Number(stock.circulatingSupply)) : 'N/A',
+        maxSupply: simpleQuote.isCrypto && stock.maxSupply ? formatCompactNumber(Number(stock.maxSupply)) : 'N/A',
+        financialSummary: simpleQuote.isCrypto ? `${stock.symbol} is a decentralized asset.` : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}`,
+
+        // NEW DCF EXPORTS
+        intrinsicValue: iv ? formatCurrency(iv, stock.currency) : 'N/A',
+        intrinsicValuation: intrinsicValuation,
+        buyPrice: buyPrice ? formatCurrency(buyPrice, stock.currency) : 'N/A',
+        buyLabel: buyLabel,
+        wallStTarget: stock.wallStTarget ? formatCurrency(Number(stock.wallStTarget), stock.currency) : 'N/A',
+        wallStUpside: stock.targetUpside ? `${(Number(stock.targetUpside) * 100).toFixed(1)}% Upside` : 'N/A',
+      };
+
+      // Cache the BASE details for 10 minutes (600s)
+      await setCache(REDIS_KEY, JSON.stringify(detailData), 600);
     }
 
-    if (!stock) throw new Error("Stock not found");
+    // 3. SEPARATE CACHE: ALWAYS fetch intelligence! 
+    // (Notice how `getStockIntelligence` handles its own Redis inside the function)
+    const intelligence = await getStockIntelligence(targetSymbol);
 
-    // Use the formatter to get consistent base fields (type, ceo/rank, industry, etc.)
-    const simpleQuote = simplifyQuote(stock);
+    // 4. Merge at response time!
+    detailData.intelligence = intelligence;
 
-    const detailData = {
-      ...simpleQuote,
-      // Metadata & Bio
-      about: stock.about || `Information for ${stock.company} is currently being updated.`,
-      website: stock.website || 'N/A',
-      hq: stock.hq || (simpleQuote.isCrypto ? 'Global' : 'N/A'),
-
-      // Formatted Stats for Frontend
-      marketCap: formatCompactNumber(Number(stock.marketCap || 0), stock.currency),
-      volume: formatCompactNumber(Number(stock.volume || 0)),
-      peRatio: stock.peRatio ? Number(stock.peRatio).toFixed(2) : 'N/A',
-      dividendYield: stock.dividendYield ? (Number(stock.dividendYield) * 100).toFixed(2) + '%' : 'N/A',
-      fiftyTwoWeekHigh: formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency),
-      fiftyTwoWeekLow: formatCurrency(Number(stock.fiftyTwoWeekLow || 0), stock.currency),
-      open: stock.open ? formatCurrency(Number(stock.open), stock.currency) : 'N/A',
-      previousClose: stock.previousClose ? formatCurrency(Number(stock.previousClose), stock.currency) : 'N/A',
-
-      // Institutional metrics
-      eps: stock.eps ? Number(stock.eps).toFixed(2) : 'N/A',
-      beta: stock.beta ? Number(stock.beta).toFixed(2) : 'N/A',
-      enterpriseValue: stock.enterpriseValue ? formatCompactNumber(Number(stock.enterpriseValue), stock.currency) : 'N/A',
-      ebitda: stock.ebitda ? formatCompactNumber(Number(stock.ebitda), stock.currency) : 'N/A',
-      freeCashflow: stock.freeCashflow ? formatCompactNumber(Number(stock.freeCashflow), stock.currency) : 'N/A',
-      profitMargin: stock.profitMargin ? (Number(stock.profitMargin) * 100).toFixed(2) + '%' : 'N/A',
-      operatingMargin: stock.operatingMargin ? (Number(stock.operatingMargin) * 100).toFixed(2) + '%' : 'N/A',
-
-      circulatingSupply: simpleQuote.isCrypto && stock.circulatingSupply
-        ? formatCompactNumber(Number(stock.circulatingSupply))
-        : 'N/A',
-      maxSupply: simpleQuote.isCrypto && stock.maxSupply
-        ? formatCompactNumber(Number(stock.maxSupply))
-        : 'N/A',
-      financialSummary: simpleQuote.isCrypto
-        ? `${stock.symbol} is a decentralized asset currently ranked #${stock.marketCapRank || 'N/A'} by market cap.`
-        : `Currently trading at ${formatCurrency(Number(stock.price), stock.currency)}, ${stock.company} has a 52-week range of 
-        ${formatCurrency(Number(stock.fiftyTwoWeekLow || 0),
-          stock.currency)} - ${formatCurrency(Number(stock.fiftyTwoWeekHigh || 0), stock.currency)}.`,
-      intelligence
-    };
-
-    await setCache(REDIS_KEY, JSON.stringify(detailData), 600);
     return { success: true, data: detailData };
   } catch (error: any) {
     logger.error(`Detail fetch failed for ${symbol}:`, error);
     return { success: false, message: error.message };
   }
 }
+
 
 
 

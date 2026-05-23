@@ -67,6 +67,8 @@ model User {
 
   reportsSubmitted SystemReport[] @relation("reporter")
 
+  watchlist Watchlist[] @relation("user_watchlist")
+
   // --- Analytics Fields ---
   analyticsConsent Boolean        @default(true)
   sessions         UserSession[]  @relation("user_sessions")
@@ -130,6 +132,11 @@ model StockTable {
   ebitda            BigInt?  
   returnOnAssets    Decimal?  @db.Decimal(10, 4)
   freeCashflow      BigInt? 
+
+    // --- Valuation & Targets (New Fields) ---
+  intrinsicValue    Decimal?  @db.Decimal(10, 2) 
+  wallStTarget      Decimal?  @db.Decimal(10, 2) 
+  targetUpside      Decimal?  @db.Decimal(8, 4) 
 
   // Storage for 4-year trends (Revenue, Net Income, etc.)
   historicalAnalytics Json?
@@ -398,3 +405,16 @@ model UserFeedback {
   @@index([userId])
   @@index([triggerContext])
 }
+
+model Watchlist {
+  id        String   @id @default(cuid())
+  user      User     @relation("user_watchlist", fields: [userId], references: [id], onDelete: Cascade)
+  userId    String
+  symbol    String
+  name      String   // Storing the name so we don't have to fetch details just to show the list
+  createdAt DateTime @default(now())
+
+  @@unique([userId, symbol]) // Prevents duplicate entries for the same stock
+  @@index([userId])
+}
+
