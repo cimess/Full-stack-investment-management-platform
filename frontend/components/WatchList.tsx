@@ -145,11 +145,10 @@ export default function Watchlist() {
         name: stock.company || stock.name
       });
       toast.success(res.data.message);
-      setWatchlist(prev => [...prev, res.data.stock]);
+      setStockChange(prev => !prev);
     } catch (error) {
       toast.error(error.response.data.message)
     } finally {
-      setStockChange(false);
       setLoading(false);
     }
   };
@@ -179,28 +178,42 @@ export default function Watchlist() {
       return { topGainer: null, topLoser: null, topOpportunity: null };
     }
 
-    const gainer = [...watchlist].reduce((prev, current) =>
-      (Number(prev.changePercent) > Number(current.changePercent)) ? prev : current
-    );
+    // Top Gainer Fix
+    const gainer = [...watchlist].reduce((prev, current) => {
+      const p = Number(prev.changePercent) || -10000; // fallback to huge negative number if missing
+      const c = Number(current.changePercent) || -10000;
+      return p > c ? prev : current;
+    });
 
-    let loser: any = [...watchlist].reduce((prev, current) =>
-      (Number(prev.changePercent) < Number(current.changePercent)) ? prev : current
-    );
+    // Top Loser Fix
+    let loser: any = [...watchlist].reduce((prev, current) => {
+      const p = Number(prev.changePercent) || 10000; // fallback to huge positive number if missing
+      const c = Number(current.changePercent) || 10000;
+      return p < c ? prev : current;
+    });
 
-    // If the top loser has the same or higher percent than the gainer, it's not a real loser
-    if (gainer && loser && Number(loser.changePercent) >= Number(gainer.changePercent)) {
+    // Prevent topGainer and topLoser from being the same
+    // Only show loser if change is actually negative or strictly less than gainer
+    const gainerChange = Number(gainer.changePercent) || 0;
+    const loserChange = Number(loser?.changePercent) || 0;
+    if (gainer.symbol === loser?.symbol || loserChange >= gainerChange) {
       loser = null;
     }
 
-    // Try to find the stock with the best upside percentage or fallback to a buy zone
+    // Top Opportunity Fix
     const opp = [...watchlist].reduce((prev, current) => {
-      const prevUpside = parseFloat(prev?.wallStUpside || '0');
-      const currUpside = parseFloat(current?.wallStUpside || '0');
-      return (currUpside > prevUpside) ? current : prev;
+      let p = parseFloat(prev?.wallStUpside);
+      if (isNaN(p)) p = -10000; // Treat "N/A" as the worst possible
+      
+      let c = parseFloat(current?.wallStUpside);
+      if (isNaN(c)) c = -10000;
+      
+      return c > p ? current : prev;
     });
 
     return { topGainer: gainer, topLoser: loser, topOpportunity: opp };
-  }, [watchlist]); // Important: changed from featuredStocks to watchlist
+  }, [watchlist]);
+
 
   const tooltipFormatter = (value: any) => {
     const num = Number(value);
@@ -212,14 +225,16 @@ export default function Watchlist() {
     <div className="w-full   bg-from-to-br from-gray-900 to-black rounded-2xl shadow-sm border border-gray-900 overflow-hidden">
 
       {/* Header Section */}
-      <div className="p-6 border-b border-gray-200 dark:border-gray-800">
+      <div className="p-6  border-gray-800">
         <h2 className="text-2xl font-bold text-center">Your Investment Radar</h2>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">Detailed valuation and tracking for your Watchlist.</p>
+        <p className="text-sm text-gray-400 mt-1">Detailed valuation and tracking for your Watchlist.</p>
       </div>
 
       {/* Highlights Section (Gainers / Buy Zone) */}
       {/* Highlights Section (Gainers / Buy Zone) */}
-      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x border-b border-gray-200 dark:border-gray-800 divide-gray-200 dark:divide-gray-800 bg-gray-50 dark:bg-gray-800/50">
+      <div className="grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x 
+       border-gray-800 divide-gray-200 divide-gray-800 
+      bg-gray-50 bg-gray-800/50">
 
         {/* TOP OPPORTUNITY */}
         <div className="p-6">
@@ -227,7 +242,7 @@ export default function Watchlist() {
           {topOpportunity ? (
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold dark:text-white text-lg truncate max-w-[150px]" title={topOpportunity.name}>
+                <p className="font-bold text-white text-lg truncate max-w-[150px]" title={topOpportunity.name}>
                   {topOpportunity.company || topOpportunity.name}
                 </p>
                 <p className="text-xs text-gray-500">{topOpportunity?.buyLabel}</p>
@@ -247,7 +262,7 @@ export default function Watchlist() {
           {topGainer ? (
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold dark:text-white text-lg">{topGainer.symbol}</p>
+                <p className="font-bold text-white text-lg">{topGainer.symbol}</p>
                 <p className="text-xs text-gray-500">{topGainer.price} USD</p>
               </div>
               <span className={`font-bold px-3 py-1 rounded-lg ${topGainer.changePercent >= 0 ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}`}>
@@ -265,7 +280,7 @@ export default function Watchlist() {
           {topLoser ? (
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-bold dark:text-white text-lg">{topLoser.symbol}</p>
+                <p className="font-bold text-white text-lg">{topLoser.symbol}</p>
                 <p className="text-xs text-gray-500">{topLoser.price} USD</p>
               </div>
               <span className={`font-bold px-3 py-1 rounded-lg ${topLoser.changePercent > 0 ? 'text-green-500 bg-green-500/10' : 'text-red-500 bg-red-500/10'}`}>
@@ -284,7 +299,7 @@ export default function Watchlist() {
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse">
           <thead>
-            <tr className="bg-gray-50 dark:bg-gray-800/80 text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 border-b border-gray-200 dark:border-gray-800">
+            <tr className="bg-gray-50 bg-gray-800/80 text-xs uppercase tracking-wider text-gray-400  border-gray-800">
               <th className="p-4 font-semibold pb-3 pl-6">Symbol</th>
               <th className="p-4 font-semibold pb-3 w-32">Price Performance (7D)</th>
               <th className="p-4 font-semibold pb-3 text-right">Last Price</th>
@@ -294,7 +309,7 @@ export default function Watchlist() {
               <th className="p-4 font-semibold pb-3 pr-6 text-center">Action</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+          <tbody className="divide-y divide-gray-100 divide-gray-800">
             {watchlist?.length === 0 ? (
               <tr>
                 <td colSpan={7} className="p-8 text-center text-gray-500 italic">
@@ -302,11 +317,11 @@ export default function Watchlist() {
                 </td>
               </tr>
             ) : watchlist.map((stock) => (
-              <tr key={stock?.symbol} className="hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors group">
+              <tr key={stock?.symbol} className="hover:bg-gray-50 hover:bg-gray-800/50 transition-colors group">
 
                 {/* Company Name & Symbol */}
                 <td className="p-4 pl-6">
-                  <div className="font-bold text-gray-900 dark:text-white text-base">{stock?.name || stock?.company}</div>
+                  <div className="font-bold text-gray-900 text-white text-base">{stock?.name || stock?.company}</div>
                   <div className="text-sm text-gray-500 font-medium">{stock?.symbol}</div>
                 </td>
 
@@ -346,7 +361,7 @@ export default function Watchlist() {
 
                 {/* Last Price */}
                 <td className="p-4 text-right">
-                  <div className="font-bold text-gray-900 dark:text-white">{stock?.price} USD</div>
+                  <div className="font-bold text-gray-900 text-white">{stock?.price} USD</div>
                   <div className={`text-sm font-semibold ${stock?.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {stock?.changePercent >= 0 ? '+' : ''}{stock?.changePercent}%
                   </div>
@@ -354,7 +369,7 @@ export default function Watchlist() {
 
                 {/* Buy Price */}
                 <td className="p-4 text-right">
-                  <div className="font-bold text-gray-900 dark:text-white">{stock?.buyPrice?.toFixed(2) || 'N/A'} USD</div>
+                  <div className="font-bold text-white">{stock?.buyPrice?.toFixed(2) || 'N/A'} USD</div>
                   <div className={`text-sm ${stock?.buyLabel?.includes('Premium') ? 'text-red-500' : 'text-green-500'}`}>
                     {stock?.buyLabel || 'Evaluating'}
                   </div>
@@ -362,7 +377,7 @@ export default function Watchlist() {
 
                 {/* Intrinsic Value */}
                 <td className="p-4 text-right">
-                  <div className="font-bold text-gray-900 dark:text-white">{stock?.intrinsicValue || 'N/A'} USD</div>
+                  <div className="font-bold  text-white">{stock?.intrinsicValue || 'N/A'} USD</div>
                   <div className={`text-sm ${stock?.intrinsicValuation?.includes('Overvalued') ? 'text-red-500' : 'text-green-500'}`}>
                     {stock?.intrinsicValuation || 'Calculating...'}
                   </div>
@@ -370,7 +385,7 @@ export default function Watchlist() {
 
                 {/* Wall St Target */}
                 <td className="p-4 text-right">
-                  <div className="font-bold text-gray-900 dark:text-white">{stock?.wallStTarget || 'N/A'} USD</div>
+                  <div className="font-bold text-white">{stock?.wallStTarget || 'N/A'} USD</div>
                   <div className="text-sm font-medium text-blue-500">
                     {stock?.wallStUpside || 'N/A'}
                   </div>
@@ -396,7 +411,7 @@ export default function Watchlist() {
       </div>
 
       {/* Featured Stocks Discovery Section */}
-      <div className="p-8 bg-gray-50/50 dark:bg-gray-900/30 border-t border-gray-200 dark:border-gray-800">
+      <div className="p-8 bg-gray-900/30 border-t border-gray-800">
         <h3 className="text-lg font-bold mb-6 flex items-center gap-2">
           <span className="p-1.5 bg-blue-500/10 text-blue-500 rounded-lg">
             <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -409,16 +424,16 @@ export default function Watchlist() {
           {featuredStocks.slice(0, 10).map((stock) => {
             const inWatchlist = watchlist.some(s => s.symbol === stock.symbol);
             return (
-              <div key={stock.symbol} className="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+              <div key={stock.symbol} className="bg-white bg-gray-800 p-4 rounded-xl border border-gray-100 border-gray-700 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
                 <div className="flex justify-between items-start mb-2">
-                  <span className="font-bold text-gray-900 dark:text-white">{stock.symbol}</span>
+                  <span className="font-bold text-gray-900 text-white">{stock.symbol}</span>
                   <span className={`text-xs font-bold ${stock.changePercent >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                     {stock.changePercent >= 0 ? '+' : ''}{stock.changePercent}%
                   </span>
                 </div>
-                <p className="text-xs text-gray-500 dark:text-gray-400 truncate mb-4">{stock.company || stock.name}</p>
+                <p className="text-xs text-gray-400 truncate mb-4">{stock.company || stock.name}</p>
                 <div className="flex justify-between items-end">
-                  <div className="text-sm font-bold opacity-0 group-hover:opacity-100 transition-opacity">
+                  <div className="text-sm font-bold lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
                     {stock.price} USD
                   </div>
                   <button
