@@ -25,7 +25,7 @@ import { getAIInsightsController } from "../controller/aiController.js";
 import { createReport, getAllReports, updateReportStatus, deleteReport } from "../controller/reportController.js";
 import { trackFrontendEvent, submitFeedback, getAnalyticsOverview } from "../controller/analytics.js";
 import { handleContactUs } from "../controller/generalController.js";
-
+import { getPublishedPosts, getPostBySlug, getAllPostsAdmin, createPost, updatePost, deletePost } from "../controller/blog.js";
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
@@ -151,5 +151,17 @@ router.get("/watchlist/featured", verifyToken, authorise([Roles.USER, Roles.MANA
 router.get("/watchlist", verifyToken, authorise([Roles.USER, Roles.MANAGER]), getWatchlist);
 router.post("/watchlist/add", verifyToken, authorise([Roles.USER, Roles.MANAGER]), addToWatchlist);
 router.delete("/watchlist/remove", verifyToken, authorise([Roles.USER, Roles.MANAGER]), removeFromWatchlist);
+
+// ─── Blog Routes ───────────────────────────────
+// Public routes
+router.get("/blog/posts", getPublishedPosts);
+router.get("/blog/posts/slug", getPostBySlug);
+
+// Admin-only routes
+router.get("/blog/admin/posts", verifyToken, authorise([Roles.ADMIN]), getAllPostsAdmin);
+router.post("/blog/admin/posts", verifyToken, authorise([Roles.ADMIN]), createPost);
+router.put("/blog/admin/posts", verifyToken, authorise([Roles.ADMIN]), updatePost);
+router.delete("/blog/admin/posts", verifyToken, authorise([Roles.ADMIN]), deletePost);
+
 
 export default router;

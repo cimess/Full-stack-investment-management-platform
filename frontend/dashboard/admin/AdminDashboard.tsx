@@ -22,6 +22,7 @@ import AnalyticsView from './views/AnalyticsView';
 import { logout } from '../../hooks/useQuery';
 import { useNavigate } from 'react-router-dom';
 import { useQueryClient } from '@tanstack/react-query';
+import BlogView from './views/BlogView';
 
 const AdminDashboard: React.FC = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -88,6 +89,7 @@ const AdminDashboard: React.FC = () => {
             <Route path="users" element={<UsersView />} />
             <Route path="managers" element={<ManagersView />} />
             <Route path="transactions" element={<TransactionsView />} />
+            <Route path="blog" element={<BlogView />} />
             <Route path="reports" element={<ReportsView />} />
             <Route path="notifications" element={<NotificationsView />} />
             <Route path="analytics" element={<AnalyticsView />} />
